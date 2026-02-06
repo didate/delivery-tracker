@@ -1,0 +1,49 @@
+.layout-container {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+.sidenav-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.sidenav {
+  width: 260px;
+  background-color: #fafafa;
+  border-right: 1px solid rgba(0, 0, 0, 0.12);
+}
+
+.content {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  overflow: auto;
+}
+
+.content-wrapper {
+  padding: 24px;
+  flex: 1;
+}
+
+// Responsive adjustments
+@media (max-width: 768px) {
+  .sidenav {
+    width: 280px;
+  }
+
+  .content-wrapper {
+    padding: 16px;
+  }
+}
+
+// Dark mode support (optional)
+:host-context(.dark-theme) {
+  .sidenav {
+    background-color: #303030;
+    border-right-color: rgba(255, 255, 255, 0.12);
+  }
+}

@@ -1,0 +1,48 @@
+<mat-toolbar color="primary" class="header-toolbar">
+  <button
+    mat-icon-button
+    (click)="onMenuToggle()"
+    aria-label="Toggle navigation menu"
+  >
+    <mat-icon>menu</mat-icon>
+  </button>
+
+  <div class="brand">
+    <span class="tenant-name">{{ tenantName }}</span>
+  </div>
+
+  <span class="spacer"></span>
+
+  <div class="user-section">
+    <span class="user-name">{{ currentUser.name }}</span>
+
+    <button
+      mat-icon-button
+      [matMenuTriggerFor]="userMenu"
+      aria-label="User menu"
+    >
+      <mat-icon>account_circle</mat-icon>
+    </button>
+
+    <mat-menu #userMenu="matMenu" xPosition="before">
+      <div class="menu-header">
+        <div class="menu-user-name">{{ currentUser.name }}</div>
+        <div class="menu-user-email">{{ currentUser.email }}</div>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="onProfile()">
+        <mat-icon>person</mat-icon>
+        <span>Profile</span>
+      </button>
+      <button mat-menu-item (click)="onSettings()">
+        <mat-icon>settings</mat-icon>
+        <span>Settings</span>
+      </button>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="onLogout()">
+        <mat-icon>logout</mat-icon>
+        <span>Logout</span>
+      </button>
+    </mat-menu>
+  </div>
+</mat-toolbar>
