@@ -3,7 +3,7 @@ package com.delivery.tenant.application.dto;
 import lombok.Builder;
 import lombok.Data;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -18,5 +18,5 @@ public class TenantResponse {
     private String address;
     private String logoUrl;
     private boolean active;
-    private LocalDateTime createdAt;
+    private Instant createdDate;
 }

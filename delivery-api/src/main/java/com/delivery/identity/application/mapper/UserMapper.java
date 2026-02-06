@@ -23,7 +23,7 @@ public interface UserMapper {
     @Mapping(target = "role", expression = "java(com.delivery.identity.domain.entity.Role.valueOf(principal.getRole()))")
     @Mapping(target = "active", source = "active")
     @Mapping(target = "lastLogin", ignore = true)
-    @Mapping(target = "createdAt", ignore = true)
-    @Mapping(target = "updatedAt", ignore = true)
+    @Mapping(target = "createdDate", ignore = true)
+    @Mapping(target = "lastModifiedDate", ignore = true)
     UserResponse toResponseFromPrincipal(UserPrincipal principal);
 }

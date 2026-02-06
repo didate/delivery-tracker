@@ -6,6 +6,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.UUID;
 
@@ -22,6 +23,6 @@ public class UserResponse {
     private Role role;
     private boolean active;
     private LocalDateTime lastLogin;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdDate;
+    private Instant lastModifiedDate;
 }

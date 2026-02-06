@@ -25,6 +25,6 @@ public interface ProductRepository extends JpaRepository<Product, UUID> {
     @Query("SELECT COUNT(p) FROM Product p WHERE p.tenantId = :tenantId")
     long countByTenantId(@Param("tenantId") UUID tenantId);
 
-    @Query("SELECT p.code FROM Product p WHERE p.tenantId = :tenantId ORDER BY p.createdAt DESC LIMIT 1")
+    @Query("SELECT p.code FROM Product p WHERE p.tenantId = :tenantId ORDER BY p.createdDate DESC LIMIT 1")
     Optional<String> findLastCodeByTenantId(@Param("tenantId") UUID tenantId);
 }

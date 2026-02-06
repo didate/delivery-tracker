@@ -4,7 +4,7 @@ import lombok.Builder;
 import lombok.Data;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.UUID;
 
 @Data
@@ -17,6 +17,6 @@ public class ProductionSiteResponse {
     private BigDecimal latitude;
     private BigDecimal longitude;
     private boolean active;
-    private LocalDateTime createdAt;
-    private LocalDateTime updatedAt;
+    private Instant createdDate;
+    private Instant lastModifiedDate;
 }
