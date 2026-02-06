@@ -28,7 +28,7 @@ server:
 
 application:
   jwt:
-    secret: ${JWT_SECRET:your-256-bit-secret-key-here-min-32-chars}
+    secret: ${JWT_SECRET:DeliveryAppSecretKeyMustBeAtLeast32CharsLong}
     access-token-expiration: 3600000      # 1 hour
     refresh-token-expiration: 2592000000  # 30 days
 
