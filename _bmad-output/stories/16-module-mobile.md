@@ -1,5 +1,9 @@
 # Module Application Mobile - User Stories
 
+**Note:** L'application mobile fonctionne par defaut en **mode connecte** (temps reel). Le mode hors-ligne est une option activable dans les parametres pour les zones sans couverture internet.
+
+---
+
 ## MOB-001: Authentification mobile
 
 **En tant que** Livreur
@@ -9,11 +13,10 @@
 ### Criteres d'acceptation
 - [ ] Je saisis mon email
 - [ ] Je saisis mon mot de passe
-- [ ] Le systeme verifie les identifiants
+- [ ] Le systeme verifie les identifiants (connexion requise)
 - [ ] Si corrects, je suis redirige vers l'ecran principal
 - [ ] Mes identifiants sont memorises pour les prochaines connexions
 - [ ] Je peux me deconnecter manuellement
-- [ ] La session reste active meme sans connexion internet
 
 ### Securite
 - Token JWT stocke de maniere securisee
@@ -64,36 +67,34 @@
 
 ---
 
-## MOB-003: Enregistrer livraison hors-ligne
+## MOB-003: Enregistrer une livraison (Mode Connecte)
 
 **En tant que** Livreur
-**Je veux** enregistrer une livraison meme sans connexion
-**Afin de** ne pas perdre de donnees sur le terrain
+**Je veux** enregistrer une livraison en temps reel
+**Afin que** les donnees soient immediatement disponibles sur le serveur
 
 ### Criteres d'acceptation
 - [ ] Je selectionne le client (de la tournee ou recherche)
-- [ ] Je vois le solde actuel du client (cache)
+- [ ] Je vois le solde actuel du client (temps reel)
 - [ ] J'ajoute les produits et quantites
 - [ ] Le montant se calcule automatiquement
 - [ ] Je valide la livraison
-- [ ] La livraison est stockee localement
-- [ ] Un indicateur montre "En attente de synchronisation"
-- [ ] Je peux voir la liste des livraisons en attente
+- [ ] La livraison est envoyee immediatement au serveur
+- [ ] Je recois une confirmation de succes
+- [ ] Le solde du client est mis a jour instantanement
+- [ ] Si erreur reseau, un message s'affiche avec option de reessayer
 
-### Donnees stockees localement
-- ID temporaire (UUID)
-- Client (ID et nom)
-- Produits et quantites
-- Montant total
-- Date et heure
-- Statut: PENDING
+### Avantages du mode connecte
+- Solde client toujours a jour
+- Donnees disponibles immediatement pour le gestionnaire
+- Pas de risque de conflits de synchronisation
 
 ### Interface
 ```
 ┌────────────────────────────────────┐
 │ Nouvelle livraison                 │
 │ Client: [Client D]                 │
-│ Solde: 220,000 FCFA ⚠️             │
+│ Solde: 220,000 FCFA ⚠️ (temps reel)│
 ├────────────────────────────────────┤
 │ Produits:                          │
 │ + Lait 1L      x5    5,000 FCFA   │
@@ -109,11 +110,11 @@
 
 ---
 
-## MOB-004: Enregistrer retour hors-ligne
+## MOB-004: Enregistrer un retour (Mode Connecte)
 
 **En tant que** Livreur
-**Je veux** enregistrer un retour meme sans connexion
-**Afin de** documenter les produits non livres
+**Je veux** enregistrer un retour en temps reel
+**Afin que** les donnees soient immediatement disponibles
 
 ### Criteres d'acceptation
 - [ ] Je selectionne le produit retourne
@@ -121,8 +122,8 @@
 - [ ] Je selectionne le motif
 - [ ] Je peux ajouter une description
 - [ ] Je peux optionnellement associer a un client
-- [ ] Le retour est stocke localement
-- [ ] Un indicateur montre "En attente de synchronisation"
+- [ ] Le retour est envoye immediatement au serveur
+- [ ] Je recois une confirmation de succes
 
 ### Interface
 ```
@@ -141,35 +142,47 @@
 
 ---
 
-## MOB-005: Synchronisation automatique
+## MOB-005: Activer le mode hors-ligne (Optionnel)
 
 **En tant que** Livreur
-**Je veux** que mes donnees se synchronisent automatiquement
-**Afin de** ne pas avoir a m'en soucier
+**Je veux** activer le mode hors-ligne si je travaille dans une zone sans internet
+**Afin de** pouvoir enregistrer mes livraisons localement
 
 ### Criteres d'acceptation
-- [ ] La synchronisation demarre quand une connexion est detectee
-- [ ] Les livraisons en attente sont envoyees au serveur
-- [ ] Les retours en attente sont envoyes au serveur
-- [ ] Les nouvelles donnees sont telechargees (clients, produits, prix)
-- [ ] Un indicateur montre l'etat de synchronisation
-- [ ] En cas d'erreur, une notification s'affiche
-- [ ] Je peux forcer une synchronisation manuelle
-- [ ] Le nombre d'elements en attente est visible
+- [ ] Dans les parametres, je peux activer "Mode hors-ligne"
+- [ ] Quand j'active le mode, les donnees necessaires sont telechargees
+- [ ] En mode hors-ligne, les livraisons sont stockees localement
+- [ ] Un indicateur clair montre que je suis en mode hors-ligne
+- [ ] Je peux voir le nombre d'elements en attente de sync
+- [ ] A la reconnexion, la synchronisation demarre automatiquement
+- [ ] Je peux desactiver le mode hors-ligne a tout moment
 
-### Etats de synchronisation
+### Interface Parametres
+```
+┌────────────────────────────────────┐
+│ Parametres                         │
+├────────────────────────────────────┤
+│ Mode hors-ligne          [  OFF  ] │
+│ (Activer si pas d'internet)        │
+│                                    │
+│ Si active:                         │
+│ - Donnees stockees localement      │
+│ - Sync automatique au retour       │
+└────────────────────────────────────┘
+```
+
+### Etats (Mode hors-ligne actif)
 | Etat | Icone | Description |
 |------|-------|-------------|
 | Synchronise | ✓ vert | Tout est a jour |
 | En cours | ↻ bleu | Synchronisation en cours |
-| En attente | ⏳ orange | Elements en attente (X) |
-| Erreur | ⚠️ rouge | Echec de synchronisation |
-| Hors ligne | ✕ gris | Pas de connexion |
+| En attente | ⏳ orange | X elements en attente |
+| Mode hors-ligne | 📴 gris | Mode hors-ligne actif |
 
-### Gestion des conflits
-- Si un client a ete modifie sur le serveur, les nouvelles infos sont telechargees
+### Gestion des conflits (si mode offline)
 - Les livraisons locales sont envoyees avec leur timestamp
-- En cas de doublon detecte, le serveur rejette et notifie
+- En cas de doublon, le serveur rejette et notifie
+- Version serveur prevaut en cas de conflit
 
 ---
 
@@ -255,3 +268,4 @@ Client D - Quartier W
 ---
 
 *Module Application Mobile - 8 stories*
+*Mode connecte par defaut, mode hors-ligne optionnel*

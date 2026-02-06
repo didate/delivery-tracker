@@ -1,12 +1,26 @@
-# Index des User Stories - Application de Gestion de Livraisons
+# Index des User Stories - Plateforme SaaS de Gestion de Livraisons
 
 ## Vue d'Ensemble
 
 Ce document liste toutes les user stories organisees par module. Chaque story est identifiee par un code unique suivant le format: `MOD-XXX` ou MOD est le module et XXX le numero.
 
+**Architecture**: Multi-Tenant SaaS avec isolation par tenant_id
+
 ---
 
 ## Modules et Stories
+
+### Module 0: Gestion Multi-Tenant (TEN)
+| ID | Story | Priorite |
+|----|-------|----------|
+| TEN-001 | Inscription d'une nouvelle entreprise | Haute |
+| TEN-002 | Configuration du profil entreprise | Haute |
+| TEN-003 | Inviter un utilisateur | Haute |
+| TEN-004 | Gerer les utilisateurs du tenant | Haute |
+| TEN-005 | Consulter les statistiques du tenant | Moyenne |
+| TEN-006 | Desactiver le compte entreprise | Basse |
+| TEN-007 | Filtrage automatique par tenant | Haute |
+| TEN-008 | Gestion des parametres du tenant | Moyenne |
 
 ### Module 1: Gestion des Produits (PRD)
 | ID | Story | Priorite |
@@ -149,14 +163,14 @@ Ce document liste toutes les user stories organisees par module. Chaque story es
 | USR-006 | Desactiver un utilisateur | Moyenne |
 | USR-007 | Journal d'audit | Basse |
 
-### Module 15: Application Mobile (MOB)
+### Module 15: Application Mobile (MOB) - Mode Connecte par Defaut
 | ID | Story | Priorite |
 |----|-------|----------|
 | MOB-001 | Authentification mobile | Haute |
 | MOB-002 | Consulter la tournee du jour | Haute |
-| MOB-003 | Enregistrer livraison hors-ligne | Haute |
-| MOB-004 | Enregistrer retour hors-ligne | Haute |
-| MOB-005 | Synchronisation automatique | Haute |
+| MOB-003 | Enregistrer livraison (mode connecte) | Haute |
+| MOB-004 | Enregistrer retour (mode connecte) | Haute |
+| MOB-005 | Activer mode hors-ligne (optionnel) | Moyenne |
 | MOB-006 | Navigation GPS | Moyenne |
 | MOB-007 | Consulter ses statistiques | Basse |
 | MOB-008 | Notifications | Basse |
@@ -176,6 +190,7 @@ Ce document liste toutes les user stories organisees par module. Chaque story es
 
 | Module | Nombre de Stories | Haute Priorite | Moyenne | Basse |
 |--------|-------------------|----------------|---------|-------|
+| **Tenant (SaaS)** | **8** | **5** | **2** | **1** |
 | Products | 5 | 3 | 1 | 1 |
 | Customers | 11 | 5 | 4 | 2 |
 | Drivers | 7 | 3 | 3 | 1 |
@@ -190,15 +205,23 @@ Ce document liste toutes les user stories organisees par module. Chaque story es
 | Dashboard | 5 | 2 | 2 | 1 |
 | Reports | 6 | 4 | 2 | 0 |
 | Users | 7 | 4 | 2 | 1 |
-| Mobile | 8 | 5 | 1 | 2 |
+| Mobile | 8 | 4 | 2 | 2 |
 | System | 5 | 3 | 2 | 0 |
-| **TOTAL** | **98** | **52** | **33** | **13** |
+| **TOTAL** | **106** | **56** | **36** | **14** |
 
 ---
 
 ## Ordre de Developpement Suggere (Sprints)
 
+### Sprint 0 - Infrastructure Multi-Tenant
+- TEN-001 (Inscription entreprise)
+- TEN-002 (Configuration profil)
+- TEN-003 (Invitation utilisateurs)
+- TEN-007 (Filtrage automatique par tenant)
+- TEN-008 (Parametres tenant)
+
 ### Sprint 1 - Fondations
+- TEN-004 (Gestion utilisateurs tenant)
 - USR-001 a USR-004 (Authentification et utilisateurs)
 - PRD-001 a PRD-004 (Produits de base)
 - CLI-001 a CLI-003, CLI-007 (Clients de base)
@@ -234,4 +257,4 @@ Ce document liste toutes les user stories organisees par module. Chaque story es
 ---
 
 *Document BMAD - Index des Stories*
-*Version 1.0*
+*Version 2.0 - Architecture SaaS Multi-Tenant*

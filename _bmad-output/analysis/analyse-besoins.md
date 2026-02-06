@@ -1,10 +1,14 @@
-# Analyse des Besoins - Application de Gestion de Livraisons
+# Analyse des Besoins - Plateforme SaaS de Gestion de Livraisons
 
 ## Résumé du Problème
 
-Le propriétaire d'une entreprise de fabrication de produits (principalement laitiers) a besoin d'une application pour gérer l'ensemble de son activité commerciale. L'entreprise fabrique des produits de différentes tailles avec des prix unitaires variables, dispose d'une base de clients, emploie des livreurs pour distribuer les produits et peut avoir plusieurs points de production.
+Cette application est une **plateforme SaaS multi-tenant** permettant à plusieurs entreprises de fabrication et de livraison de produits (principalement laitiers) de gérer l'ensemble de leur activité commerciale de manière indépendante.
+
+Chaque entreprise qui s'inscrit sur la plateforme (tenant) peut gérer ses produits, clients, livreurs, points de production, livraisons, retours, paiements, dépenses et salaires de manière totalement isolée des autres entreprises.
 
 Le problème principal est l'absence d'un système centralisé permettant de :
+- Permettre à plusieurs entreprises d'utiliser la même plateforme
+- Isoler complètement les données entre entreprises
 - Suivre les livraisons et les retours
 - Gérer la comptabilité client (soldes, plafonds de crédit)
 - Évaluer la performance des livreurs et calculer leurs primes
@@ -17,15 +21,22 @@ Le problème principal est l'absence d'un système centralisé permettant de :
 
 ## Acteurs
 
-### Acteurs Principaux
+### Acteurs Plateforme (SaaS)
 
 | Acteur | Description |
 |--------|-------------|
-| **Propriétaire/Administrateur** | Gère l'ensemble du système, accède à tous les rapports, configure les produits, paramètre les primes et gère les utilisateurs |
+| **Super Administrateur** | Gère la plateforme SaaS globalement, supervise les tenants, accède aux statistiques globales de la plateforme |
+| **Propriétaire d'entreprise (Tenant Owner)** | S'inscrit sur la plateforme, crée son entreprise (tenant), configure son abonnement, devient administrateur de son tenant |
+
+### Acteurs Tenant (Par entreprise)
+
+| Acteur | Description |
+|--------|-------------|
+| **Administrateur Tenant** | Gère son entreprise, accède à tous les rapports, configure les produits, paramètre les primes et gère les utilisateurs de son tenant |
 | **Livreur** | Effectue les livraisons via application mobile (mode hors-ligne), enregistre les livraisons et retours, consulte ses statistiques et primes |
 | **Client** | Reçoit les produits, effectue les paiements (acteur externe, représenté dans le système) |
 
-### Acteurs Secondaires
+### Acteurs Secondaires (Par entreprise)
 
 | Acteur | Description |
 |--------|-------------|
@@ -35,6 +46,16 @@ Le problème principal est l'absence d'un système centralisé permettant de :
 ---
 
 ## Fonctionnalités Principales (Exigences Fonctionnelles)
+
+### 0. Gestion Multi-Tenant (SaaS)
+- F0.1 : Inscription d'une nouvelle entreprise (création de tenant)
+- F0.2 : Configuration du profil entreprise (nom, logo, coordonnées)
+- F0.3 : Isolation complète des données entre tenants
+- F0.4 : Chaque utilisateur est associé à un tenant unique
+- F0.5 : Filtrage automatique des données par tenant_id
+- F0.6 : Le propriétaire du tenant peut inviter d'autres utilisateurs
+- F0.7 : Gestion de l'abonnement (optionnel pour évolution future)
+- F0.8 : Tableau de bord super-admin pour supervision de la plateforme
 
 ### 1. Gestion des Produits
 - F1.1 : Créer, modifier, supprimer un produit
@@ -138,11 +159,12 @@ Le problème principal est l'absence d'un système centralisé permettant de :
 ### 16. Application Mobile Livreur
 - F16.1 : Authentification du livreur
 - F16.2 : Consulter la tournée du jour
-- F16.3 : Enregistrer les livraisons (mode hors-ligne)
-- F16.4 : Enregistrer les retours (mode hors-ligne)
-- F16.5 : Synchronisation automatique quand connexion disponible
-- F16.6 : Visualiser ses statistiques et primes
-- F16.7 : Navigation GPS vers les clients
+- F16.3 : Enregistrer les livraisons (mode connecté par défaut)
+- F16.4 : Enregistrer les retours (mode connecté par défaut)
+- F16.5 : Mode hors-ligne optionnel (activable dans les paramètres)
+- F16.6 : Synchronisation automatique si mode hors-ligne activé
+- F16.7 : Visualiser ses statistiques et primes
+- F16.8 : Navigation GPS vers les clients
 
 ### 17. Fonctionnalités Complémentaires
 - F17.1 : Notifications (rappel de paiement, alerte plafond, synchronisation)
@@ -157,11 +179,15 @@ Le problème principal est l'absence d'un système centralisé permettant de :
 
 | Catégorie | Exigence |
 |-----------|----------|
+| **Multi-Tenant** | Isolation complète des données entre tenants via tenant_id |
 | **Performance** | L'application doit être réactive, temps de réponse < 3 secondes |
+| **Scalabilité** | La plateforme doit supporter plusieurs entreprises simultanément |
 | **Disponibilité** | L'application web doit être accessible 24h/24 |
-| **Hors-ligne** | L'application mobile doit fonctionner sans connexion internet |
-| **Synchronisation** | Synchronisation fiable des données mobile ↔ serveur |
+| **Mode connecté** | L'application mobile fonctionne par défaut en mode connecté (temps réel) |
+| **Hors-ligne (optionnel)** | Mode hors-ligne activable pour les zones sans couverture internet |
+| **Synchronisation** | Synchronisation fiable si mode hors-ligne activé |
 | **Sécurité** | Authentification obligatoire, mots de passe chiffrés, sessions sécurisées |
+| **Isolation** | Un utilisateur ne peut jamais accéder aux données d'un autre tenant |
 | **Ergonomie** | Interface intuitive, application mobile native ou hybride |
 | **Fiabilité** | Intégrité des données financières garantie, gestion des conflits de synchronisation |
 | **Extensibilité** | Architecture permettant l'ajout de nouvelles fonctionnalités |
@@ -173,30 +199,43 @@ Le problème principal est l'absence d'un système centralisé permettant de :
 
 ## Contraintes
 
-1. **Contrainte mobile** : Application mobile obligatoire pour les livreurs avec mode hors-ligne
-2. **Contrainte de synchronisation** : Les données enregistrées hors-ligne doivent se synchroniser sans perte ni doublon
-3. **Contrainte GPS** : Les coordonnées GPS doivent être précises pour la planification et la navigation
-4. **Contrainte financière** : Les calculs de solde, salaires et primes doivent être exacts et vérifiables
-5. **Contrainte de traçabilité** : Toutes les opérations financières doivent être historisées et non supprimables
-6. **Contrainte d'accès** : L'accès aux données doit être contrôlé selon les rôles
-7. **Contrainte multi-sites** : Le système doit gérer plusieurs points de production de manière indépendante
+1. **Contrainte multi-tenant** : Toutes les tables doivent contenir un champ tenant_id pour l'isolation des données
+2. **Contrainte d'isolation** : Chaque requête doit automatiquement filtrer par tenant_id de l'utilisateur connecté
+3. **Contrainte mobile** : Application mobile obligatoire pour les livreurs, mode connecté par défaut
+4. **Contrainte mode connecté** : Par défaut, l'application mobile envoie les données en temps réel au serveur
+5. **Contrainte hors-ligne** : Si le mode hors-ligne est activé, les données doivent se synchroniser sans perte ni doublon
+5. **Contrainte GPS** : Les coordonnées GPS doivent être précises pour la planification et la navigation
+6. **Contrainte financière** : Les calculs de solde, salaires et primes doivent être exacts et vérifiables
+7. **Contrainte de traçabilité** : Toutes les opérations financières doivent être historisées et non supprimables
+8. **Contrainte d'accès** : L'accès aux données doit être contrôlé selon les rôles ET le tenant
+9. **Contrainte multi-sites** : Le système doit gérer plusieurs points de production de manière indépendante par tenant
 
 ---
 
 ## Hypothèses
 
-1. Les clients paient généralement après réception des produits (système de crédit)
-2. Un livreur peut livrer plusieurs clients par jour
-3. Un client peut recevoir plusieurs livraisons avant de payer
-4. Les paiements créditent le compte client globalement (non liés à une livraison spécifique)
-5. Les prix des produits peuvent varier dans le temps
-6. La production est enregistrée quotidiennement par point de production
-7. Les dépenses sont enregistrées manuellement
-8. Les livreurs ont des smartphones Android ou iOS
-9. La connexion internet peut être intermittente sur le terrain
-10. Le calcul du solde client = Total livraisons - Total paiements - Total retours (si crédités)
-11. Chaque produit est défini par sa combinaison type + taille (ex: "Lait 1L", "Lait 500ml")
-12. Les primes sont calculées périodiquement (hebdomadaire ou mensuel)
+### Hypothèses Multi-Tenant
+1. Chaque entreprise qui s'inscrit opère de manière totalement indépendante
+2. Un utilisateur appartient à un seul tenant (pas de multi-tenant par utilisateur)
+3. Le propriétaire d'un tenant peut créer d'autres utilisateurs pour son entreprise
+4. L'isolation par tenant_id est suffisante (pas besoin de schémas séparés)
+5. Les tenants partagent la même infrastructure (base de données, serveurs)
+
+### Hypothèses Métier
+6. Les clients paient généralement après réception des produits (système de crédit)
+7. Un livreur peut livrer plusieurs clients par jour
+8. Un client peut recevoir plusieurs livraisons avant de payer
+9. Les paiements créditent le compte client globalement (non liés à une livraison spécifique)
+10. Les prix des produits peuvent varier dans le temps
+11. La production est enregistrée quotidiennement par point de production
+12. Les dépenses sont enregistrées manuellement
+13. Les livreurs ont des smartphones Android ou iOS
+14. **Les zones de livraison sont généralement couvertes par internet (3G/4G/WiFi)**
+15. **Le mode connecté est le mode de fonctionnement principal de l'application mobile**
+16. **Le mode hors-ligne est une option pour les rares cas de zones non couvertes**
+17. Le calcul du solde client = Total livraisons - Total paiements - Total retours (si crédités)
+18. Chaque produit est défini par sa combinaison type + taille (ex: "Lait 1L", "Lait 500ml")
+19. Les primes sont calculées périodiquement (hebdomadaire ou mensuel)
 
 ---
 
@@ -228,6 +267,8 @@ Stock = Σ(Production) - Σ(Livraisons) + Σ(Retours)
 
 | Terme | Définition |
 |-------|------------|
+| **Tenant** | Entreprise inscrite sur la plateforme SaaS, avec ses propres données isolées |
+| **tenant_id** | Identifiant unique du tenant, présent dans chaque table pour l'isolation |
 | **Livraison** | Acte de remettre des produits à un client, générant une créance |
 | **Retour** | Produits ramenés par le livreur (invendus, périmés, défectueux) |
 | **Paiement** | Somme versée par un client pour régler ses créances (crédit global) |
@@ -246,26 +287,62 @@ Stock = Σ(Production) - Σ(Livraisons) + Σ(Retours)
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│                    APPLICATION WEB                          │
-│         (Administration, Rapports, Tableaux de bord)        │
-│              Utilisateurs: Admin, Gestionnaire, Comptable   │
+│                  PLATEFORME SAAS                            │
+│    ┌─────────────────────────────────────────────────────┐  │
+│    │              APPLICATION WEB                        │  │
+│    │    (Administration, Rapports, Tableaux de bord)     │  │
+│    │    Utilisateurs: Admin Tenant, Gestionnaire, etc.   │  │
+│    └─────────────────────────────────────────────────────┘  │
+│                              │                              │
+│                              ▼                              │
+│    ┌─────────────────────────────────────────────────────┐  │
+│    │              API / SERVEUR                          │  │
+│    │     (Logique métier, Isolation Multi-Tenant)        │  │
+│    │     Filtrage automatique par tenant_id              │  │
+│    └─────────────────────────────────────────────────────┘  │
+│                              │                              │
+│                              ▼                              │
+│    ┌─────────────────────────────────────────────────────┐  │
+│    │              BASE DE DONNÉES                        │  │
+│    │      (Toutes tables avec tenant_id)                 │  │
+│    │  ┌─────────┐  ┌─────────┐  ┌─────────┐             │  │
+│    │  │Tenant A │  │Tenant B │  │Tenant C │  ...        │  │
+│    │  └─────────┘  └─────────┘  └─────────┘             │  │
+│    └─────────────────────────────────────────────────────┘  │
+│                              │                              │
+│                              ▼                              │
+│    ┌─────────────────────────────────────────────────────┐  │
+│    │            APPLICATION MOBILE                       │  │
+│    │   (Livraisons, Retours, Tournées, Mode hors-ligne)  │  │
+│    │            Utilisateurs: Livreurs                   │  │
+│    │          (Données filtrées par tenant)              │  │
+│    └─────────────────────────────────────────────────────┘  │
 └─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                      API / SERVEUR                          │
-│              (Logique métier, Base de données)              │
-└─────────────────────────────────────────────────────────────┘
-                              │
-                              ▼
-┌─────────────────────────────────────────────────────────────┐
-│                   APPLICATION MOBILE                        │
-│         (Livraisons, Retours, Tournées, Mode hors-ligne)    │
-│              Utilisateurs: Livreurs                         │
-└─────────────────────────────────────────────────────────────┘
+```
+
+### Stratégie Multi-Tenant
+
+```
+┌──────────────────────────────────────────────────────────┐
+│                    APPROCHE CHOISIE                      │
+│                                                          │
+│   Isolation par colonne tenant_id (Row-Level Security)   │
+│                                                          │
+│   Avantages:                                             │
+│   - Simple à implémenter                                 │
+│   - Base de données unique                               │
+│   - Maintenance simplifiée                               │
+│   - Coût d'infrastructure réduit                         │
+│                                                          │
+│   Implémentation:                                        │
+│   - Chaque table contient tenant_id (NOT NULL)           │
+│   - Index sur tenant_id pour performance                 │
+│   - Filtrage automatique dans la couche service          │
+│   - JWT contient le tenant_id de l'utilisateur           │
+└──────────────────────────────────────────────────────────┘
 ```
 
 ---
 
-*Document d'analyse BMAD - Version 2.0*
-*Questions ouvertes résolues*
+*Document d'analyse BMAD - Version 3.0*
+*Architecture SaaS Multi-Tenant*

@@ -1,4 +1,116 @@
-# Architecture Technique - Delivery Management System
+# Architecture Technique - Plateforme SaaS Delivery Management System
+
+## 0. Architecture Multi-Tenant
+
+### 0.1 Strategie d'Isolation
+
+L'application utilise une architecture **multi-tenant par colonne** (tenant_id) pour isoler les donnees de chaque entreprise.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                        MULTI-TENANT ARCHITECTURE                             │
+├─────────────────────────────────────────────────────────────────────────────┤
+│                                                                              │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                        API LAYER                                     │   │
+│   │  ┌──────────────────────────────────────────────────────────────┐  │   │
+│   │  │                  TenantFilter                                 │  │   │
+│   │  │  - Extract tenant_id from JWT                                 │  │   │
+│   │  │  - Set TenantContext.currentTenant                           │  │   │
+│   │  └──────────────────────────────────────────────────────────────┘  │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                      SERVICE LAYER                                   │   │
+│   │  ┌──────────────────────────────────────────────────────────────┐  │   │
+│   │  │              TenantAwareService                               │  │   │
+│   │  │  - Inject tenant_id in all queries                           │  │   │
+│   │  │  - Validate tenant ownership on updates                      │  │   │
+│   │  └──────────────────────────────────────────────────────────────┘  │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                    │                                         │
+│   ┌─────────────────────────────────────────────────────────────────────┐   │
+│   │                     REPOSITORY LAYER                                 │   │
+│   │  ┌──────────────────────────────────────────────────────────────┐  │   │
+│   │  │            @TenantFilter annotation                           │  │   │
+│   │  │  - Hibernate filters auto-add WHERE tenant_id = ?            │  │   │
+│   │  └──────────────────────────────────────────────────────────────┘  │   │
+│   └─────────────────────────────────────────────────────────────────────┘   │
+│                                                                              │
+└─────────────────────────────────────────────────────────────────────────────┘
+```
+
+### 0.2 Implementation Spring Boot
+
+```java
+// TenantContext - ThreadLocal storage
+public class TenantContext {
+    private static final ThreadLocal<UUID> currentTenant = new ThreadLocal<>();
+
+    public static UUID getCurrentTenant() {
+        return currentTenant.get();
+    }
+
+    public static void setCurrentTenant(UUID tenantId) {
+        currentTenant.set(tenantId);
+    }
+
+    public static void clear() {
+        currentTenant.remove();
+    }
+}
+
+// TenantFilter - Extract tenant from JWT
+@Component
+public class TenantFilter extends OncePerRequestFilter {
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain filterChain) {
+        String jwt = extractJwt(request);
+        if (jwt != null) {
+            UUID tenantId = extractTenantIdFromJwt(jwt);
+            TenantContext.setCurrentTenant(tenantId);
+        }
+        try {
+            filterChain.doFilter(request, response);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+}
+
+// Base Entity with tenant_id
+@MappedSuperclass
+public abstract class TenantAwareEntity {
+
+    @Column(name = "tenant_id", nullable = false)
+    private UUID tenantId;
+
+    @PrePersist
+    public void prePersist() {
+        if (tenantId == null) {
+            tenantId = TenantContext.getCurrentTenant();
+        }
+    }
+}
+```
+
+### 0.3 JWT Token Structure
+
+```json
+{
+  "sub": "user-uuid",
+  "tenant_id": "tenant-uuid",
+  "email": "user@company.com",
+  "role": "ADMIN",
+  "iat": 1699000000,
+  "exp": 1699003600
+}
+```
+
+---
 
 ## 1. Stack Technologique
 
@@ -68,8 +180,13 @@ L'architecture **Modular Monolith** organise le code par **domaine metier** plut
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
-│                           DELIVERY API                                   │
+│                    DELIVERY API (MULTI-TENANT SAAS)                      │
 ├─────────────────────────────────────────────────────────────────────────┤
+│                                                                          │
+│  ┌─────────────────────────────────────────────────────────────────────┐│
+│  │                          tenant                                      ││
+│  │  - Tenant  - Registration  - Settings  - TenantContext               ││
+│  └─────────────────────────────────────────────────────────────────────┘│
 │                                                                          │
 │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐│
 │  │   identity   │  │   catalog    │  │   customer   │  │    driver    ││
@@ -120,17 +237,47 @@ delivery-api/
 │   │   │   ├── JwtTokenProvider.java
 │   │   │   ├── JwtAuthenticationFilter.java
 │   │   │   └── CurrentUser.java
+│   │   ├── tenant/                      # Multi-tenant infrastructure
+│   │   │   ├── TenantContext.java
+│   │   │   ├── TenantFilter.java
+│   │   │   ├── TenantAwareEntity.java
+│   │   │   └── TenantInterceptor.java
 │   │   ├── exception/
 │   │   │   ├── GlobalExceptionHandler.java
 │   │   │   ├── ResourceNotFoundException.java
 │   │   │   ├── BusinessException.java
-│   │   │   └── UnauthorizedException.java
+│   │   │   ├── UnauthorizedException.java
+│   │   │   └── TenantAccessDeniedException.java
 │   │   ├── event/
 │   │   │   ├── DomainEvent.java
 │   │   │   └── EventPublisher.java
 │   │   └── util/
 │   │       ├── DateUtils.java
 │   │       └── ValidationUtils.java
+│   │
+│   ├── tenant/                          # Module Tenant (SaaS)
+│   │   ├── domain/
+│   │   │   ├── entity/
+│   │   │   │   ├── Tenant.java
+│   │   │   │   └── TenantSettings.java
+│   │   │   ├── repository/
+│   │   │   │   ├── TenantRepository.java
+│   │   │   │   └── TenantSettingsRepository.java
+│   │   │   └── service/
+│   │   │       ├── TenantService.java
+│   │   │       └── TenantRegistrationService.java
+│   │   ├── application/
+│   │   │   ├── dto/
+│   │   │   │   ├── RegisterTenantRequest.java
+│   │   │   │   ├── UpdateTenantRequest.java
+│   │   │   │   ├── TenantResponse.java
+│   │   │   │   ├── TenantStatsResponse.java
+│   │   │   │   └── TenantSettingsRequest.java
+│   │   │   └── mapper/
+│   │   │       └── TenantMapper.java
+│   │   └── api/
+│   │       ├── TenantController.java
+│   │       └── TenantSettingsController.java
 │   │
 │   ├── identity/                        # Module Identity
 │   │   ├── domain/
@@ -387,17 +534,18 @@ delivery-api/
 │   ├── application-dev.yml
 │   ├── application-prod.yml
 │   └── db/migration/
-│       ├── V1__create_identity_tables.sql
-│       ├── V2__create_catalog_tables.sql
-│       ├── V3__create_customer_tables.sql
-│       ├── V4__create_driver_tables.sql
-│       ├── V5__create_delivery_tables.sql
-│       ├── V6__create_payment_tables.sql
-│       ├── V7__create_production_tables.sql
-│       ├── V8__create_expense_tables.sql
-│       ├── V9__create_round_tables.sql
-│       ├── V10__create_payroll_tables.sql
-│       └── V11__seed_data.sql
+│       ├── V1__create_tenant_tables.sql      # Tenants (first!)
+│       ├── V2__create_identity_tables.sql    # Users with tenant_id
+│       ├── V3__create_catalog_tables.sql
+│       ├── V4__create_customer_tables.sql
+│       ├── V5__create_driver_tables.sql
+│       ├── V6__create_delivery_tables.sql
+│       ├── V7__create_payment_tables.sql
+│       ├── V8__create_production_tables.sql
+│       ├── V9__create_expense_tables.sql
+│       ├── V10__create_round_tables.sql
+│       ├── V11__create_payroll_tables.sql
+│       └── V12__seed_data.sql
 │
 ├── src/test/java/com/delivery/
 │   ├── identity/
@@ -594,10 +742,23 @@ public class DeliveryService {
 
 ## 3. API REST Endpoints
 
+### 3.0 Tenant (SaaS)
+| Method | Endpoint | Description |
+|--------|----------|-------------|
+| POST | /api/tenants/register | Register new tenant (public) |
+| GET | /api/tenants/me | Get current tenant info |
+| PUT | /api/tenants/me | Update tenant profile |
+| GET | /api/tenants/me/stats | Get tenant statistics |
+| GET | /api/tenants/me/settings | Get tenant settings |
+| PUT | /api/tenants/me/settings | Update tenant settings |
+| POST | /api/tenants/me/invite | Invite user to tenant |
+| GET | /api/tenants/me/users | List tenant users |
+
 ### 3.1 Authentication
 | Method | Endpoint | Description |
 |--------|----------|-------------|
 | POST | /api/auth/login | Login |
+| POST | /api/auth/register | Register (creates tenant + user) |
 | POST | /api/auth/refresh | Refresh token |
 | POST | /api/auth/logout | Logout |
 
@@ -756,7 +917,9 @@ delivery_mobile/
 │   │   ├── network/
 │   │   │   ├── api_client.dart
 │   │   │   └── api_endpoints.dart
-│   │   └── database/
+│   │   ├── settings/
+│   │   │   └── app_settings.dart        # Offline mode toggle
+│   │   └── offline/                      # Optionnel - si mode offline active
 │   │       ├── database_helper.dart
 │   │       └── sync_manager.dart
 │   ├── data/
@@ -805,10 +968,10 @@ dependencies:
   # State Management
   flutter_riverpod: ^2.4.9
 
-  # HTTP
+  # HTTP (Mode connecte - principal)
   dio: ^5.4.0
 
-  # Local Database
+  # Local Database (Pour mode offline optionnel)
   sqflite: ^2.3.0
   path: ^1.8.3
 
@@ -826,7 +989,7 @@ dependencies:
 
   # Utils
   intl: ^0.18.1
-  connectivity_plus: ^5.0.2
+  connectivity_plus: ^5.0.2  # Pour detecter si offline mode necessaire
 
   # JWT
   jwt_decoder: ^2.0.1
@@ -896,19 +1059,63 @@ volumes:
 - Refresh Token: 30 jours
 - Algorithme: HS512
 
-### 7.2 Roles et Permissions
-| Role | Endpoints autorises |
-|------|---------------------|
-| ADMIN | Tous |
-| MANAGER | Tout sauf /users |
-| ACCOUNTANT | /payments, /expenses, /reports, /salaries |
-| DRIVER | /sync, /rounds/today, /deliveries (POST), /returns (POST) |
+### 7.2 Roles et Permissions (Par Tenant)
+
+| Role | Description | Endpoints autorises |
+|------|-------------|---------------------|
+| OWNER | Proprietaire du tenant | Tous + gestion tenant |
+| ADMIN | Administrateur tenant | Tous sauf suppression tenant |
+| MANAGER | Gestionnaire | Tout sauf /users, /tenants |
+| ACCOUNTANT | Comptable | /payments, /expenses, /reports, /salaries |
+| DRIVER | Livreur | /sync, /rounds/today, /deliveries (POST), /returns (POST) |
+
+### 7.3 Isolation Multi-Tenant
+
+- Chaque requete est automatiquement filtree par tenant_id
+- Le tenant_id est extrait du JWT et injecte dans TenantContext
+- Impossible d'acceder aux donnees d'un autre tenant
+- Les contraintes UNIQUE incluent tenant_id (ex: email unique par tenant)
 
 ---
 
-## 8. Synchronisation Mobile
+## 8. Architecture Mobile - Modes de Fonctionnement
 
-### 8.1 Flux de Synchronisation
+### 8.1 Mode Connecte (Par Defaut)
+
+L'application mobile fonctionne par defaut en mode connecte. Les donnees sont envoyees en temps reel au serveur.
+
+```
+┌─────────────────┐                    ┌─────────────────┐
+│   MOBILE APP    │                    │     SERVER      │
+└────────┬────────┘                    └────────┬────────┘
+         │                                      │
+         │  1. GET /api/rounds/today            │
+         │─────────────────────────────────────>│
+         │  (round + customers + products)      │
+         │<─────────────────────────────────────│
+         │                                      │
+         │  2. POST /api/deliveries             │
+         │─────────────────────────────────────>│
+         │  (chaque livraison en temps reel)    │
+         │<─────────────────────────────────────│
+         │  (confirmation immediate)            │
+         │                                      │
+         │  3. POST /api/returns                │
+         │─────────────────────────────────────>│
+         │  (chaque retour en temps reel)       │
+         │<─────────────────────────────────────│
+         │                                      │
+```
+
+**Avantages du mode connecte:**
+- Donnees a jour en temps reel
+- Pas de conflits de synchronisation
+- Solde client toujours exact
+- Pas de stockage local necessaire
+
+### 8.2 Mode Hors-ligne (Optionnel)
+
+Le mode hors-ligne est une **option activable** dans les parametres pour les zones sans couverture internet.
 
 ```
 ┌─────────────────┐                    ┌─────────────────┐
@@ -920,31 +1127,48 @@ volumes:
          │  (customers, products, round)        │
          │<─────────────────────────────────────│
          │                                      │
-         │  [OFFLINE WORK]                      │
-         │  - Create deliveries                 │
-         │  - Create returns                    │
-         │  - Store locally in SQLite           │
+         │  [MODE HORS-LIGNE ACTIVE]            │
+         │  - Stockage local SQLite             │
+         │  - Queue de synchronisation          │
          │                                      │
          │  2. POST /api/sync/deliveries        │
          │─────────────────────────────────────>│
-         │  (batch of pending deliveries)       │
+         │  (batch de livraisons en attente)    │
          │<─────────────────────────────────────│
-         │  (sync results, conflicts)           │
          │                                      │
          │  3. POST /api/sync/returns           │
          │─────────────────────────────────────>│
-         │  (batch of pending returns)          │
+         │  (batch de retours en attente)       │
          │<─────────────────────────────────────│
          │                                      │
 ```
 
-### 8.2 Gestion Offline
+### 8.3 Activation du Mode Hors-ligne
 
-- SQLite pour stockage local
+```dart
+// Settings screen
+class OfflineModeSettings {
+  bool offlineModeEnabled = false;  // Desactive par defaut
+
+  void toggleOfflineMode(bool enabled) {
+    offlineModeEnabled = enabled;
+    if (enabled) {
+      // Telecharger les donnees pour usage offline
+      syncService.downloadForOffline();
+    }
+  }
+}
+```
+
+### 8.4 Gestion Offline (si active)
+
+- SQLite pour stockage local (uniquement si mode offline actif)
 - Queue de synchronisation
 - sync_id (UUID) pour eviter doublons
 - Timestamp local pour resolution conflits
+- Synchronisation automatique a la reconnexion
 
 ---
 
-*Document d'Architecture Technique - Version 1.0*
+*Document d'Architecture Technique - Version 2.0*
+*Architecture SaaS Multi-Tenant*

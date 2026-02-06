@@ -1,4 +1,56 @@
-# Architecture et Modele de Domaine - Application de Gestion de Livraisons
+# Architecture et Modele de Domaine - Plateforme SaaS de Gestion de Livraisons
+
+## 0. Architecture Multi-Tenant
+
+### 0.1 Strategie d'Isolation
+
+Cette application est une **plateforme SaaS multi-tenant** où chaque entreprise (tenant) possède ses propres données isolées.
+
+```
+┌─────────────────────────────────────────────────────────────────────────┐
+│                    STRATEGIE MULTI-TENANT                               │
+├─────────────────────────────────────────────────────────────────────────┤
+│                                                                         │
+│  Approche: Isolation par colonne (tenant_id dans chaque table)          │
+│                                                                         │
+│  ┌─────────────────────────────────────────────────────────────────┐   │
+│  │                    BASE DE DONNEES UNIQUE                        │   │
+│  │  ┌─────────────────────────────────────────────────────────┐    │   │
+│  │  │  Toutes les tables contiennent: tenant_id UUID NOT NULL │    │   │
+│  │  └─────────────────────────────────────────────────────────┘    │   │
+│  │                                                                  │   │
+│  │  ┌──────────┐ ┌──────────┐ ┌──────────┐ ┌──────────┐           │   │
+│  │  │ Tenant A │ │ Tenant B │ │ Tenant C │ │ Tenant D │  ...      │   │
+│  │  │ tenant_id│ │ tenant_id│ │ tenant_id│ │ tenant_id│           │   │
+│  │  │   = 1    │ │   = 2    │ │   = 3    │ │   = 4    │           │   │
+│  │  └──────────┘ └──────────┘ └──────────┘ └──────────┘           │   │
+│  └─────────────────────────────────────────────────────────────────┘   │
+│                                                                         │
+│  Avantages:                                                             │
+│  - Infrastructure unique (cout reduit)                                  │
+│  - Maintenance simplifiee                                               │
+│  - Schema unique pour tous                                              │
+│  - Migration facile                                                     │
+│                                                                         │
+│  Implementation:                                                        │
+│  - JWT contient le tenant_id de l'utilisateur                          │
+│  - Filtrage automatique dans la couche service                         │
+│  - Index sur (tenant_id, ...) pour performance                         │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+```
+
+### 0.2 Flux d'Inscription Tenant
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│ Visiteur    │────▶│ Formulaire  │────▶│ Creation    │────▶│ Activation  │
+│ accede site │     │ inscription │     │ Tenant +    │     │ compte      │
+│             │     │ entreprise  │     │ User Owner  │     │             │
+└─────────────┘     └─────────────┘     └─────────────┘     └─────────────┘
+```
+
+---
 
 ## 1. Vue d'Ensemble de l'Architecture
 
@@ -68,7 +120,7 @@
 └──────────────────────────────────────────────────────────────────────────┘
 ```
 
-### 1.2 Architecture Mobile (Mode Hors-ligne)
+### 1.2 Architecture Mobile (Mode Connecte par Defaut)
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────┐
@@ -84,22 +136,29 @@
 │  │   Validation, Calculs, State Management                          │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                │                                         │
-│  ┌─────────────────┐  ┌─────────────────┐  ┌─────────────────┐        │
-│  │  Local Storage  │  │   Sync Queue    │  │  Network Layer  │        │
-│  │   (SQLite)      │  │                 │  │                 │        │
-│  └─────────────────┘  └─────────────────┘  └─────────────────┘        │
-│           │                    │                    │                    │
-│           └────────────────────┼────────────────────┘                    │
+│  ┌──────────────────────────────────────────────────────────────────┐  │
+│  │                     NETWORK LAYER (Mode par defaut)               │  │
+│  │   - API calls en temps reel                                       │  │
+│  │   - Donnees envoyees immediatement au serveur                    │  │
+│  └──────────────────────────────────────────────────────────────────┘  │
 │                                │                                         │
 │  ┌──────────────────────────────────────────────────────────────────┐  │
-│  │                   SYNC MANAGER                                    │  │
-│  │   - Connection detection                                          │  │
-│  │   - Conflict resolution                                           │  │
-│  │   - Upload/Download data                                          │  │
+│  │            MODE HORS-LIGNE (Optionnel - activable)                │  │
+│  │  ┌─────────────────┐  ┌─────────────────┐                        │  │
+│  │  │  Local Storage  │  │   Sync Queue    │                        │  │
+│  │  │   (SQLite)      │  │   (si active)   │                        │  │
+│  │  └─────────────────┘  └─────────────────┘                        │  │
+│  │   - Activable dans les parametres                                │  │
+│  │   - Stockage local des donnees                                   │  │
+│  │   - Synchronisation a la reconnexion                             │  │
 │  └──────────────────────────────────────────────────────────────────┘  │
 │                                                                          │
 └─────────────────────────────────────────────────────────────────────────┘
 ```
+
+**Mode de fonctionnement:**
+- **Par defaut (Mode Connecte):** Les livraisons et retours sont envoyes directement au serveur
+- **Mode Hors-ligne (Optionnel):** Activable dans les parametres pour les zones sans internet
 
 ---
 
@@ -109,19 +168,32 @@
 
 ```
 ┌─────────────────────────────────────────────────────────────────────────────────┐
-│                              DOMAIN MODEL                                        │
+│                              DOMAIN MODEL (MULTI-TENANT)                         │
 └─────────────────────────────────────────────────────────────────────────────────┘
 
-                    ┌───────────────┐
-                    │     User      │
-                    ├───────────────┤
-                    │ id            │
-                    │ name          │
-                    │ email         │
-                    │ password      │
-                    │ role          │
-                    │ is_active     │
-                    └───────┬───────┘
+                              ┌───────────────────┐
+                              │      Tenant       │
+                              ├───────────────────┤
+                              │ id                │
+                              │ name              │
+                              │ code              │
+                              │ email             │
+                              │ is_active         │
+                              └─────────┬─────────┘
+                                        │ 1
+                                        │
+                    ┌───────────────────┼───────────────────┐
+                    │ N                 │ N                 │ N
+            ┌───────▼───────┐   ┌───────▼───────┐   ┌───────▼───────┐
+            │     User      │   │    Product    │   │ProductionSite │
+            ├───────────────┤   ├───────────────┤   ├───────────────┤
+            │ id            │   │ id            │   │ id            │
+            │ tenant_id     │   │ tenant_id     │   │ tenant_id     │
+            │ name          │   │ name          │   │ name          │
+            │ email         │   │ price         │   │ address       │
+            │ role          │   │ is_active     │   │ is_active     │
+            │ is_active     │   └───────────────┘   └───────────────┘
+            └───────┬───────┘
                             │ 1
                             │
                             │ 0..1
@@ -187,14 +259,29 @@
 
 ### 2.2 Description des Entites (English)
 
+#### Tenant (Entreprise)
+| Attribut | Type | Description |
+|----------|------|-------------|
+| id | UUID | Primary key |
+| code | String | Unique tenant code (auto-generated) |
+| name | String | Company name |
+| email | String | Contact email |
+| phone | String | Contact phone |
+| address | Text | Company address |
+| logo_url | String | Company logo URL |
+| is_active | Boolean | Tenant active |
+| created_at | DateTime | Registration date |
+| settings | JSON | Tenant-specific settings |
+
 #### User
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | name | String | Full name |
-| email | String | Email (unique, login) |
+| email | String | Email (unique per tenant) |
 | password | String | Password hash |
-| role | Enum | ADMIN, MANAGER, ACCOUNTANT, DRIVER |
+| role | Enum | OWNER, ADMIN, MANAGER, ACCOUNTANT, DRIVER |
 | is_active | Boolean | Account active or disabled |
 | created_at | DateTime | Creation date |
 | last_login | DateTime | Last login |
@@ -203,6 +290,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | user_id | UUID | Link to user account (optional) |
 | production_site_id | UUID | Assigned production site |
 | name | String | Full name |
@@ -215,7 +303,8 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
-| code | String | Unique customer code |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
+| code | String | Unique customer code (per tenant) |
 | name | String | Name or company name |
 | phone | String | Phone number |
 | address | String | Full address |
@@ -231,7 +320,8 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
-| code | String | Unique product code |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
+| code | String | Unique product code (per tenant) |
 | name | String | Full name (e.g., "Milk 1L") |
 | description | String | Description |
 | price | Decimal | Current unit price |
@@ -242,6 +332,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | product_id | UUID | Related product |
 | price | Decimal | Price at this date |
 | start_date | DateTime | Start validity date |
@@ -251,6 +342,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | name | String | Site name |
 | address | String | Address |
 | is_active | Boolean | Site active |
@@ -259,6 +351,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | production_site_id | UUID | Production site |
 | product_id | UUID | Produced product |
 | date | Date | Production date |
@@ -269,6 +362,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | driver_id | UUID | Assigned driver |
 | date | Date | Round date |
 | status | Enum | PLANNED, IN_PROGRESS, COMPLETED, CANCELLED |
@@ -281,6 +375,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | round_id | UUID | Round |
 | customer_id | UUID | Customer to visit |
 | order | Integer | Visit order |
@@ -292,6 +387,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | customer_id | UUID | Delivered customer |
 | driver_id | UUID | Driver |
 | round_id | UUID | Round (optional) |
@@ -305,6 +401,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | delivery_id | UUID | Parent delivery |
 | product_id | UUID | Delivered product |
 | quantity | Integer | Quantity |
@@ -315,6 +412,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | customer_id | UUID | Customer (optional) |
 | driver_id | UUID | Driver |
 | product_id | UUID | Returned product |
@@ -330,6 +428,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | customer_id | UUID | Customer |
 | date | DateTime | Payment date |
 | amount | Decimal | Amount paid |
@@ -342,6 +441,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | production_site_id | UUID | Related site (optional) |
 | date | Date | Expense date |
 | amount | Decimal | Amount |
@@ -353,6 +453,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | name | String | Rule name |
 | calc_type | Enum | PERCENTAGE_REVENUE, BONUS_PER_DELIVERY, FIXED_BONUS |
 | value | Decimal | Value (% or amount) |
@@ -363,6 +464,7 @@
 | Attribut | Type | Description |
 |----------|------|-------------|
 | id | UUID | Primary key |
+| **tenant_id** | UUID | **Tenant (FK, NOT NULL)** |
 | driver_id | UUID | Driver |
 | period_start | Date | Period start |
 | period_end | Date | Period end |
@@ -377,7 +479,18 @@
 
 ## 3. Relations entre Entites
 
-### 3.1 Relations Principales
+### 3.1 Relations Multi-Tenant
+
+| Source Entity | Relation | Target Entity | Cardinality |
+|---------------|----------|---------------|-------------|
+| **Tenant** | **owns** | **User** | **1 - N** |
+| **Tenant** | **owns** | **Driver** | **1 - N** |
+| **Tenant** | **owns** | **Customer** | **1 - N** |
+| **Tenant** | **owns** | **Product** | **1 - N** |
+| **Tenant** | **owns** | **ProductionSite** | **1 - N** |
+| **Tenant** | **owns** | **All other entities** | **1 - N** |
+
+### 3.2 Relations Metier
 
 | Source Entity | Relation | Target Entity | Cardinality |
 |---------------|----------|---------------|-------------|
@@ -533,6 +646,19 @@
 
 ## 6. Regles de Gestion
 
+### 6.1 Regles Multi-Tenant
+
+| Code | Regle |
+|------|-------|
+| **RG-T01** | **Toutes les tables (sauf tenants) contiennent tenant_id NOT NULL** |
+| **RG-T02** | **Un utilisateur appartient a un seul tenant** |
+| **RG-T03** | **Toute requete est automatiquement filtree par tenant_id** |
+| **RG-T04** | **Les contraintes d'unicite incluent tenant_id (ex: email unique par tenant)** |
+| **RG-T05** | **Le tenant_id est extrait du JWT et injecte dans chaque service** |
+| **RG-T06** | **Un utilisateur ne peut jamais acceder aux donnees d'un autre tenant** |
+
+### 6.2 Regles Metier
+
 | Code | Regle |
 |------|-------|
 | RG-01 | Customer balance = Sum(Deliveries) - Sum(Payments) - Sum(credited Returns) |
@@ -542,66 +668,96 @@
 | RG-05 | Un Return credite le Customer seulement si credit_customer = true |
 | RG-06 | Les bonus sont calcules sur la periode definie (semaine/mois) |
 | RG-07 | Un User avec role DRIVER ne voit que ses propres donnees |
-| RG-08 | Les donnees offline doivent etre synchronisees sous 24h |
-| RG-09 | En cas de conflit de sync, la version serveur prevaut |
-| RG-10 | Stock theorique = Production - Deliveries + Returns |
-| **RG-11** | **Un Customer est assigne a un seul Driver (driver_id)** |
-| **RG-12** | **Un Round est genere automatiquement avec tous les Customers du Driver** |
-| **RG-13** | **Le gestionnaire peut exclure des Customers d'un Round** |
+| RG-08 | Mode connecte par defaut: les donnees sont envoyees en temps reel |
+| RG-09 | Mode hors-ligne optionnel: les donnees sont synchronisees a la reconnexion |
+| RG-10 | En cas de conflit de sync (mode offline), la version serveur prevaut |
+| RG-11 | Stock theorique = Production - Deliveries + Returns |
+| **RG-12** | **Un Customer est assigne a un seul Driver (driver_id)** |
+| **RG-13** | **Un Round est genere automatiquement avec tous les Customers du Driver** |
+| **RG-14** | **Le gestionnaire peut exclure des Customers d'un Round** |
 
 ---
 
-## 7. Schema de Base de Donnees (Tables SQL)
+## 7. Schema de Base de Donnees (Tables SQL - Multi-Tenant)
 
 ```sql
+-- ============================================
+-- TENANT TABLE (No tenant_id - root table)
+-- ============================================
+CREATE TABLE tenants (
+    id UUID PRIMARY KEY,
+    code VARCHAR(20) UNIQUE NOT NULL,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(255) NOT NULL,
+    phone VARCHAR(20),
+    address TEXT,
+    logo_url VARCHAR(500),
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    settings JSONB DEFAULT '{}'::jsonb
+);
+
+-- ============================================
+-- ALL OTHER TABLES WITH tenant_id
+-- ============================================
+
 -- Users table
 CREATE TABLE users (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     name VARCHAR(100) NOT NULL,
-    email VARCHAR(255) UNIQUE NOT NULL,
+    email VARCHAR(255) NOT NULL,
     password VARCHAR(255) NOT NULL,
-    role VARCHAR(20) NOT NULL, -- ADMIN, MANAGER, ACCOUNTANT, DRIVER
+    role VARCHAR(20) NOT NULL, -- OWNER, ADMIN, MANAGER, ACCOUNTANT, DRIVER
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    last_login TIMESTAMP
+    last_login TIMESTAMP,
+    UNIQUE(tenant_id, email)
 );
 
 -- Production sites
 CREATE TABLE production_sites (
     id UUID PRIMARY KEY,
-    name VARCHAR(100) UNIQUE NOT NULL,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    name VARCHAR(100) NOT NULL,
     address TEXT,
     latitude DECIMAL(10, 8),
     longitude DECIMAL(11, 8),
-    is_active BOOLEAN DEFAULT TRUE
+    is_active BOOLEAN DEFAULT TRUE,
+    UNIQUE(tenant_id, name)
 );
 
 -- Drivers
 CREATE TABLE drivers (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     user_id UUID REFERENCES users(id),
     production_site_id UUID REFERENCES production_sites(id) NOT NULL,
     name VARCHAR(100) NOT NULL,
-    phone VARCHAR(20) UNIQUE,
+    phone VARCHAR(20),
     base_salary DECIMAL(15, 2) DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
-    hire_date DATE
+    hire_date DATE,
+    UNIQUE(tenant_id, phone)
 );
 
 -- Products
 CREATE TABLE products (
     id UUID PRIMARY KEY,
-    code VARCHAR(20) UNIQUE NOT NULL,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    code VARCHAR(20) NOT NULL,
     name VARCHAR(100) NOT NULL,
     description TEXT,
     price DECIMAL(15, 2) NOT NULL,
     is_active BOOLEAN DEFAULT TRUE,
-    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(tenant_id, code)
 );
 
 -- Price history
 CREATE TABLE price_history (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     product_id UUID REFERENCES products(id) NOT NULL,
     price DECIMAL(15, 2) NOT NULL,
     start_date TIMESTAMP NOT NULL,
@@ -611,7 +767,8 @@ CREATE TABLE price_history (
 -- Customers
 CREATE TABLE customers (
     id UUID PRIMARY KEY,
-    code VARCHAR(20) UNIQUE NOT NULL,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    code VARCHAR(20) NOT NULL,
     name VARCHAR(100) NOT NULL,
     phone VARCHAR(20),
     address TEXT,
@@ -621,12 +778,14 @@ CREATE TABLE customers (
     driver_id UUID REFERENCES drivers(id), -- Assigned driver
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    notes TEXT
+    notes TEXT,
+    UNIQUE(tenant_id, code)
 );
 
 -- Production records
 CREATE TABLE productions (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     production_site_id UUID REFERENCES production_sites(id) NOT NULL,
     product_id UUID REFERENCES products(id) NOT NULL,
     date DATE NOT NULL,
@@ -634,12 +793,13 @@ CREATE TABLE productions (
     notes TEXT,
     recorded_by UUID REFERENCES users(id),
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(production_site_id, product_id, date)
+    UNIQUE(tenant_id, production_site_id, product_id, date)
 );
 
 -- Rounds (Tournees)
 CREATE TABLE rounds (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     driver_id UUID REFERENCES drivers(id) NOT NULL,
     date DATE NOT NULL,
     status VARCHAR(20) DEFAULT 'PLANNED', -- PLANNED, IN_PROGRESS, COMPLETED, CANCELLED
@@ -647,39 +807,43 @@ CREATE TABLE rounds (
     start_time TIME,
     end_time TIME,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(driver_id, date)
+    UNIQUE(tenant_id, driver_id, date)
 );
 
 -- Round customers
 CREATE TABLE round_customers (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     round_id UUID REFERENCES rounds(id) NOT NULL,
     customer_id UUID REFERENCES customers(id) NOT NULL,
     visit_order INTEGER NOT NULL,
     status VARCHAR(20) DEFAULT 'TO_VISIT', -- TO_VISIT, VISITED, SKIPPED
     visit_time TIMESTAMP,
     excluded BOOLEAN DEFAULT FALSE,
-    UNIQUE(round_id, customer_id)
+    UNIQUE(tenant_id, round_id, customer_id)
 );
 
 -- Deliveries
 CREATE TABLE deliveries (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     customer_id UUID REFERENCES customers(id) NOT NULL,
     driver_id UUID REFERENCES drivers(id) NOT NULL,
     round_id UUID REFERENCES rounds(id),
     date TIMESTAMP NOT NULL,
     total_amount DECIMAL(15, 2) NOT NULL,
     sync_status VARCHAR(20) DEFAULT 'SYNCED', -- SYNCED, PENDING, CONFLICT
-    sync_id UUID UNIQUE,
+    sync_id UUID,
     local_created_at TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    notes TEXT
+    notes TEXT,
+    UNIQUE(tenant_id, sync_id)
 );
 
 -- Delivery items
 CREATE TABLE delivery_items (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     delivery_id UUID REFERENCES deliveries(id) NOT NULL,
     product_id UUID REFERENCES products(id) NOT NULL,
     quantity INTEGER NOT NULL,
@@ -690,6 +854,7 @@ CREATE TABLE delivery_items (
 -- Returns
 CREATE TABLE returns (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     customer_id UUID REFERENCES customers(id),
     driver_id UUID REFERENCES drivers(id) NOT NULL,
     product_id UUID REFERENCES products(id) NOT NULL,
@@ -706,6 +871,7 @@ CREATE TABLE returns (
 -- Payments
 CREATE TABLE payments (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     customer_id UUID REFERENCES customers(id) NOT NULL,
     date TIMESTAMP NOT NULL,
     amount DECIMAL(15, 2) NOT NULL,
@@ -719,6 +885,7 @@ CREATE TABLE payments (
 -- Expenses
 CREATE TABLE expenses (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     production_site_id UUID REFERENCES production_sites(id),
     date DATE NOT NULL,
     amount DECIMAL(15, 2) NOT NULL,
@@ -731,6 +898,7 @@ CREATE TABLE expenses (
 -- Bonus configuration
 CREATE TABLE bonus_configs (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     name VARCHAR(100) NOT NULL,
     calc_type VARCHAR(30) NOT NULL, -- PERCENTAGE_REVENUE, BONUS_PER_DELIVERY, FIXED_BONUS
     value DECIMAL(15, 4) NOT NULL,
@@ -741,6 +909,7 @@ CREATE TABLE bonus_configs (
 -- Salary payments
 CREATE TABLE salary_payments (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     driver_id UUID REFERENCES drivers(id) NOT NULL,
     period_start DATE NOT NULL,
     period_end DATE NOT NULL,
@@ -751,12 +920,13 @@ CREATE TABLE salary_payments (
     status VARCHAR(20) DEFAULT 'CALCULATED', -- CALCULATED, PAID
     bonus_details JSONB,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    UNIQUE(driver_id, period_start, period_end)
+    UNIQUE(tenant_id, driver_id, period_start, period_end)
 );
 
 -- Audit log
 CREATE TABLE audit_logs (
     id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
     user_id UUID REFERENCES users(id),
     action VARCHAR(50) NOT NULL,
     entity_type VARCHAR(50),
@@ -766,21 +936,42 @@ CREATE TABLE audit_logs (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- System settings
-CREATE TABLE settings (
-    key VARCHAR(100) PRIMARY KEY,
+-- Tenant settings (per tenant)
+CREATE TABLE tenant_settings (
+    id UUID PRIMARY KEY,
+    tenant_id UUID NOT NULL REFERENCES tenants(id),
+    key VARCHAR(100) NOT NULL,
     value TEXT,
-    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE(tenant_id, key)
 );
 
--- Indexes
-CREATE INDEX idx_customers_driver ON customers(driver_id);
-CREATE INDEX idx_deliveries_customer ON deliveries(customer_id);
-CREATE INDEX idx_deliveries_driver ON deliveries(driver_id);
-CREATE INDEX idx_deliveries_date ON deliveries(date);
-CREATE INDEX idx_rounds_driver_date ON rounds(driver_id, date);
-CREATE INDEX idx_payments_customer ON payments(customer_id);
-CREATE INDEX idx_returns_driver ON returns(driver_id);
+-- ============================================
+-- INDEXES (with tenant_id for performance)
+-- ============================================
+CREATE INDEX idx_users_tenant ON users(tenant_id);
+CREATE INDEX idx_production_sites_tenant ON production_sites(tenant_id);
+CREATE INDEX idx_drivers_tenant ON drivers(tenant_id);
+CREATE INDEX idx_products_tenant ON products(tenant_id);
+CREATE INDEX idx_customers_tenant ON customers(tenant_id);
+CREATE INDEX idx_customers_driver ON customers(tenant_id, driver_id);
+CREATE INDEX idx_productions_tenant ON productions(tenant_id);
+CREATE INDEX idx_rounds_tenant ON rounds(tenant_id);
+CREATE INDEX idx_rounds_driver_date ON rounds(tenant_id, driver_id, date);
+CREATE INDEX idx_round_customers_tenant ON round_customers(tenant_id);
+CREATE INDEX idx_deliveries_tenant ON deliveries(tenant_id);
+CREATE INDEX idx_deliveries_customer ON deliveries(tenant_id, customer_id);
+CREATE INDEX idx_deliveries_driver ON deliveries(tenant_id, driver_id);
+CREATE INDEX idx_deliveries_date ON deliveries(tenant_id, date);
+CREATE INDEX idx_delivery_items_tenant ON delivery_items(tenant_id);
+CREATE INDEX idx_returns_tenant ON returns(tenant_id);
+CREATE INDEX idx_returns_driver ON returns(tenant_id, driver_id);
+CREATE INDEX idx_payments_tenant ON payments(tenant_id);
+CREATE INDEX idx_payments_customer ON payments(tenant_id, customer_id);
+CREATE INDEX idx_expenses_tenant ON expenses(tenant_id);
+CREATE INDEX idx_bonus_configs_tenant ON bonus_configs(tenant_id);
+CREATE INDEX idx_salary_payments_tenant ON salary_payments(tenant_id);
+CREATE INDEX idx_audit_logs_tenant ON audit_logs(tenant_id);
 ```
 
 ---
@@ -789,6 +980,8 @@ CREATE INDEX idx_returns_driver ON returns(driver_id);
 
 | Term | French | Definition |
 |------|--------|------------|
+| **Tenant** | Entreprise | Company registered on the SaaS platform, with isolated data |
+| **tenant_id** | ID Entreprise | Unique tenant identifier, present in all tables for isolation |
 | **Delivery** | Livraison | Act of delivering products to a customer, creating a debt |
 | **Return** | Retour | Products returned by driver (unsold, expired, defective) |
 | **Payment** | Paiement | Amount paid by customer to settle debts (global credit) |
@@ -806,4 +999,4 @@ CREATE INDEX idx_returns_driver ON returns(driver_id);
 ---
 
 *Document BMAD - Architecture and Domain Model*
-*Version 2.0 - English entities, Auto Round generation*
+*Version 3.0 - Multi-Tenant SaaS Architecture*
