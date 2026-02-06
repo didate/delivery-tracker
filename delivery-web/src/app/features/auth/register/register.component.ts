@@ -14,6 +14,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-register',
@@ -35,6 +36,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class RegisterComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -64,7 +66,7 @@ export class RegisterComponent {
     this.hideConfirmPassword.update((value) => !value);
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.registerForm.invalid) {
       this.registerForm.markAllAsTouched();
       return;
@@ -74,36 +76,31 @@ export class RegisterComponent {
     this.errorMessage.set(null);
     this.successMessage.set(null);
 
-    try {
-      const formValue = this.registerForm.getRawValue();
+    const formValue = this.registerForm.getRawValue();
 
-      // TODO: Replace with actual AuthService call
-      // await this.authService.registerTenant({
-      //   companyName: formValue.companyName,
-      //   email: formValue.email,
-      //   password: formValue.password,
-      //   phone: formValue.phone || undefined,
-      //   address: formValue.address || undefined,
-      // });
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      this.successMessage.set(
-        'Registration successful! Redirecting to login...'
-      );
-
-      // Redirect to login after showing success message
-      setTimeout(() => {
-        this.router.navigate(['/auth/login']);
-      }, 2000);
-    } catch (error) {
-      this.errorMessage.set(
-        error instanceof Error ? error.message : 'Registration failed. Please try again.'
-      );
-    } finally {
-      this.isLoading.set(false);
-    }
+    this.authService.register({
+      tenantName: formValue.companyName,
+      tenantCode: formValue.companyName.toLowerCase().replace(/\s+/g, '-'),
+      email: formValue.email,
+      password: formValue.password,
+      name: formValue.companyName,
+      phone: formValue.phone || undefined,
+      address: formValue.address || undefined,
+    }).subscribe({
+      next: () => {
+        this.successMessage.set('Registration successful! Redirecting to dashboard...');
+        setTimeout(() => {
+          this.router.navigate(['/dashboard']);
+        }, 1500);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.message || 'Registration failed. Please try again.');
+        this.isLoading.set(false);
+      },
+      complete: () => {
+        this.isLoading.set(false);
+      }
+    });
   }
 
   private passwordStrengthValidator(control: AbstractControl): ValidationErrors | null {

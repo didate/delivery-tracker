@@ -9,6 +9,7 @@ import { MatCheckboxModule } from '@angular/material/checkbox';
 import { MatCardModule } from '@angular/material/card';
 import { MatIconModule } from '@angular/material/icon';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-login',
@@ -31,6 +32,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
   private readonly router = inject(Router);
+  private readonly authService = inject(AuthService);
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
@@ -46,7 +48,7 @@ export class LoginComponent {
     this.hidePassword.update((value) => !value);
   }
 
-  async onSubmit(): Promise<void> {
+  onSubmit(): void {
     if (this.loginForm.invalid) {
       this.loginForm.markAllAsTouched();
       return;
@@ -55,29 +57,23 @@ export class LoginComponent {
     this.isLoading.set(true);
     this.errorMessage.set(null);
 
-    try {
-      const { email, password, rememberMe } = this.loginForm.getRawValue();
+    const { email, password, rememberMe } = this.loginForm.getRawValue();
 
-      // TODO: Replace with actual AuthService call
-      // await this.authService.login({ email, password });
-
-      // Simulate API call
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      // Store remember me preference if needed
-      if (rememberMe) {
-        localStorage.setItem('rememberMe', 'true');
+    this.authService.login(email, password).subscribe({
+      next: () => {
+        if (rememberMe) {
+          localStorage.setItem('rememberMe', 'true');
+        }
+        this.router.navigate(['/dashboard']);
+      },
+      error: (err) => {
+        this.errorMessage.set(err.message || 'Login failed. Please try again.');
+        this.isLoading.set(false);
+      },
+      complete: () => {
+        this.isLoading.set(false);
       }
-
-      // Navigate to dashboard on success
-      await this.router.navigate(['/dashboard']);
-    } catch (error) {
-      this.errorMessage.set(
-        error instanceof Error ? error.message : 'Login failed. Please try again.'
-      );
-    } finally {
-      this.isLoading.set(false);
-    }
+    });
   }
 
   getEmailErrorMessage(): string {

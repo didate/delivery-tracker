@@ -13,10 +13,13 @@ export interface LoginResponse {
 }
 
 export interface RegisterRequest {
+  tenantName: string;
+  tenantCode: string;
   email: string;
   password: string;
   name: string;
-  tenantId?: string;
+  phone?: string;
+  address?: string;
 }
 
 export interface RefreshTokenRequest {
