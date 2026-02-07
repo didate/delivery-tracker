@@ -1,17 +1,18 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormArray, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatCardModule } from '@angular/material/card';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { Textarea } from 'primeng/textarea';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DividerModule } from 'primeng/divider';
+import { CardModule } from 'primeng/card';
+import { TooltipModule } from 'primeng/tooltip';
+
 import { Return, CreateReturnDto, UpdateReturnDto, CreateReturnItemDto } from '../models/return.model';
 import { Customer } from '../../customers/models/customer.model';
 import { Product } from '../../products/models/product.model';
@@ -28,171 +29,218 @@ export interface ReturnDialogResult {
   data: CreateReturnDto | UpdateReturnDto;
 }
 
+interface CustomerOption {
+  label: string;
+  value: number;
+}
+
+interface ProductOption {
+  label: string;
+  value: string;
+  price: number;
+}
+
 @Component({
   selector: 'app-return-dialog',
   standalone: true,
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    MatCardModule,
+    InputTextModule,
+    Textarea,
+    ButtonModule,
+    SelectModule,
+    DatePickerModule,
+    InputNumberModule,
+    ProgressSpinnerModule,
+    DividerModule,
+    CardModule,
+    TooltipModule,
   ],
   template: `
-    <h2 mat-dialog-title>{{ isEditMode() ? 'Edit Return' : 'Create Return' }}</h2>
-
-    <mat-dialog-content>
-      <form [formGroup]="returnForm" class="return-form">
-        <div class="form-row two-columns">
-          <mat-form-field appearance="outline">
-            <mat-label>Customer</mat-label>
-            <mat-select formControlName="customerId" placeholder="Select customer">
-              @for (customer of customers(); track customer.id) {
-                <mat-option [value]="customer.id">{{ customer.name }} ({{ customer.code }})</mat-option>
-              }
-            </mat-select>
-            @if (returnForm.controls.customerId.hasError('required') && returnForm.controls.customerId.touched) {
-              <mat-error>Customer is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Return Date</mat-label>
-            <input matInput [matDatepicker]="picker" formControlName="returnDate" placeholder="Select date">
-            <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-            <mat-datepicker #picker></mat-datepicker>
-            @if (returnForm.controls.returnDate.hasError('required') && returnForm.controls.returnDate.touched) {
-              <mat-error>Return date is required</mat-error>
-            }
-          </mat-form-field>
+    <form [formGroup]="returnForm" class="return-form">
+      <div class="form-row two-columns">
+        <div class="field">
+          <label for="customerId">Customer *</label>
+          <p-select
+            id="customerId"
+            formControlName="customerId"
+            [options]="customerOptions()"
+            placeholder="Select customer"
+            [filter]="true"
+            filterBy="label"
+            [style]="{width: '100%'}">
+          </p-select>
+          @if (returnForm.controls.customerId.hasError('required') && returnForm.controls.customerId.touched) {
+            <small class="p-error">Customer is required</small>
+          }
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Notes</mat-label>
-            <textarea matInput formControlName="notes" placeholder="Enter notes (optional)" rows="2"></textarea>
-          </mat-form-field>
+        <div class="field">
+          <label for="returnDate">Return Date *</label>
+          <p-datepicker
+            id="returnDate"
+            formControlName="returnDate"
+            [showIcon]="true"
+            [style]="{width: '100%'}"
+            dateFormat="mm/dd/yy">
+          </p-datepicker>
+          @if (returnForm.controls.returnDate.hasError('required') && returnForm.controls.returnDate.touched) {
+            <small class="p-error">Return date is required</small>
+          }
         </div>
+      </div>
 
-        @if (!isEditMode()) {
-          <mat-divider></mat-divider>
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea
+          pTextarea
+          id="notes"
+          formControlName="notes"
+          rows="2"
+          placeholder="Enter notes (optional)"
+          class="full-width">
+        </textarea>
+      </div>
 
-          <div class="items-section">
-            <div class="items-header">
-              <h3>Return Items</h3>
-              <button mat-button color="primary" type="button" (click)="addItem()">
-                <mat-icon>add</mat-icon>
-                Add Item
-              </button>
-            </div>
+      @if (!isEditMode()) {
+        <p-divider></p-divider>
 
-            @if (items.length === 0) {
-              <p class="no-items-message">No items added yet. Click "Add Item" to add products to this return.</p>
-            }
+        <div class="items-section">
+          <div class="items-header">
+            <h3>Return Items</h3>
+            <p-button
+              label="Add Item"
+              icon="pi pi-plus"
+              [text]="true"
+              (onClick)="addItem()">
+            </p-button>
+          </div>
 
-            <div formArrayName="items" class="items-list">
-              @for (item of items.controls; track $index; let i = $index) {
-                <mat-card class="item-card" [formGroupName]="i">
-                  <div class="item-header">
-                    <span class="item-number">Item {{ i + 1 }}</span>
-                    <button mat-icon-button color="warn" type="button" (click)="removeItem(i)" matTooltip="Remove item">
-                      <mat-icon>delete</mat-icon>
-                    </button>
+          @if (items.length === 0) {
+            <p class="no-items-message">No items added yet. Click "Add Item" to add products to this return.</p>
+          }
+
+          <div formArrayName="items" class="items-list">
+            @for (item of items.controls; track $index; let i = $index) {
+              <p-card class="item-card" [formGroupName]="i">
+                <div class="item-header">
+                  <span class="item-number">Item {{ i + 1 }}</span>
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="danger"
+                    (onClick)="removeItem(i)"
+                    pTooltip="Remove item">
+                  </p-button>
+                </div>
+
+                <div class="item-form-row">
+                  <div class="field product-field">
+                    <label>Product *</label>
+                    <p-select
+                      formControlName="productId"
+                      [options]="productOptions()"
+                      placeholder="Select product"
+                      [filter]="true"
+                      filterBy="label"
+                      (onChange)="onProductChange(i)"
+                      [style]="{width: '100%'}">
+                    </p-select>
+                    @if (getItemControl(i, 'productId').hasError('required') && getItemControl(i, 'productId').touched) {
+                      <small class="p-error">Product is required</small>
+                    }
                   </div>
 
-                  <div class="item-form-row">
-                    <mat-form-field appearance="outline" class="product-field">
-                      <mat-label>Product</mat-label>
-                      <mat-select formControlName="productId" placeholder="Select product" (selectionChange)="onProductChange(i)">
-                        @for (product of products(); track product.id) {
-                          <mat-option [value]="product.id">{{ product.name }} ({{ product.code }})</mat-option>
-                        }
-                      </mat-select>
-                      @if (getItemControl(i, 'productId').hasError('required') && getItemControl(i, 'productId').touched) {
-                        <mat-error>Product is required</mat-error>
-                      }
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="quantity-field">
-                      <mat-label>Quantity</mat-label>
-                      <input matInput type="number" formControlName="quantity" min="1" (input)="calculateItemTotal(i)">
-                      @if (getItemControl(i, 'quantity').hasError('required') && getItemControl(i, 'quantity').touched) {
-                        <mat-error>Qty required</mat-error>
-                      }
-                      @if (getItemControl(i, 'quantity').hasError('min') && getItemControl(i, 'quantity').touched) {
-                        <mat-error>Min 1</mat-error>
-                      }
-                    </mat-form-field>
-
-                    <mat-form-field appearance="outline" class="price-field">
-                      <mat-label>Unit Value</mat-label>
-                      <input matInput type="number" formControlName="unitValue" min="0" step="0.01" (input)="calculateItemTotal(i)">
-                      <span matTextPrefix>$&nbsp;</span>
-                      @if (getItemControl(i, 'unitValue').hasError('required') && getItemControl(i, 'unitValue').touched) {
-                        <mat-error>Price required</mat-error>
-                      }
-                    </mat-form-field>
+                  <div class="field quantity-field">
+                    <label>Quantity *</label>
+                    <p-inputNumber
+                      formControlName="quantity"
+                      [min]="1"
+                      [showButtons]="true"
+                      (onInput)="calculateItemTotal(i)"
+                      [style]="{width: '100%'}">
+                    </p-inputNumber>
+                    @if (getItemControl(i, 'quantity').hasError('required') && getItemControl(i, 'quantity').touched) {
+                      <small class="p-error">Required</small>
+                    }
+                    @if (getItemControl(i, 'quantity').hasError('min') && getItemControl(i, 'quantity').touched) {
+                      <small class="p-error">Min 1</small>
+                    }
                   </div>
 
-                  <div class="item-form-row">
-                    <mat-form-field appearance="outline" class="reason-field">
-                      <mat-label>Reason</mat-label>
-                      <input matInput formControlName="reason" placeholder="Enter reason for return">
-                      @if (getItemControl(i, 'reason').hasError('required') && getItemControl(i, 'reason').touched) {
-                        <mat-error>Reason is required</mat-error>
-                      }
-                    </mat-form-field>
-
-                    <div class="item-total">
-                      <span class="total-label">Total:</span>
-                      <span class="total-value">\${{ getItemTotal(i) | number:'1.2-2' }}</span>
-                    </div>
+                  <div class="field price-field">
+                    <label>Unit Value *</label>
+                    <p-inputNumber
+                      formControlName="unitValue"
+                      [min]="0"
+                      mode="currency"
+                      currency="USD"
+                      locale="en-US"
+                      (onInput)="calculateItemTotal(i)"
+                      [style]="{width: '100%'}">
+                    </p-inputNumber>
+                    @if (getItemControl(i, 'unitValue').hasError('required') && getItemControl(i, 'unitValue').touched) {
+                      <small class="p-error">Required</small>
+                    }
                   </div>
-                </mat-card>
-              }
-            </div>
+                </div>
 
-            @if (items.length > 0) {
-              <div class="grand-total">
-                <span class="grand-total-label">Grand Total:</span>
-                <span class="grand-total-value">\${{ getGrandTotal() | number:'1.2-2' }}</span>
-              </div>
+                <div class="item-form-row">
+                  <div class="field reason-field">
+                    <label>Reason *</label>
+                    <input
+                      pInputText
+                      formControlName="reason"
+                      placeholder="Enter reason for return"
+                      class="full-width">
+                    @if (getItemControl(i, 'reason').hasError('required') && getItemControl(i, 'reason').touched) {
+                      <small class="p-error">Reason is required</small>
+                    }
+                  </div>
+
+                  <div class="item-total">
+                    <span class="total-label">Total:</span>
+                    <span class="total-value">\${{ getItemTotal(i) | number:'1.2-2' }}</span>
+                  </div>
+                </div>
+              </p-card>
             }
           </div>
-        }
-      </form>
-    </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onSave()"
+          @if (items.length > 0) {
+            <div class="grand-total">
+              <span class="grand-total-label">Grand Total:</span>
+              <span class="grand-total-value">\${{ getGrandTotal() | number:'1.2-2' }}</span>
+            </div>
+          }
+        </div>
+      }
+    </form>
+
+    <div class="dialog-footer">
+      <p-button
+        label="Cancel"
+        [text]="true"
+        (onClick)="onCancel()">
+      </p-button>
+      <p-button
+        [label]="isEditMode() ? 'Update' : 'Create'"
+        (onClick)="onSave()"
         [disabled]="returnForm.invalid || isSaving() || (!isEditMode() && items.length === 0)">
         @if (isSaving()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          {{ isEditMode() ? 'Update' : 'Create' }}
+          <p-progressSpinner [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
         }
-      </button>
-    </mat-dialog-actions>
+      </p-button>
+    </div>
   `,
   styles: [`
     .return-form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 16px;
       min-width: 600px;
-      padding-top: 8px;
     }
 
     .form-row {
@@ -206,29 +254,23 @@ export interface ReturnDialogResult {
       gap: 16px;
     }
 
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-weight: 500;
+      font-size: 14px;
+    }
+
     .full-width {
       width: 100%;
     }
 
-    mat-form-field {
-      width: 100%;
-    }
-
-    mat-dialog-content {
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    mat-dialog-actions {
-      padding: 16px 0 0 0;
-    }
-
-    mat-spinner {
-      display: inline-block;
-    }
-
-    mat-divider {
-      margin: 16px 0;
+    .p-error {
+      color: var(--red-500);
     }
 
     .items-section {
@@ -264,6 +306,10 @@ export interface ReturnDialogResult {
     }
 
     .item-card {
+      margin-bottom: 0;
+    }
+
+    :host ::ng-deep .item-card .p-card-body {
       padding: 16px;
     }
 
@@ -283,6 +329,11 @@ export interface ReturnDialogResult {
       display: flex;
       gap: 12px;
       align-items: flex-start;
+      margin-bottom: 12px;
+    }
+
+    .item-form-row:last-child {
+      margin-bottom: 0;
     }
 
     .product-field {
@@ -344,19 +395,30 @@ export interface ReturnDialogResult {
       font-weight: 700;
       color: #2e7d32;
     }
+
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+    }
   `]
 })
 export class ReturnDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<ReturnDialogComponent>);
+  private readonly dialogRef = inject(DynamicDialogRef<any>);
+  private readonly dialogConfig = inject(DynamicDialogConfig);
   private readonly customerService = inject(CustomerService);
   private readonly productService = inject(ProductService);
-  readonly data = inject<ReturnDialogData>(MAT_DIALOG_DATA);
 
   readonly isSaving = signal(false);
   readonly isEditMode = signal(false);
   readonly customers = signal<Customer[]>([]);
   readonly products = signal<Product[]>([]);
+  readonly customerOptions = signal<CustomerOption[]>([]);
+  readonly productOptions = signal<ProductOption[]>([]);
 
   readonly returnForm = this.fb.nonNullable.group({
     customerId: [null as number | null, [Validators.required]],
@@ -367,6 +429,10 @@ export class ReturnDialogComponent implements OnInit {
 
   get items(): FormArray {
     return this.returnForm.controls.items;
+  }
+
+  get data(): ReturnDialogData {
+    return this.dialogConfig.data;
   }
 
   ngOnInit(): void {
@@ -387,6 +453,12 @@ export class ReturnDialogComponent implements OnInit {
     this.customerService.getCustomers({ size: 1000, active: true }).subscribe({
       next: (response) => {
         this.customers.set(response.data);
+        this.customerOptions.set(
+          response.data.map(c => ({
+            label: `${c.name} (${c.code})`,
+            value: c.id
+          }))
+        );
       },
       error: (err) => {
         console.error('Failed to load customers:', err);
@@ -398,6 +470,13 @@ export class ReturnDialogComponent implements OnInit {
     this.productService.getProducts({ size: 1000, active: true }).subscribe({
       next: (response) => {
         this.products.set(response.data);
+        this.productOptions.set(
+          response.data.map(p => ({
+            label: `${p.name} (${p.code})`,
+            value: p.id,
+            price: p.price
+          }))
+        );
       },
       error: (err) => {
         console.error('Failed to load products:', err);
@@ -427,10 +506,10 @@ export class ReturnDialogComponent implements OnInit {
   onProductChange(index: number): void {
     const itemGroup = this.items.at(index) as FormGroup;
     const productId = itemGroup.get('productId')?.value;
-    const product = this.products().find(p => p.id === productId);
+    const productOption = this.productOptions().find(p => p.value === productId);
 
-    if (product) {
-      itemGroup.patchValue({ unitValue: product.price });
+    if (productOption) {
+      itemGroup.patchValue({ unitValue: productOption.price });
     }
   }
 

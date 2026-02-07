@@ -1,21 +1,24 @@
-import { Component, inject, signal, computed, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatSelectModule } from '@angular/material/select';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { SelectModule } from 'primeng/select';
+import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { Driver } from './models/driver.model';
 import { DriverService } from './services/driver.service';
 import { DriverDialogComponent, DriverDialogData } from './driver-dialog/driver-dialog.component';
+
+interface StatusOption {
+  label: string;
+  value: boolean | null;
+}
 
 @Component({
   selector: 'app-drivers-list',
@@ -23,125 +26,125 @@ import { DriverDialogComponent, DriverDialogData } from './driver-dialog/driver-
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatButtonModule,
-    MatIconModule,
-    MatFormFieldModule,
-    MatSelectModule,
-    MatChipsModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule
+    TableModule,
+    ButtonModule,
+    CardModule,
+    SelectModule,
+    TagModule,
+    TooltipModule,
+    ProgressSpinnerModule,
+    ToastModule
   ],
+  providers: [DialogService, MessageService],
   template: `
     <div class="page-container">
       <div class="page-header">
         <h1>Drivers</h1>
-        <button mat-flat-button color="primary" (click)="openAddDialog()">
-          <mat-icon>add</mat-icon>
-          Add Driver
-        </button>
+        <p-button label="Add Driver" icon="pi pi-plus" (onClick)="openAddDialog()"></p-button>
       </div>
 
-      <mat-card>
-        <mat-card-content>
-          <div class="filters">
-            <mat-form-field appearance="outline">
-              <mat-label>Status</mat-label>
-              <mat-select [(value)]="activeFilter" (selectionChange)="onFilterChange()">
-                <mat-option [value]="null">All</mat-option>
-                <mat-option [value]="true">Active</mat-option>
-                <mat-option [value]="false">Inactive</mat-option>
-              </mat-select>
-            </mat-form-field>
+      <p-card>
+        <div class="filters">
+          <p-select
+            [options]="statusOptions"
+            [(ngModel)]="activeFilter"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Status"
+            (onChange)="onFilterChange()"
+            [style]="{'min-width': '150px'}">
+          </p-select>
+        </div>
+
+        @if (loading()) {
+          <div class="loading-container">
+            <p-progressSpinner [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
           </div>
+        } @else {
+          <p-table
+            [value]="drivers()"
+            [paginator]="true"
+            [rows]="pageSize()"
+            [totalRecords]="totalItems()"
+            [lazy]="true"
+            (onLazyLoad)="onLazyLoad($event)"
+            [rowsPerPageOptions]="[10, 25, 50]"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [tableStyle]="{'min-width': '75rem'}">
 
-          @if (loading()) {
-            <div class="loading-container">
-              <mat-spinner diameter="40"></mat-spinner>
-            </div>
-          } @else {
-            <table mat-table [dataSource]="dataSource" class="drivers-table">
-              <ng-container matColumnDef="code">
-                <th mat-header-cell *matHeaderCellDef>Code</th>
-                <td mat-cell *matCellDef="let driver">{{ driver.code }}</td>
-              </ng-container>
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Vehicle</th>
+                <th>Production Site</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
 
-              <ng-container matColumnDef="name">
-                <th mat-header-cell *matHeaderCellDef>Name</th>
-                <td mat-cell *matCellDef="let driver">{{ driver.firstName }} {{ driver.lastName }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="phone">
-                <th mat-header-cell *matHeaderCellDef>Phone</th>
-                <td mat-cell *matCellDef="let driver">{{ driver.phone }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="vehicle">
-                <th mat-header-cell *matHeaderCellDef>Vehicle</th>
-                <td mat-cell *matCellDef="let driver">{{ driver.vehicleType }} - {{ driver.vehiclePlate }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="productionSite">
-                <th mat-header-cell *matHeaderCellDef>Production Site</th>
-                <td mat-cell *matCellDef="let driver">{{ driver.productionSiteName }}</td>
-              </ng-container>
-
-              <ng-container matColumnDef="active">
-                <th mat-header-cell *matHeaderCellDef>Active</th>
-                <td mat-cell *matCellDef="let driver">
-                  <mat-chip [class.active-chip]="driver.active" [class.inactive-chip]="!driver.active">
-                    {{ driver.active ? 'Active' : 'Inactive' }}
-                  </mat-chip>
+            <ng-template pTemplate="body" let-driver>
+              <tr>
+                <td>{{ driver.code }}</td>
+                <td>{{ driver.firstName }} {{ driver.lastName }}</td>
+                <td>{{ driver.phone }}</td>
+                <td>{{ driver.vehicleType }} - {{ driver.vehiclePlate }}</td>
+                <td>{{ driver.productionSiteName }}</td>
+                <td>
+                  <p-tag
+                    [value]="driver.active ? 'Active' : 'Inactive'"
+                    [severity]="driver.active ? 'success' : 'danger'">
+                  </p-tag>
                 </td>
-              </ng-container>
-
-              <ng-container matColumnDef="actions">
-                <th mat-header-cell *matHeaderCellDef>Actions</th>
-                <td mat-cell *matCellDef="let driver">
-                  <button mat-icon-button matTooltip="Edit" (click)="openEditDialog(driver)">
-                    <mat-icon>edit</mat-icon>
-                  </button>
+                <td>
+                  <p-button
+                    icon="pi pi-pencil"
+                    [rounded]="true"
+                    [text]="true"
+                    pTooltip="Edit"
+                    (onClick)="openEditDialog(driver)">
+                  </p-button>
                   @if (driver.active) {
-                    <button mat-icon-button matTooltip="Deactivate" (click)="toggleActive(driver)">
-                      <mat-icon>toggle_off</mat-icon>
-                    </button>
+                    <p-button
+                      icon="pi pi-toggle-off"
+                      [rounded]="true"
+                      [text]="true"
+                      pTooltip="Deactivate"
+                      (onClick)="toggleActive(driver)">
+                    </p-button>
                   } @else {
-                    <button mat-icon-button matTooltip="Activate" (click)="toggleActive(driver)">
-                      <mat-icon>toggle_on</mat-icon>
-                    </button>
+                    <p-button
+                      icon="pi pi-toggle-on"
+                      [rounded]="true"
+                      [text]="true"
+                      pTooltip="Activate"
+                      (onClick)="toggleActive(driver)">
+                    </p-button>
                   }
-                  <button mat-icon-button matTooltip="Delete" color="warn" (click)="deleteDriver(driver)">
-                    <mat-icon>delete</mat-icon>
-                  </button>
-                </td>
-              </ng-container>
-
-              <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-              <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-              <tr class="mat-row" *matNoDataRow>
-                <td class="mat-cell no-data" [attr.colspan]="displayedColumns.length">
-                  No drivers found
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="danger"
+                    pTooltip="Delete"
+                    (onClick)="deleteDriver(driver)">
+                  </p-button>
                 </td>
               </tr>
-            </table>
+            </ng-template>
 
-            <mat-paginator
-              [length]="totalItems()"
-              [pageSize]="pageSize()"
-              [pageIndex]="pageIndex()"
-              [pageSizeOptions]="[10, 25, 50]"
-              (page)="onPageChange($event)"
-              showFirstLastButtons>
-            </mat-paginator>
-          }
-        </mat-card-content>
-      </mat-card>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7" class="no-data">No drivers found</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </p-card>
     </div>
+    <p-toast></p-toast>
   `,
   styles: [`
     .page-container {
@@ -163,18 +166,10 @@ import { DriverDialogComponent, DriverDialogData } from './driver-dialog/driver-
       margin-bottom: 16px;
     }
 
-    .filters mat-form-field {
-      min-width: 150px;
-    }
-
     .loading-container {
       display: flex;
       justify-content: center;
       padding: 48px;
-    }
-
-    .drivers-table {
-      width: 100%;
     }
 
     .no-data {
@@ -182,30 +177,14 @@ import { DriverDialogComponent, DriverDialogData } from './driver-dialog/driver-
       padding: 24px;
       color: rgba(0, 0, 0, 0.54);
     }
-
-    .active-chip {
-      background-color: #c8e6c9 !important;
-      color: #2e7d32 !important;
-    }
-
-    .inactive-chip {
-      background-color: #ffcdd2 !important;
-      color: #c62828 !important;
-    }
-
-    mat-chip {
-      font-size: 12px;
-    }
   `]
 })
-export class DriversListComponent implements OnInit, AfterViewInit {
+export class DriversListComponent implements OnInit {
   private readonly driverService = inject(DriverService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialogService = inject(DialogService);
+  private readonly messageService = inject(MessageService);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  readonly displayedColumns = ['code', 'name', 'phone', 'vehicle', 'productionSite', 'active', 'actions'];
+  private dialogRef: DynamicDialogRef | undefined;
 
   readonly loading = signal(false);
   readonly drivers = signal<Driver[]>([]);
@@ -214,14 +193,15 @@ export class DriversListComponent implements OnInit, AfterViewInit {
   readonly pageIndex = signal(0);
 
   activeFilter: boolean | null = null;
-  dataSource = new MatTableDataSource<Driver>([]);
+
+  statusOptions: StatusOption[] = [
+    { label: 'All', value: null },
+    { label: 'Active', value: true },
+    { label: 'Inactive', value: false }
+  ];
 
   ngOnInit(): void {
     this.loadDrivers();
-  }
-
-  ngAfterViewInit(): void {
-    this.dataSource.paginator = this.paginator;
   }
 
   loadDrivers(): void {
@@ -239,14 +219,17 @@ export class DriversListComponent implements OnInit, AfterViewInit {
     this.driverService.getDrivers(params).subscribe({
       next: (response) => {
         this.drivers.set(response.data);
-        this.dataSource.data = response.data;
         this.totalItems.set(response.total);
         this.loading.set(false);
       },
       error: (err) => {
         console.error('Failed to load drivers:', err);
         this.loading.set(false);
-        this.snackBar.open('Failed to load drivers', 'Close', { duration: 3000 });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to load drivers'
+        });
       }
     });
   }
@@ -256,38 +239,48 @@ export class DriversListComponent implements OnInit, AfterViewInit {
     this.loadDrivers();
   }
 
-  onPageChange(event: PageEvent): void {
-    this.pageIndex.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+  onLazyLoad(event: any): void {
+    this.pageIndex.set(event.first / event.rows);
+    this.pageSize.set(event.rows);
     this.loadDrivers();
   }
 
   openAddDialog(): void {
     const dialogData: DriverDialogData = { mode: 'create' };
-    const dialogRef = this.dialog.open(DriverDialogComponent, {
-      data: dialogData,
-      width: '700px'
-    });
+    this.dialogRef = this.dialogService.open(DriverDialogComponent, {
+      header: 'Add Driver',
+      width: '700px',
+      data: dialogData
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogRef?.onClose.subscribe((result) => {
       if (result) {
         this.loadDrivers();
-        this.snackBar.open('Driver created successfully', 'Close', { duration: 3000 });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Driver created successfully'
+        });
       }
     });
   }
 
   openEditDialog(driver: Driver): void {
     const dialogData: DriverDialogData = { mode: 'edit', driver };
-    const dialogRef = this.dialog.open(DriverDialogComponent, {
-      data: dialogData,
-      width: '700px'
-    });
+    this.dialogRef = this.dialogService.open(DriverDialogComponent, {
+      header: 'Edit Driver',
+      width: '700px',
+      data: dialogData
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogRef?.onClose.subscribe((result) => {
       if (result) {
         this.loadDrivers();
-        this.snackBar.open('Driver updated successfully', 'Close', { duration: 3000 });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: 'Driver updated successfully'
+        });
       }
     });
   }
@@ -301,11 +294,19 @@ export class DriversListComponent implements OnInit, AfterViewInit {
       next: () => {
         this.loadDrivers();
         const status = driver.active ? 'deactivated' : 'activated';
-        this.snackBar.open(`Driver ${status} successfully`, 'Close', { duration: 3000 });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Driver ${status} successfully`
+        });
       },
       error: (err) => {
         console.error('Failed to toggle driver status:', err);
-        this.snackBar.open('Failed to update driver status', 'Close', { duration: 3000 });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update driver status'
+        });
       }
     });
   }
@@ -315,11 +316,19 @@ export class DriversListComponent implements OnInit, AfterViewInit {
       this.driverService.deleteDriver(driver.id).subscribe({
         next: () => {
           this.loadDrivers();
-          this.snackBar.open('Driver deleted successfully', 'Close', { duration: 3000 });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Driver deleted successfully'
+          });
         },
         error: (err) => {
           console.error('Failed to delete driver:', err);
-          this.snackBar.open('Failed to delete driver', 'Close', { duration: 3000 });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: 'Failed to delete driver'
+          });
         }
       });
     }

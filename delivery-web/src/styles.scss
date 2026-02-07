@@ -1,38 +1,264 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
-// Include theming for Angular Material with `mat.theme()`.
-// This Sass mixin will define CSS variables that are used for styling Angular Material
-// components according to the Material 3 design spec.
-// Learn more about theming and how to use it for your application's
-// custom components at https://material.angular.dev/guide/theming
-@use '@angular/material' as mat;
-
-html {
+/* Global styles for Delivery Management System */
+html, body {
   height: 100%;
-  @include mat.theme((
-    color: (
-      primary: mat.$azure-palette,
-      tertiary: mat.$blue-palette,
-    ),
-    typography: Roboto,
-    density: 0,
-  ));
+  margin: 0;
+  padding: 0;
 }
 
 body {
-  // Default the application to a light color theme. This can be changed to
-  // `dark` to enable the dark color theme, or to `light dark` to defer to the
-  // user's system settings.
-  color-scheme: light;
-
-  // Set a default background, font and text colors for the application using
-  // Angular Material's system-level CSS variables. Learn more about these
-  // variables at https://material.angular.dev/guide/system-variables
-  background-color: var(--mat-sys-surface);
-  color: var(--mat-sys-on-surface);
-  font: var(--mat-sys-body-medium);
-
-  // Reset the user agent margin.
-  margin: 0;
-  height: 100%;
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  @apply bg-gray-50 text-gray-900;
 }
-/* You can add global styles to this file, and also import other style files */
+
+/* PrimeNG component overrides with Tailwind */
+.p-component {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+}
+
+/* Card styling */
+.p-card {
+  @apply shadow-md rounded-lg bg-white;
+}
+
+.p-card .p-card-body {
+  @apply p-4;
+}
+
+.p-card .p-card-content {
+  @apply p-0;
+}
+
+/* Table styling */
+.p-datatable {
+  @apply rounded-lg overflow-hidden;
+}
+
+.p-datatable .p-datatable-header {
+  @apply bg-gray-50 border-0;
+}
+
+.p-datatable .p-datatable-thead > tr > th {
+  @apply bg-gray-50 font-semibold text-gray-700 border-b border-gray-200 px-4 py-3;
+}
+
+.p-datatable .p-datatable-tbody > tr > td {
+  @apply px-4 py-3 border-b border-gray-100;
+}
+
+.p-datatable .p-datatable-tbody > tr:hover {
+  @apply bg-gray-50;
+}
+
+.p-datatable .p-paginator {
+  @apply bg-white border-t border-gray-200;
+}
+
+/* Button styling */
+.p-button {
+  @apply rounded-md font-medium transition-all duration-200;
+}
+
+.p-button:not(.p-button-text):not(.p-button-outlined) {
+  @apply bg-blue-600 hover:bg-blue-700 border-blue-600;
+}
+
+.p-button.p-button-secondary {
+  @apply bg-gray-100 hover:bg-gray-200 text-gray-700 border-gray-200;
+}
+
+.p-button.p-button-danger {
+  @apply bg-red-600 hover:bg-red-700 border-red-600;
+}
+
+.p-button.p-button-success {
+  @apply bg-green-600 hover:bg-green-700 border-green-600;
+}
+
+.p-button.p-button-text {
+  @apply bg-transparent hover:bg-gray-100;
+}
+
+/* Form field styling */
+.p-inputtext {
+  @apply rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200;
+}
+
+.p-select {
+  @apply rounded-md;
+}
+
+.p-select .p-select-label {
+  @apply py-2;
+}
+
+.p-inputnumber .p-inputnumber-input {
+  @apply rounded-md;
+}
+
+.p-datepicker {
+  @apply rounded-md;
+}
+
+.p-textarea {
+  @apply rounded-md border-gray-300 focus:border-blue-500 focus:ring-2 focus:ring-blue-200;
+}
+
+/* Tag styling */
+.p-tag {
+  @apply rounded-full text-xs font-medium px-2.5 py-1;
+}
+
+.p-tag.p-tag-success {
+  @apply bg-green-100 text-green-800;
+}
+
+.p-tag.p-tag-info {
+  @apply bg-blue-100 text-blue-800;
+}
+
+.p-tag.p-tag-warn {
+  @apply bg-yellow-100 text-yellow-800;
+}
+
+.p-tag.p-tag-danger {
+  @apply bg-red-100 text-red-800;
+}
+
+.p-tag.p-tag-secondary {
+  @apply bg-gray-100 text-gray-800;
+}
+
+/* Toast styling */
+.p-toast {
+  z-index: 10000;
+}
+
+.p-toast .p-toast-message {
+  @apply rounded-lg shadow-lg;
+}
+
+.p-toast .p-toast-message-success {
+  @apply bg-green-50 border-l-4 border-green-500;
+}
+
+.p-toast .p-toast-message-error {
+  @apply bg-red-50 border-l-4 border-red-500;
+}
+
+.p-toast .p-toast-message-warn {
+  @apply bg-yellow-50 border-l-4 border-yellow-500;
+}
+
+.p-toast .p-toast-message-info {
+  @apply bg-blue-50 border-l-4 border-blue-500;
+}
+
+/* Dialog styling */
+.p-dialog {
+  @apply rounded-xl shadow-2xl;
+}
+
+.p-dialog .p-dialog-header {
+  @apply rounded-t-xl bg-white border-b border-gray-200 px-6 py-4;
+}
+
+.p-dialog .p-dialog-title {
+  @apply text-lg font-semibold text-gray-900;
+}
+
+.p-dialog .p-dialog-content {
+  @apply p-6 bg-white;
+}
+
+.p-dialog .p-dialog-footer {
+  @apply rounded-b-xl bg-gray-50 border-t border-gray-200 px-6 py-4;
+}
+
+/* Confirm Dialog */
+.p-confirmdialog {
+  @apply rounded-xl;
+}
+
+/* Menubar styling */
+.p-menubar {
+  @apply rounded-none border-0 bg-white shadow-sm px-4 py-2;
+}
+
+.p-menubar .p-menubar-root-list > .p-menubar-item > .p-menubar-item-content {
+  @apply rounded-md;
+}
+
+.p-menubar .p-menubar-item-link {
+  @apply px-4 py-2 rounded-md;
+}
+
+.p-menubar .p-menubar-item:hover .p-menubar-item-link {
+  @apply bg-gray-100;
+}
+
+/* Menu (popup) styling */
+.p-menu {
+  @apply rounded-lg shadow-lg border border-gray-200;
+}
+
+.p-menu .p-menu-item-link {
+  @apply px-4 py-2;
+}
+
+.p-menu .p-menu-item:hover .p-menu-item-link {
+  @apply bg-gray-100;
+}
+
+/* Progress Spinner */
+.p-progress-spinner-circle {
+  @apply stroke-blue-600;
+}
+
+/* Divider */
+.p-divider {
+  @apply border-gray-200;
+}
+
+/* Toggle Switch */
+.p-toggleswitch.p-toggleswitch-checked .p-toggleswitch-slider {
+  @apply bg-blue-600;
+}
+
+/* Checkbox */
+.p-checkbox .p-checkbox-box.p-highlight {
+  @apply bg-blue-600 border-blue-600;
+}
+
+/* Tooltip */
+.p-tooltip .p-tooltip-text {
+  @apply bg-gray-900 text-white text-xs rounded-md px-2 py-1;
+}
+
+/* Error messages */
+.p-error {
+  @apply text-red-600 text-sm;
+}
+
+/* Form validation */
+.ng-invalid.ng-touched .p-inputtext,
+.ng-invalid.ng-touched .p-select,
+.ng-invalid.ng-touched .p-textarea {
+  @apply border-red-500;
+}
+
+/* Avatar placeholder */
+.avatar-placeholder {
+  @apply w-8 h-8 rounded-full bg-blue-600 text-white flex items-center justify-center text-sm font-medium;
+}
+
+/* Responsive adjustments */
+@media screen and (max-width: 768px) {
+  .p-datatable .p-datatable-thead > tr > th,
+  .p-datatable .p-datatable-tbody > tr > td {
+    @apply px-2 py-2;
+  }
+}

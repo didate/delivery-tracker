@@ -1,20 +1,17 @@
-import { Component, computed, signal } from '@angular/core';
+import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDividerModule } from '@angular/material/divider';
-import { DatePipe } from '@angular/common';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { DividerModule } from 'primeng/divider';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { CurrencyPipe, DatePipe } from '@angular/common';
+import { DashboardService, DashboardStats, RecentDelivery, RecentPayment } from './services/dashboard.service';
 
 interface StatCard {
   title: string;
   value: number | string;
   icon: string;
   color: string;
-  trend?: {
-    value: number;
-    isPositive: boolean;
-  };
 }
 
 interface QuickAction {
@@ -24,12 +21,15 @@ interface QuickAction {
   color: string;
 }
 
+type ActivityType = 'delivery' | 'payment';
+
 interface RecentActivity {
   id: number;
-  type: 'delivery' | 'return' | 'payment' | 'customer';
+  type: ActivityType;
   description: string;
   timestamp: Date;
-  status: 'completed' | 'pending' | 'cancelled';
+  status: 'completed' | 'pending' | 'in_progress' | 'cancelled';
+  amount?: number;
 }
 
 @Component({
@@ -37,11 +37,12 @@ interface RecentActivity {
   standalone: true,
   imports: [
     RouterLink,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDividerModule,
-    DatePipe
+    CardModule,
+    ButtonModule,
+    DividerModule,
+    ProgressSpinnerModule,
+    DatePipe,
+    CurrencyPipe
   ],
   template: `
     <div class="dashboard-container">
@@ -50,65 +51,64 @@ interface RecentActivity {
         <p class="subtitle">Welcome back! Here's an overview of your delivery operations.</p>
       </header>
 
-      <!-- Stats Cards Section -->
-      <section class="stats-section">
-        <h2 class="section-title">Overview</h2>
-        <div class="stats-grid">
-          @for (stat of stats(); track stat.title) {
-            <mat-card class="stat-card" [style.--accent-color]="stat.color">
-              <mat-card-content>
-                <div class="stat-icon" [style.background-color]="stat.color + '20'" [style.color]="stat.color">
-                  <mat-icon>{{ stat.icon }}</mat-icon>
-                </div>
-                <div class="stat-info">
-                  <span class="stat-value">{{ stat.value }}</span>
-                  <span class="stat-label">{{ stat.title }}</span>
-                </div>
-                @if (stat.trend) {
-                  <div class="stat-trend" [class.positive]="stat.trend.isPositive" [class.negative]="!stat.trend.isPositive">
-                    <mat-icon>{{ stat.trend.isPositive ? 'trending_up' : 'trending_down' }}</mat-icon>
-                    <span>{{ stat.trend.value }}%</span>
-                  </div>
-                }
-              </mat-card-content>
-            </mat-card>
-          }
+      @if (isLoading()) {
+        <div class="loading-container">
+          <p-progressSpinner></p-progressSpinner>
+          <p>Loading dashboard data...</p>
         </div>
-      </section>
-
-      <!-- Quick Actions Section -->
-      <section class="quick-actions-section">
-        <h2 class="section-title">Quick Actions</h2>
-        <div class="actions-grid">
-          @for (action of quickActions(); track action.label) {
-            <a [routerLink]="action.route" class="action-link">
-              <mat-card class="action-card">
-                <mat-card-content>
-                  <div class="action-icon" [style.background-color]="action.color + '20'" [style.color]="action.color">
-                    <mat-icon>{{ action.icon }}</mat-icon>
+      } @else {
+        <!-- Stats Cards Section -->
+        <section class="stats-section">
+          <h2 class="section-title">Overview</h2>
+          <div class="stats-grid">
+            @for (stat of stats(); track stat.title) {
+              <p-card styleClass="stat-card">
+                <div class="stat-card-content" [style.--accent-color]="stat.color">
+                  <div class="stat-icon" [style.background-color]="stat.color + '20'" [style.color]="stat.color">
+                    <i [class]="stat.icon"></i>
                   </div>
-                  <span class="action-label">{{ action.label }}</span>
-                </mat-card-content>
-              </mat-card>
+                  <div class="stat-info">
+                    <span class="stat-value">{{ stat.value }}</span>
+                    <span class="stat-label">{{ stat.title }}</span>
+                  </div>
+                </div>
+              </p-card>
+            }
+          </div>
+        </section>
+
+        <!-- Quick Actions Section -->
+        <section class="quick-actions-section">
+          <h2 class="section-title">Quick Actions</h2>
+          <div class="actions-grid">
+            @for (action of quickActions(); track action.label) {
+              <a [routerLink]="action.route" class="action-link">
+                <p-card styleClass="action-card">
+                  <div class="action-card-content">
+                    <div class="action-icon" [style.background-color]="action.color + '20'" [style.color]="action.color">
+                      <i [class]="action.icon"></i>
+                    </div>
+                    <span class="action-label">{{ action.label }}</span>
+                  </div>
+                </p-card>
+              </a>
+            }
+          </div>
+        </section>
+
+        <!-- Recent Activity Section -->
+        <section class="activity-section">
+          <div class="section-header">
+            <h2 class="section-title">Recent Activity</h2>
+            <a routerLink="/deliveries" class="view-all-link">
+              View All
+              <i class="pi pi-arrow-right"></i>
             </a>
-          }
-        </div>
-      </section>
-
-      <!-- Recent Activity Section -->
-      <section class="activity-section">
-        <div class="section-header">
-          <h2 class="section-title">Recent Activity</h2>
-          <a mat-button routerLink="/deliveries" color="primary">
-            View All
-            <mat-icon>arrow_forward</mat-icon>
-          </a>
-        </div>
-        <mat-card class="activity-card">
-          <mat-card-content>
+          </div>
+          <p-card styleClass="activity-card">
             @if (recentActivity().length === 0) {
               <div class="empty-state">
-                <mat-icon>inbox</mat-icon>
+                <i class="pi pi-inbox"></i>
                 <p>No recent activity</p>
               </div>
             } @else {
@@ -116,25 +116,30 @@ interface RecentActivity {
                 @for (activity of recentActivity(); track activity.id; let last = $last) {
                   <div class="activity-item">
                     <div class="activity-icon" [class]="activity.type">
-                      <mat-icon>{{ getActivityIcon(activity.type) }}</mat-icon>
+                      <i [class]="getActivityIcon(activity.type)"></i>
                     </div>
                     <div class="activity-content">
                       <span class="activity-description">{{ activity.description }}</span>
                       <span class="activity-time">{{ activity.timestamp | date:'short' }}</span>
                     </div>
+                    @if (activity.amount) {
+                      <div class="activity-amount">
+                        {{ activity.amount | currency }}
+                      </div>
+                    }
                     <div class="activity-status" [class]="activity.status">
-                      {{ activity.status }}
+                      {{ formatStatus(activity.status) }}
                     </div>
                   </div>
                   @if (!last) {
-                    <mat-divider></mat-divider>
+                    <p-divider></p-divider>
                   }
                 }
               </div>
             }
-          </mat-card-content>
-        </mat-card>
-      </section>
+          </p-card>
+        </section>
+      }
     </div>
   `,
   styles: [`
@@ -144,6 +149,19 @@ interface RecentActivity {
       margin: 0 auto;
     }
 
+    .loading-container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 80px 24px;
+      color: var(--text-color-secondary);
+
+      p {
+        margin-top: 16px;
+      }
+    }
+
     .dashboard-header {
       margin-bottom: 32px;
 
@@ -151,12 +169,12 @@ interface RecentActivity {
         margin: 0 0 8px 0;
         font-size: 28px;
         font-weight: 500;
-        color: var(--mat-sys-on-surface);
+        color: var(--text-color);
       }
 
       .subtitle {
         margin: 0;
-        color: var(--mat-sys-on-surface-variant);
+        color: var(--text-color-secondary);
         font-size: 14px;
       }
     }
@@ -165,7 +183,7 @@ interface RecentActivity {
       font-size: 18px;
       font-weight: 500;
       margin: 0 0 16px 0;
-      color: var(--mat-sys-on-surface);
+      color: var(--text-color);
     }
 
     .section-header {
@@ -177,14 +195,25 @@ interface RecentActivity {
       .section-title {
         margin: 0;
       }
+    }
 
-      a {
-        mat-icon {
-          margin-left: 4px;
-          font-size: 18px;
-          width: 18px;
-          height: 18px;
-        }
+    .view-all-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      color: var(--primary-color);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s ease;
+
+      &:hover {
+        color: var(--primary-600);
+        text-decoration: underline;
+      }
+
+      i {
+        font-size: 12px;
       }
     }
 
@@ -199,7 +228,7 @@ interface RecentActivity {
       gap: 16px;
     }
 
-    .stat-card {
+    :host ::ng-deep .stat-card {
       transition: transform 0.2s ease, box-shadow 0.2s ease;
 
       &:hover {
@@ -207,12 +236,20 @@ interface RecentActivity {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
-      mat-card-content {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        padding: 20px !important;
+      .p-card-body {
+        padding: 0;
       }
+
+      .p-card-content {
+        padding: 0;
+      }
+    }
+
+    .stat-card-content {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
     }
 
     .stat-icon {
@@ -224,10 +261,8 @@ interface RecentActivity {
       justify-content: center;
       flex-shrink: 0;
 
-      mat-icon {
+      i {
         font-size: 28px;
-        width: 28px;
-        height: 28px;
       }
     }
 
@@ -241,40 +276,14 @@ interface RecentActivity {
     .stat-value {
       font-size: 28px;
       font-weight: 600;
-      color: var(--mat-sys-on-surface);
+      color: var(--text-color);
       line-height: 1.2;
     }
 
     .stat-label {
       font-size: 13px;
-      color: var(--mat-sys-on-surface-variant);
+      color: var(--text-color-secondary);
       margin-top: 4px;
-    }
-
-    .stat-trend {
-      display: flex;
-      align-items: center;
-      gap: 2px;
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 8px;
-      border-radius: 12px;
-
-      mat-icon {
-        font-size: 16px;
-        width: 16px;
-        height: 16px;
-      }
-
-      &.positive {
-        color: #2e7d32;
-        background-color: #e8f5e9;
-      }
-
-      &.negative {
-        color: #c62828;
-        background-color: #ffebee;
-      }
     }
 
     /* Quick Actions Section */
@@ -292,7 +301,7 @@ interface RecentActivity {
       text-decoration: none;
     }
 
-    .action-card {
+    :host ::ng-deep .action-card {
       cursor: pointer;
       transition: transform 0.2s ease, box-shadow 0.2s ease;
 
@@ -301,14 +310,22 @@ interface RecentActivity {
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
 
-      mat-card-content {
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        gap: 12px;
-        padding: 24px 16px !important;
-        text-align: center;
+      .p-card-body {
+        padding: 0;
       }
+
+      .p-card-content {
+        padding: 0;
+      }
+    }
+
+    .action-card-content {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      padding: 24px 16px;
+      text-align: center;
     }
 
     .action-icon {
@@ -319,17 +336,15 @@ interface RecentActivity {
       align-items: center;
       justify-content: center;
 
-      mat-icon {
+      i {
         font-size: 24px;
-        width: 24px;
-        height: 24px;
       }
     }
 
     .action-label {
       font-size: 14px;
       font-weight: 500;
-      color: var(--mat-sys-on-surface);
+      color: var(--text-color);
     }
 
     /* Activity Section */
@@ -337,15 +352,23 @@ interface RecentActivity {
       margin-bottom: 32px;
     }
 
-    .activity-card {
-      mat-card-content {
-        padding: 0 !important;
+    :host ::ng-deep .activity-card {
+      .p-card-body {
+        padding: 0;
+      }
+
+      .p-card-content {
+        padding: 0;
       }
     }
 
     .activity-list {
-      mat-divider {
+      :host ::ng-deep p-divider {
         margin: 0 16px;
+
+        .p-divider {
+          margin: 0;
+        }
       }
     }
 
@@ -365,10 +388,8 @@ interface RecentActivity {
       justify-content: center;
       flex-shrink: 0;
 
-      mat-icon {
-        font-size: 20px;
-        width: 20px;
-        height: 20px;
+      i {
+        font-size: 18px;
       }
 
       &.delivery {
@@ -376,19 +397,9 @@ interface RecentActivity {
         color: #1976d2;
       }
 
-      &.return {
-        background-color: #fff3e0;
-        color: #f57c00;
-      }
-
       &.payment {
         background-color: #e8f5e9;
         color: #388e3c;
-      }
-
-      &.customer {
-        background-color: #f3e5f5;
-        color: #7b1fa2;
       }
     }
 
@@ -402,7 +413,7 @@ interface RecentActivity {
 
     .activity-description {
       font-size: 14px;
-      color: var(--mat-sys-on-surface);
+      color: var(--text-color);
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
@@ -410,7 +421,14 @@ interface RecentActivity {
 
     .activity-time {
       font-size: 12px;
-      color: var(--mat-sys-on-surface-variant);
+      color: var(--text-color-secondary);
+    }
+
+    .activity-amount {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-color);
+      margin-right: 8px;
     }
 
     .activity-status {
@@ -431,6 +449,11 @@ interface RecentActivity {
         color: #f57c00;
       }
 
+      &.in_progress {
+        background-color: #e3f2fd;
+        color: #1976d2;
+      }
+
       &.cancelled {
         background-color: #ffebee;
         color: #c62828;
@@ -443,12 +466,10 @@ interface RecentActivity {
       align-items: center;
       justify-content: center;
       padding: 48px 24px;
-      color: var(--mat-sys-on-surface-variant);
+      color: var(--text-color-secondary);
 
-      mat-icon {
+      i {
         font-size: 48px;
-        width: 48px;
-        height: 48px;
         margin-bottom: 16px;
         opacity: 0.5;
       }
@@ -477,18 +498,16 @@ interface RecentActivity {
         grid-template-columns: repeat(2, 1fr);
       }
 
-      .stat-card mat-card-content {
-        padding: 16px !important;
+      .stat-card-content {
+        padding: 16px;
       }
 
       .stat-icon {
         width: 48px;
         height: 48px;
 
-        mat-icon {
+        i {
           font-size: 24px;
-          width: 24px;
-          height: 24px;
         }
       }
 
@@ -504,6 +523,7 @@ interface RecentActivity {
         flex: 1 1 calc(100% - 72px);
       }
 
+      .activity-amount,
       .activity-status {
         margin-left: 56px;
         margin-top: 8px;
@@ -523,136 +543,179 @@ interface RecentActivity {
     }
   `]
 })
-export class DashboardComponent {
-  // Mock data using signals - ready to be connected to real APIs
-  readonly stats = signal<StatCard[]>([
-    {
-      title: 'Total Customers',
-      value: 1247,
-      icon: 'people',
-      color: '#1976d2',
-      trend: { value: 12, isPositive: true }
-    },
-    {
-      title: 'Total Products',
-      value: 356,
-      icon: 'inventory',
-      color: '#7b1fa2',
-      trend: { value: 8, isPositive: true }
-    },
-    {
-      title: 'Active Drivers',
-      value: 24,
-      icon: 'local_shipping',
-      color: '#388e3c',
-      trend: { value: 5, isPositive: true }
-    },
-    {
-      title: "Today's Deliveries",
-      value: 87,
-      icon: 'receipt_long',
-      color: '#f57c00',
-      trend: { value: 3, isPositive: false }
-    },
-    {
-      title: 'Pending Returns',
-      value: 15,
-      icon: 'assignment_return',
-      color: '#c62828'
-    },
-    {
-      title: 'Monthly Revenue',
-      value: '$48,520',
-      icon: 'payments',
-      color: '#00897b',
-      trend: { value: 18, isPositive: true }
-    }
-  ]);
+export class DashboardComponent implements OnInit {
+  private readonly dashboardService = inject(DashboardService);
+
+  readonly isLoading = signal(true);
+  readonly stats = signal<StatCard[]>([]);
+  readonly recentActivity = signal<RecentActivity[]>([]);
 
   readonly quickActions = signal<QuickAction[]>([
     {
       label: 'New Delivery',
-      icon: 'add_circle',
+      icon: 'pi pi-plus-circle',
       route: '/deliveries',
       color: '#1976d2'
     },
     {
       label: 'New Customer',
-      icon: 'person_add',
+      icon: 'pi pi-user-plus',
       route: '/customers',
       color: '#7b1fa2'
     },
     {
       label: 'New Product',
-      icon: 'add_box',
+      icon: 'pi pi-plus',
       route: '/products',
       color: '#388e3c'
     },
     {
       label: 'View Returns',
-      icon: 'assignment_return',
+      icon: 'pi pi-replay',
       route: '/returns',
       color: '#f57c00'
     },
     {
       label: 'Manage Drivers',
-      icon: 'groups',
+      icon: 'pi pi-users',
       route: '/drivers',
       color: '#00897b'
     },
     {
       label: 'View Payments',
-      icon: 'account_balance_wallet',
+      icon: 'pi pi-credit-card',
       route: '/payments',
       color: '#5c6bc0'
     }
   ]);
 
-  readonly recentActivity = signal<RecentActivity[]>([
-    {
-      id: 1,
-      type: 'delivery',
-      description: 'Delivery #1247 completed to John Smith',
-      timestamp: new Date(Date.now() - 1000 * 60 * 15),
-      status: 'completed'
-    },
-    {
-      id: 2,
-      type: 'customer',
-      description: 'New customer registered: Sarah Johnson',
-      timestamp: new Date(Date.now() - 1000 * 60 * 45),
-      status: 'completed'
-    },
-    {
-      id: 3,
-      type: 'return',
-      description: 'Return request #89 from Mike Davis',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 2),
-      status: 'pending'
-    },
-    {
-      id: 4,
-      type: 'payment',
-      description: 'Payment received: $125.00 from Order #1245',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 3),
-      status: 'completed'
-    },
-    {
-      id: 5,
-      type: 'delivery',
-      description: 'Delivery #1246 assigned to Driver Alex',
-      timestamp: new Date(Date.now() - 1000 * 60 * 60 * 4),
-      status: 'pending'
-    }
-  ]);
+  ngOnInit(): void {
+    this.loadDashboardData();
+  }
 
-  getActivityIcon(type: RecentActivity['type']): string {
-    const icons: Record<RecentActivity['type'], string> = {
-      delivery: 'local_shipping',
-      return: 'assignment_return',
-      payment: 'payments',
-      customer: 'person'
+  private loadDashboardData(): void {
+    this.isLoading.set(true);
+
+    this.dashboardService.getDashboardStats().subscribe({
+      next: (dashboardStats) => {
+        this.stats.set([
+          {
+            title: 'Total Customers',
+            value: dashboardStats.totalCustomers,
+            icon: 'pi pi-users',
+            color: '#1976d2'
+          },
+          {
+            title: 'Total Products',
+            value: dashboardStats.totalProducts,
+            icon: 'pi pi-box',
+            color: '#7b1fa2'
+          },
+          {
+            title: 'Active Drivers',
+            value: dashboardStats.activeDrivers,
+            icon: 'pi pi-truck',
+            color: '#388e3c'
+          },
+          {
+            title: "Today's Deliveries",
+            value: dashboardStats.todayDeliveries,
+            icon: 'pi pi-file',
+            color: '#f57c00'
+          },
+          {
+            title: 'Pending Returns',
+            value: dashboardStats.pendingReturns,
+            icon: 'pi pi-replay',
+            color: '#c62828'
+          },
+          {
+            title: 'Monthly Revenue',
+            value: this.formatCurrency(dashboardStats.monthlyRevenue),
+            icon: 'pi pi-wallet',
+            color: '#00897b'
+          }
+        ]);
+        this.loadRecentActivity();
+      },
+      error: (error) => {
+        console.error('Error loading dashboard stats:', error);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private loadRecentActivity(): void {
+    this.dashboardService.getRecentDeliveries().subscribe({
+      next: (deliveries) => {
+        const activities: RecentActivity[] = deliveries.map(d => ({
+          id: d.id,
+          type: 'delivery' as ActivityType,
+          description: `Delivery ${d.code} to ${d.customerName}`,
+          timestamp: new Date(d.deliveryDate),
+          status: this.mapDeliveryStatus(d.status),
+          amount: d.totalAmount
+        }));
+
+        this.dashboardService.getRecentPayments().subscribe({
+          next: (payments) => {
+            const paymentActivities: RecentActivity[] = payments.map(p => ({
+              id: p.id + 10000,
+              type: 'payment' as ActivityType,
+              description: `Payment from ${p.customerName}`,
+              timestamp: new Date(p.paymentDate),
+              status: 'completed' as const,
+              amount: p.amount
+            }));
+
+            const allActivities = [...activities, ...paymentActivities]
+              .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
+              .slice(0, 5);
+
+            this.recentActivity.set(allActivities);
+            this.isLoading.set(false);
+          },
+          error: () => {
+            this.recentActivity.set(activities);
+            this.isLoading.set(false);
+          }
+        });
+      },
+      error: () => {
+        this.recentActivity.set([]);
+        this.isLoading.set(false);
+      }
+    });
+  }
+
+  private mapDeliveryStatus(status: string): 'completed' | 'pending' | 'in_progress' | 'cancelled' {
+    const statusMap: Record<string, 'completed' | 'pending' | 'in_progress' | 'cancelled'> = {
+      'COMPLETED': 'completed',
+      'PENDING': 'pending',
+      'IN_PROGRESS': 'in_progress',
+      'CANCELLED': 'cancelled'
+    };
+    return statusMap[status] || 'pending';
+  }
+
+  private formatCurrency(value: number): string {
+    return new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+      minimumFractionDigits: 0,
+      maximumFractionDigits: 0
+    }).format(value);
+  }
+
+  getActivityIcon(type: ActivityType): string {
+    const icons: Record<ActivityType, string> = {
+      delivery: 'pi pi-truck',
+      payment: 'pi pi-wallet'
     };
     return icons[type];
+  }
+
+  formatStatus(status: string): string {
+    return status.replace('_', ' ');
   }
 }

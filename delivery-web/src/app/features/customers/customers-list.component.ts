@@ -1,19 +1,17 @@
-import { Component, inject, signal, computed, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { CardModule } from 'primeng/card';
+import { ToggleButtonModule } from 'primeng/togglebutton';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { debounceTime, Subject } from 'rxjs';
 
 import { Customer, CreateCustomerDto } from './models/customer.model';
@@ -26,155 +24,142 @@ import { CustomerDialogComponent, CustomerDialogData, CustomerDialogResult } fro
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatSlideToggleModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatChipsModule,
+    TableModule,
+    ButtonModule,
+    InputTextModule,
+    CardModule,
+    ToggleButtonModule,
+    ToggleSwitchModule,
+    ProgressSpinnerModule,
+    TooltipModule,
+    ToastModule,
   ],
+  providers: [DialogService, MessageService],
   template: `
     <div class="page-container">
       <div class="page-header">
         <h1>Customers</h1>
-        <button mat-raised-button color="primary" (click)="openCreateDialog()">
-          <mat-icon>add</mat-icon>
-          Add Customer
-        </button>
+        <p-button
+          label="Add Customer"
+          icon="pi pi-plus"
+          (onClick)="openCreateDialog()">
+        </p-button>
       </div>
 
-      <mat-card>
-        <mat-card-content>
-          <div class="filters-row">
-            <mat-form-field appearance="outline" class="search-field">
-              <mat-label>Search</mat-label>
-              <input
-                matInput
-                [(ngModel)]="searchValue"
-                (ngModelChange)="onSearchChange($event)"
-                placeholder="Search by name, code, email...">
-              <mat-icon matSuffix>search</mat-icon>
-            </mat-form-field>
+      <p-card>
+        <div class="filters-row">
+          <span class="p-input-icon-right search-field">
+            <i class="pi pi-search"></i>
+            <input
+              type="text"
+              pInputText
+              [(ngModel)]="searchValue"
+              (ngModelChange)="onSearchChange($event)"
+              placeholder="Search by name, code, email..." />
+          </span>
+        </div>
+
+        @if (isLoading()) {
+          <div class="loading-container">
+            <p-progressSpinner [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+            <p>Loading customers...</p>
           </div>
+        } @else if (error()) {
+          <div class="error-container">
+            <i class="pi pi-exclamation-circle error-icon"></i>
+            <p>{{ error() }}</p>
+            <p-button
+              label="Retry"
+              icon="pi pi-refresh"
+              [text]="true"
+              (onClick)="loadCustomers()">
+            </p-button>
+          </div>
+        } @else {
+          <p-table
+            [value]="customers()"
+            [paginator]="true"
+            [rows]="pageSize()"
+            [totalRecords]="totalItems()"
+            [lazy]="true"
+            (onLazyLoad)="onLazyLoad($event)"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            [tableStyle]="{'min-width': '60rem'}">
 
-          @if (isLoading()) {
-            <div class="loading-container">
-              <mat-spinner diameter="40"></mat-spinner>
-              <p>Loading customers...</p>
-            </div>
-          } @else if (error()) {
-            <div class="error-container">
-              <mat-icon color="warn">error</mat-icon>
-              <p>{{ error() }}</p>
-              <button mat-button color="primary" (click)="loadCustomers()">
-                <mat-icon>refresh</mat-icon>
-                Retry
-              </button>
-            </div>
-          } @else {
-            <div class="table-container">
-              <table mat-table [dataSource]="dataSource" class="customers-table">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Phone</th>
+                <th>Email</th>
+                <th>Driver</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
 
-                <ng-container matColumnDef="code">
-                  <th mat-header-cell *matHeaderCellDef>Code</th>
-                  <td mat-cell *matCellDef="let customer">{{ customer.code }}</td>
-                </ng-container>
+            <ng-template pTemplate="body" let-customer>
+              <tr>
+                <td>{{ customer.code }}</td>
+                <td>{{ customer.name }}</td>
+                <td>{{ customer.phone }}</td>
+                <td>{{ customer.email }}</td>
+                <td>
+                  @if (customer.driverName) {
+                    <span class="driver-badge">{{ customer.driverName }}</span>
+                  } @else {
+                    <span class="no-driver">Not assigned</span>
+                  }
+                </td>
+                <td>
+                  <p-toggleswitch
+                    [(ngModel)]="customer.active"
+                    (onChange)="toggleActive(customer)"
+                    [pTooltip]="customer.active ? 'Deactivate customer' : 'Activate customer'">
+                  </p-toggleswitch>
+                  <span class="status-label" [class.active]="customer.active">
+                    {{ customer.active ? 'Active' : 'Inactive' }}
+                  </span>
+                </td>
+                <td>
+                  <p-button
+                    icon="pi pi-pencil"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="info"
+                    (onClick)="openEditDialog(customer)"
+                    pTooltip="Edit customer">
+                  </p-button>
+                  <p-button
+                    icon="pi pi-trash"
+                    [rounded]="true"
+                    [text]="true"
+                    severity="danger"
+                    (onClick)="confirmDelete(customer)"
+                    pTooltip="Delete customer">
+                  </p-button>
+                </td>
+              </tr>
+            </ng-template>
 
-                <ng-container matColumnDef="name">
-                  <th mat-header-cell *matHeaderCellDef>Name</th>
-                  <td mat-cell *matCellDef="let customer">{{ customer.name }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="phone">
-                  <th mat-header-cell *matHeaderCellDef>Phone</th>
-                  <td mat-cell *matCellDef="let customer">{{ customer.phone }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="email">
-                  <th mat-header-cell *matHeaderCellDef>Email</th>
-                  <td mat-cell *matCellDef="let customer">{{ customer.email }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="driver">
-                  <th mat-header-cell *matHeaderCellDef>Driver</th>
-                  <td mat-cell *matCellDef="let customer">
-                    @if (customer.driverName) {
-                      <span class="driver-badge">{{ customer.driverName }}</span>
-                    } @else {
-                      <span class="no-driver">Not assigned</span>
-                    }
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="active">
-                  <th mat-header-cell *matHeaderCellDef>Status</th>
-                  <td mat-cell *matCellDef="let customer">
-                    <mat-slide-toggle
-                      [checked]="customer.active"
-                      (change)="toggleActive(customer)"
-                      color="primary"
-                      [matTooltip]="customer.active ? 'Deactivate customer' : 'Activate customer'">
-                    </mat-slide-toggle>
-                    <span class="status-label" [class.active]="customer.active">
-                      {{ customer.active ? 'Active' : 'Inactive' }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
-                  <td mat-cell *matCellDef="let customer">
-                    <button
-                      mat-icon-button
-                      color="primary"
-                      (click)="openEditDialog(customer)"
-                      matTooltip="Edit customer">
-                      <mat-icon>edit</mat-icon>
-                    </button>
-                    <button
-                      mat-icon-button
-                      color="warn"
-                      (click)="confirmDelete(customer)"
-                      matTooltip="Delete customer">
-                      <mat-icon>delete</mat-icon>
-                    </button>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-                <tr class="mat-row no-data-row" *matNoDataRow>
-                  <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-                    @if (searchValue) {
-                      No customers found matching "{{ searchValue }}"
-                    } @else {
-                      No customers found. Click "Add Customer" to create one.
-                    }
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <mat-paginator
-              [length]="totalItems()"
-              [pageSize]="pageSize()"
-              [pageIndex]="currentPage()"
-              [pageSizeOptions]="[5, 10, 25, 50]"
-              (page)="onPageChange($event)"
-              showFirstLastButtons>
-            </mat-paginator>
-          }
-        </mat-card-content>
-      </mat-card>
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7" class="no-data-cell">
+                  @if (searchValue) {
+                    No customers found matching "{{ searchValue }}"
+                  } @else {
+                    No customers found. Click "Add Customer" to create one.
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </p-card>
     </div>
+    <p-toast></p-toast>
   `,
   styles: [`
     .page-container {
@@ -202,6 +187,10 @@ import { CustomerDialogComponent, CustomerDialogData, CustomerDialogResult } fro
       width: 300px;
     }
 
+    .search-field input {
+      width: 100%;
+    }
+
     .loading-container,
     .error-container {
       display: flex;
@@ -212,19 +201,10 @@ import { CustomerDialogComponent, CustomerDialogData, CustomerDialogResult } fro
       text-align: center;
     }
 
-    .error-container mat-icon {
+    .error-icon {
       font-size: 48px;
-      width: 48px;
-      height: 48px;
+      color: var(--red-500);
       margin-bottom: 16px;
-    }
-
-    .table-container {
-      overflow-x: auto;
-    }
-
-    .customers-table {
-      width: 100%;
     }
 
     .driver-badge {
@@ -251,25 +231,19 @@ import { CustomerDialogComponent, CustomerDialogData, CustomerDialogResult } fro
       color: #4caf50;
     }
 
-    .no-data-row td {
+    .no-data-cell {
       text-align: center;
       padding: 48px;
       color: #9e9e9e;
     }
-
-    mat-paginator {
-      border-top: 1px solid #e0e0e0;
-    }
   `]
 })
-export class CustomersListComponent implements OnInit, AfterViewInit {
+export class CustomersListComponent implements OnInit {
   private readonly customerService = inject(CustomerService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialogService = inject(DialogService);
+  private readonly messageService = inject(MessageService);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-
-  readonly displayedColumns = ['code', 'name', 'phone', 'email', 'driver', 'active', 'actions'];
+  private dialogRef: DynamicDialogRef<any> | undefined;
 
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
@@ -281,8 +255,6 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
   searchValue = '';
   private readonly searchSubject = new Subject<string>();
 
-  dataSource = new MatTableDataSource<Customer>([]);
-
   ngOnInit(): void {
     this.loadCustomers();
 
@@ -292,12 +264,6 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
       this.currentPage.set(0);
       this.loadCustomers();
     });
-  }
-
-  ngAfterViewInit(): void {
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
   }
 
   loadCustomers(): void {
@@ -313,7 +279,6 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
     this.customerService.getCustomers(params).subscribe({
       next: (response) => {
         this.customers.set(response.data);
-        this.dataSource.data = response.data;
         this.totalItems.set(response.total);
         this.isLoading.set(false);
       },
@@ -328,9 +293,10 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
     this.searchSubject.next(value);
   }
 
-  onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+  onLazyLoad(event: any): void {
+    const page = event.first / event.rows;
+    this.currentPage.set(page);
+    this.pageSize.set(event.rows);
     this.loadCustomers();
   }
 
@@ -339,20 +305,29 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
       mode: 'create'
     };
 
-    const dialogRef = this.dialog.open(CustomerDialogComponent, {
+    this.dialogRef = this.dialogService.open(CustomerDialogComponent, {
+      header: 'Add Customer',
       width: '500px',
       data: dialogData
-    });
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result: CustomerDialogResult | undefined) => {
+    this.dialogRef?.onClose.subscribe((result: CustomerDialogResult | undefined) => {
       if (result?.action === 'save') {
         this.customerService.createCustomer(result.data as CreateCustomerDto).subscribe({
           next: () => {
-            this.snackBar.open('Customer created successfully', 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Customer created successfully'
+            });
             this.loadCustomers();
           },
           error: (err) => {
-            this.snackBar.open(err.message || 'Failed to create customer', 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || 'Failed to create customer'
+            });
           }
         });
       }
@@ -365,20 +340,29 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
       customer
     };
 
-    const dialogRef = this.dialog.open(CustomerDialogComponent, {
+    this.dialogRef = this.dialogService.open(CustomerDialogComponent, {
+      header: 'Edit Customer',
       width: '500px',
       data: dialogData
-    });
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result: CustomerDialogResult | undefined) => {
+    this.dialogRef?.onClose.subscribe((result: CustomerDialogResult | undefined) => {
       if (result?.action === 'save') {
         this.customerService.updateCustomer(customer.id, result.data).subscribe({
           next: () => {
-            this.snackBar.open('Customer updated successfully', 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Customer updated successfully'
+            });
             this.loadCustomers();
           },
           error: (err) => {
-            this.snackBar.open(err.message || 'Failed to update customer', 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || 'Failed to update customer'
+            });
           }
         });
       }
@@ -386,16 +370,24 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
   }
 
   toggleActive(customer: Customer): void {
-    const newActiveState = !customer.active;
+    const newActiveState = customer.active;
 
     this.customerService.toggleActive(customer.id, newActiveState).subscribe({
       next: () => {
         const message = newActiveState ? 'Customer activated' : 'Customer deactivated';
-        this.snackBar.open(message, 'Close', { duration: 3000 });
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: message
+        });
         this.loadCustomers();
       },
       error: (err) => {
-        this.snackBar.open(err.message || 'Failed to update customer status', 'Close', { duration: 5000 });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Failed to update customer status'
+        });
       }
     });
   }
@@ -406,11 +398,19 @@ export class CustomersListComponent implements OnInit, AfterViewInit {
     if (confirmed) {
       this.customerService.deleteCustomer(customer.id).subscribe({
         next: () => {
-          this.snackBar.open('Customer deleted successfully', 'Close', { duration: 3000 });
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Success',
+            detail: 'Customer deleted successfully'
+          });
           this.loadCustomers();
         },
         error: (err) => {
-          this.snackBar.open(err.message || 'Failed to delete customer', 'Close', { duration: 5000 });
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: err.message || 'Failed to delete customer'
+          });
         }
       });
     }

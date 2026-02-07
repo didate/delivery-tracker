@@ -1,13 +1,10 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DynamicDialogRef } from 'primeng/dynamicdialog';
+import { SelectModule } from 'primeng/select';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ButtonModule } from 'primeng/button';
 
 import { CreateDeliveryItemDto } from '../models/delivery.model';
 import { Product } from '../../products/models/product.model';
@@ -24,53 +21,66 @@ export interface AddItemDialogResult {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
+    SelectModule,
+    InputNumberModule,
+    ButtonModule,
     CurrencyPipe,
   ],
   template: `
-    <h2 mat-dialog-title>Add Item</h2>
-
-    <mat-dialog-content>
+    <div class="dialog-content">
       <form [formGroup]="itemForm" class="item-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Product</mat-label>
-          <mat-select formControlName="productId" (selectionChange)="onProductChange($event.value)">
-            @for (product of products(); track product.id) {
-              <mat-option [value]="product.id">
-                {{ product.name }} - {{ product.price | currency }}
-              </mat-option>
-            }
-          </mat-select>
+        <div class="field">
+          <label for="product">Product</label>
+          <p-select
+            id="product"
+            formControlName="productId"
+            [options]="productOptions()"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Select a product"
+            [filter]="true"
+            filterPlaceholder="Search products..."
+            styleClass="w-full"
+            (onChange)="onProductChange($event.value)"
+          ></p-select>
           @if (itemForm.controls.productId.hasError('required') && itemForm.controls.productId.touched) {
-            <mat-error>Product is required</mat-error>
+            <small class="p-error">Product is required</small>
           }
-        </mat-form-field>
+        </div>
 
-        <div class="form-row two-columns">
-          <mat-form-field appearance="outline">
-            <mat-label>Quantity</mat-label>
-            <input matInput type="number" min="1" formControlName="quantity">
+        <div class="form-row">
+          <div class="field">
+            <label for="quantity">Quantity</label>
+            <p-inputNumber
+              id="quantity"
+              formControlName="quantity"
+              [min]="1"
+              [showButtons]="true"
+              buttonLayout="horizontal"
+              styleClass="w-full"
+            ></p-inputNumber>
             @if (itemForm.controls.quantity.hasError('required') && itemForm.controls.quantity.touched) {
-              <mat-error>Quantity is required</mat-error>
+              <small class="p-error">Quantity is required</small>
             }
             @if (itemForm.controls.quantity.hasError('min')) {
-              <mat-error>Minimum quantity is 1</mat-error>
+              <small class="p-error">Minimum quantity is 1</small>
             }
-          </mat-form-field>
+          </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Unit Price</mat-label>
-            <input matInput type="number" min="0" step="0.01" formControlName="unitPrice">
+          <div class="field">
+            <label for="unitPrice">Unit Price</label>
+            <p-inputNumber
+              id="unitPrice"
+              formControlName="unitPrice"
+              mode="currency"
+              currency="USD"
+              [min]="0"
+              styleClass="w-full"
+            ></p-inputNumber>
             @if (itemForm.controls.unitPrice.hasError('required') && itemForm.controls.unitPrice.touched) {
-              <mat-error>Unit price is required</mat-error>
+              <small class="p-error">Unit price is required</small>
             }
-          </mat-form-field>
+          </div>
         </div>
 
         <div class="total-preview">
@@ -78,39 +88,42 @@ export interface AddItemDialogResult {
           <strong>{{ totalPrice() | currency }}</strong>
         </div>
       </form>
-    </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onAdd()"
-        [disabled]="itemForm.invalid">
-        Add Item
-      </button>
-    </mat-dialog-actions>
+      <div class="dialog-actions">
+        <p-button label="Cancel" severity="secondary" (onClick)="onCancel()"></p-button>
+        <p-button label="Add Item" icon="pi pi-plus" (onClick)="onAdd()" [disabled]="itemForm.invalid"></p-button>
+      </div>
+    </div>
   `,
   styles: [`
+    .dialog-content {
+      min-width: 400px;
+    }
+
     .item-form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
-      min-width: 400px;
-      padding-top: 8px;
+      gap: 1rem;
     }
 
-    .full-width {
-      width: 100%;
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
     }
 
-    .form-row.two-columns {
+    .field label {
+      font-weight: 500;
+      color: var(--text-color);
+    }
+
+    .form-row {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 16px;
+      gap: 1rem;
     }
 
-    mat-form-field {
+    .w-full {
       width: 100%;
     }
 
@@ -118,33 +131,39 @@ export interface AddItemDialogResult {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 16px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-      margin-top: 8px;
+      padding: 1rem;
+      background-color: var(--surface-100);
+      border-radius: 0.5rem;
+      margin-top: 0.5rem;
     }
 
     .total-preview strong {
-      font-size: 18px;
-      color: #4caf50;
+      font-size: 1.25rem;
+      color: var(--green-500);
     }
 
-    mat-dialog-content {
-      max-height: 70vh;
-      overflow-y: auto;
-    }
-
-    mat-dialog-actions {
-      padding: 16px 0 0 0;
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--surface-border);
     }
   `]
 })
 export class AddItemDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<AddItemDialogComponent>);
+  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
   private readonly productService = inject(ProductService);
 
   readonly products = signal<Product[]>([]);
+  readonly productOptions = computed(() =>
+    this.products().map(p => ({
+      label: `${p.name} - $${p.price.toFixed(2)}`,
+      value: p.id
+    }))
+  );
 
   readonly itemForm = this.fb.nonNullable.group({
     productId: ['', [Validators.required]],

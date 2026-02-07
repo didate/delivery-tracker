@@ -1,13 +1,12 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TableModule } from 'primeng/table';
+import { DividerModule } from 'primeng/divider';
 import { Product, PriceHistory } from '../models/product.model';
 import { ProductService } from '../services/product.service';
 
@@ -21,152 +20,183 @@ export interface PriceDialogData {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
-    MatTableModule,
-    MatDividerModule,
+    InputNumberModule,
+    ButtonModule,
+    ProgressSpinnerModule,
+    TableModule,
+    DividerModule,
     CurrencyPipe,
     DatePipe
   ],
   template: `
-    <h2 mat-dialog-title>Update Price - {{ data.product.name }}</h2>
-    <mat-dialog-content>
+    <div class="dialog-content">
       <div class="current-price">
         <span class="label">Current Price:</span>
         <span class="value">{{ data.product.price | currency }}</span>
       </div>
 
       <form [formGroup]="priceForm" class="price-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>New Price</mat-label>
-          <input matInput type="number" formControlName="price" placeholder="Enter new price" min="0" step="0.01">
-          @if (priceForm.controls.price.hasError('required')) {
-            <mat-error>Price is required</mat-error>
+        <div class="field">
+          <label for="price">New Price</label>
+          <p-inputNumber
+            id="price"
+            formControlName="price"
+            mode="currency"
+            currency="USD"
+            [min]="0"
+            styleClass="w-full">
+          </p-inputNumber>
+          @if (priceForm.controls.price.hasError('required') && priceForm.controls.price.touched) {
+            <small class="p-error">Price is required</small>
           }
           @if (priceForm.controls.price.hasError('min')) {
-            <mat-error>Price must be positive</mat-error>
+            <small class="p-error">Price must be positive</small>
           }
-        </mat-form-field>
+        </div>
 
         @if (errorMessage()) {
           <div class="error-message">{{ errorMessage() }}</div>
         }
       </form>
 
-      <mat-divider></mat-divider>
+      <p-divider></p-divider>
 
       <div class="price-history-section">
         <h3>Price History</h3>
         @if (isLoadingHistory()) {
           <div class="loading-container">
-            <mat-spinner diameter="30"></mat-spinner>
+            <p-progressSpinner [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
           </div>
         } @else if (priceHistory().length > 0) {
-          <table mat-table [dataSource]="priceHistory()" class="price-history-table">
-            <ng-container matColumnDef="price">
-              <th mat-header-cell *matHeaderCellDef>Price</th>
-              <td mat-cell *matCellDef="let row">{{ row.price | currency }}</td>
-            </ng-container>
-
-            <ng-container matColumnDef="changedDate">
-              <th mat-header-cell *matHeaderCellDef>Changed Date</th>
-              <td mat-cell *matCellDef="let row">{{ row.changedDate | date:'medium' }}</td>
-            </ng-container>
-
-            <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-            <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-          </table>
+          <p-table [value]="priceHistory()" styleClass="p-datatable-sm">
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Price</th>
+                <th>Changed Date</th>
+              </tr>
+            </ng-template>
+            <ng-template pTemplate="body" let-row>
+              <tr>
+                <td>{{ row.price | currency }}</td>
+                <td>{{ row.changedDate | date:'medium' }}</td>
+              </tr>
+            </ng-template>
+          </p-table>
         } @else {
           <p class="no-history">No price history available</p>
         }
       </div>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close [disabled]="isLoading()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading() || priceForm.invalid">
-        @if (isLoading()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          Update Price
-        }
-      </button>
-    </mat-dialog-actions>
+
+      <div class="dialog-actions">
+        <p-button
+          label="Cancel"
+          severity="secondary"
+          (onClick)="onCancel()"
+          [disabled]="isLoading()">
+        </p-button>
+        <p-button
+          label="Update Price"
+          icon="pi pi-check"
+          (onClick)="onSubmit()"
+          [disabled]="isLoading() || priceForm.invalid"
+          [loading]="isLoading()">
+        </p-button>
+      </div>
+    </div>
   `,
   styles: [`
+    .dialog-content {
+      min-width: 400px;
+    }
+
     .current-price {
       display: flex;
       align-items: center;
       gap: 8px;
       margin-bottom: 16px;
       padding: 12px;
-      background-color: #f5f5f5;
+      background-color: var(--surface-100);
       border-radius: 4px;
     }
+
     .current-price .label {
       font-weight: 500;
-      color: #666;
+      color: var(--text-color-secondary);
     }
+
     .current-price .value {
       font-size: 1.25rem;
       font-weight: 600;
-      color: #1976d2;
+      color: var(--primary-color);
     }
+
     .price-form {
       display: flex;
       flex-direction: column;
-      min-width: 400px;
       padding-top: 8px;
     }
-    .full-width {
+
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .field label {
+      font-weight: 500;
+    }
+
+    .w-full {
       width: 100%;
     }
+
     .error-message {
-      color: #f44336;
+      color: var(--red-500);
       font-size: 12px;
       margin-top: 8px;
     }
-    mat-divider {
-      margin: 16px 0;
-    }
+
     .price-history-section h3 {
       margin: 16px 0 8px 0;
       font-size: 14px;
       font-weight: 500;
-      color: #666;
+      color: var(--text-color-secondary);
     }
-    .price-history-table {
-      width: 100%;
-    }
+
     .loading-container {
       display: flex;
       justify-content: center;
       padding: 24px;
     }
+
     .no-history {
       text-align: center;
-      color: #999;
+      color: var(--text-color-secondary);
       padding: 16px;
     }
-    mat-dialog-content {
-      max-height: 70vh;
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--surface-border);
     }
   `]
 })
 export class PriceDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<PriceDialogComponent>);
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly dialogConfig = inject(DynamicDialogConfig);
   private readonly productService = inject(ProductService);
-  readonly data = inject<PriceDialogData>(MAT_DIALOG_DATA);
+
+  readonly data: PriceDialogData = this.dialogConfig.data;
 
   readonly isLoading = signal(false);
   readonly isLoadingHistory = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly priceHistory = signal<PriceHistory[]>([]);
-
-  readonly displayedColumns = ['price', 'changedDate'];
 
   readonly priceForm = this.fb.nonNullable.group({
     price: [0, [Validators.required, Validators.min(0)]]
@@ -187,6 +217,10 @@ export class PriceDialogComponent implements OnInit {
         this.isLoadingHistory.set(false);
       }
     });
+  }
+
+  onCancel(): void {
+    this.dialogRef.close();
   }
 
   onSubmit(): void {

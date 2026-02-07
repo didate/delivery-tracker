@@ -1,6 +1,6 @@
 import { Component, inject } from '@angular/core';
-import { MatButtonModule } from '@angular/material/button';
-import { MAT_DIALOG_DATA, MatDialogModule, MatDialogRef } from '@angular/material/dialog';
+import { ButtonModule } from 'primeng/button';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
 
 export interface ConfirmDialogData {
   title: string;
@@ -12,21 +12,45 @@ export interface ConfirmDialogData {
 @Component({
   selector: 'app-confirm-dialog',
   standalone: true,
-  imports: [MatDialogModule, MatButtonModule],
+  imports: [ButtonModule],
   template: `
-    <h2 mat-dialog-title>{{ data.title }}</h2>
-    <mat-dialog-content>
-      <p>{{ data.message }}</p>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">{{ data.cancelText || 'Cancel' }}</button>
-      <button mat-raised-button color="primary" (click)="onConfirm()">{{ data.confirmText || 'Confirm' }}</button>
-    </mat-dialog-actions>
-  `
+    <div class="confirm-dialog-content">
+      <p class="message">{{ data.message }}</p>
+      <div class="dialog-actions">
+        <p-button
+          [label]="data.cancelText || 'Cancel'"
+          severity="secondary"
+          (onClick)="onCancel()">
+        </p-button>
+        <p-button
+          [label]="data.confirmText || 'Confirm'"
+          (onClick)="onConfirm()">
+        </p-button>
+      </div>
+    </div>
+  `,
+  styles: [`
+    .confirm-dialog-content {
+      min-width: 300px;
+    }
+
+    .message {
+      margin: 0 0 1.5rem 0;
+      line-height: 1.5;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.5rem;
+    }
+  `]
 })
 export class ConfirmDialogComponent {
-  readonly dialogRef = inject(MatDialogRef<ConfirmDialogComponent>);
-  readonly data = inject<ConfirmDialogData>(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly dialogConfig = inject(DynamicDialogConfig);
+
+  readonly data: ConfirmDialogData = this.dialogConfig.data;
 
   onCancel(): void {
     this.dialogRef.close(false);

@@ -1,18 +1,16 @@
 import { Component } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-settings',
   standalone: true,
-  imports: [MatCardModule],
+  imports: [CardModule],
   template: `
     <div class="page-container">
       <h1>Settings</h1>
-      <mat-card>
-        <mat-card-content>
-          <p>Settings page coming soon...</p>
-        </mat-card-content>
-      </mat-card>
+      <p-card>
+        <p>Settings page coming soon...</p>
+      </p-card>
     </div>
   `,
   styles: [`

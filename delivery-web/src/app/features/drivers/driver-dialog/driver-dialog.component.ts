@@ -1,12 +1,11 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatSelectModule } from '@angular/material/select';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { SelectModule } from 'primeng/select';
+import { ButtonModule } from 'primeng/button';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Driver, CreateDriverDto, UpdateDriverDto } from '../models/driver.model';
 import { ProductionSite } from '../models/production-site.model';
 import { DriverService } from '../services/driver.service';
@@ -23,127 +22,122 @@ export interface DriverDialogData {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatSelectModule,
-    MatButtonModule,
-    MatProgressSpinnerModule
+    InputTextModule,
+    SelectModule,
+    ButtonModule,
+    ProgressSpinnerModule
   ],
   template: `
-    <h2 mat-dialog-title>{{ data.mode === 'create' ? 'Add Driver' : 'Edit Driver' }}</h2>
-
-    <mat-dialog-content>
-      <form [formGroup]="form" class="driver-form">
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Code</mat-label>
-            <input matInput formControlName="code" placeholder="Driver code">
-            @if (form.get('code')?.hasError('required') && form.get('code')?.touched) {
-              <mat-error>Code is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>First Name</mat-label>
-            <input matInput formControlName="firstName" placeholder="First name">
-            @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
-              <mat-error>First name is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Last Name</mat-label>
-            <input matInput formControlName="lastName" placeholder="Last name">
-            @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
-              <mat-error>Last name is required</mat-error>
-            }
-          </mat-form-field>
+    <form [formGroup]="form" class="driver-form">
+      <div class="form-row">
+        <div class="field">
+          <label for="code">Code</label>
+          <input id="code" type="text" pInputText formControlName="code" placeholder="Driver code" class="w-full">
+          @if (form.get('code')?.hasError('required') && form.get('code')?.touched) {
+            <small class="p-error">Code is required</small>
+          }
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>Phone</mat-label>
-            <input matInput formControlName="phone" placeholder="Phone number">
-            @if (form.get('phone')?.hasError('required') && form.get('phone')?.touched) {
-              <mat-error>Phone is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" type="email" placeholder="Email address">
-            @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-              <mat-error>Email is required</mat-error>
-            }
-            @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-              <mat-error>Invalid email format</mat-error>
-            }
-          </mat-form-field>
+        <div class="field">
+          <label for="firstName">First Name</label>
+          <input id="firstName" type="text" pInputText formControlName="firstName" placeholder="First name" class="w-full">
+          @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
+            <small class="p-error">First name is required</small>
+          }
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline">
-            <mat-label>License Number</mat-label>
-            <input matInput formControlName="licenseNumber" placeholder="License number">
-            @if (form.get('licenseNumber')?.hasError('required') && form.get('licenseNumber')?.touched) {
-              <mat-error>License number is required</mat-error>
-            }
-          </mat-form-field>
+        <div class="field">
+          <label for="lastName">Last Name</label>
+          <input id="lastName" type="text" pInputText formControlName="lastName" placeholder="Last name" class="w-full">
+          @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
+            <small class="p-error">Last name is required</small>
+          }
+        </div>
+      </div>
 
-          <mat-form-field appearance="outline">
-            <mat-label>Vehicle Type</mat-label>
-            <input matInput formControlName="vehicleType" placeholder="Vehicle type">
-            @if (form.get('vehicleType')?.hasError('required') && form.get('vehicleType')?.touched) {
-              <mat-error>Vehicle type is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Vehicle Plate</mat-label>
-            <input matInput formControlName="vehiclePlate" placeholder="Vehicle plate">
-            @if (form.get('vehiclePlate')?.hasError('required') && form.get('vehiclePlate')?.touched) {
-              <mat-error>Vehicle plate is required</mat-error>
-            }
-          </mat-form-field>
+      <div class="form-row">
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input id="phone" type="text" pInputText formControlName="phone" placeholder="Phone number" class="w-full">
+          @if (form.get('phone')?.hasError('required') && form.get('phone')?.touched) {
+            <small class="p-error">Phone is required</small>
+          }
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Production Site</mat-label>
-            <mat-select formControlName="productionSiteId">
-              @for (site of productionSites(); track site.id) {
-                <mat-option [value]="site.id">{{ site.name }}</mat-option>
-              }
-            </mat-select>
-            @if (form.get('productionSiteId')?.hasError('required') && form.get('productionSiteId')?.touched) {
-              <mat-error>Production site is required</mat-error>
-            }
-          </mat-form-field>
+        <div class="field">
+          <label for="email">Email</label>
+          <input id="email" type="email" pInputText formControlName="email" placeholder="Email address" class="w-full">
+          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
+            <small class="p-error">Email is required</small>
+          }
+          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
+            <small class="p-error">Invalid email format</small>
+          }
         </div>
-      </form>
-    </mat-dialog-content>
+      </div>
 
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button
-        mat-flat-button
-        color="primary"
-        (click)="onSubmit()"
+      <div class="form-row">
+        <div class="field">
+          <label for="licenseNumber">License Number</label>
+          <input id="licenseNumber" type="text" pInputText formControlName="licenseNumber" placeholder="License number" class="w-full">
+          @if (form.get('licenseNumber')?.hasError('required') && form.get('licenseNumber')?.touched) {
+            <small class="p-error">License number is required</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="vehicleType">Vehicle Type</label>
+          <input id="vehicleType" type="text" pInputText formControlName="vehicleType" placeholder="Vehicle type" class="w-full">
+          @if (form.get('vehicleType')?.hasError('required') && form.get('vehicleType')?.touched) {
+            <small class="p-error">Vehicle type is required</small>
+          }
+        </div>
+
+        <div class="field">
+          <label for="vehiclePlate">Vehicle Plate</label>
+          <input id="vehiclePlate" type="text" pInputText formControlName="vehiclePlate" placeholder="Vehicle plate" class="w-full">
+          @if (form.get('vehiclePlate')?.hasError('required') && form.get('vehiclePlate')?.touched) {
+            <small class="p-error">Vehicle plate is required</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field full-width">
+          <label for="productionSiteId">Production Site</label>
+          <p-select
+            id="productionSiteId"
+            formControlName="productionSiteId"
+            [options]="productionSites()"
+            optionLabel="name"
+            optionValue="id"
+            placeholder="Select a production site"
+            [style]="{'width': '100%'}">
+          </p-select>
+          @if (form.get('productionSiteId')?.hasError('required') && form.get('productionSiteId')?.touched) {
+            <small class="p-error">Production site is required</small>
+          }
+        </div>
+      </div>
+    </form>
+
+    <div class="dialog-actions">
+      <p-button label="Cancel" [text]="true" (onClick)="onCancel()"></p-button>
+      <p-button
+        [label]="data.mode === 'create' ? 'Create' : 'Save'"
+        (onClick)="onSubmit()"
         [disabled]="form.invalid || saving()">
         @if (saving()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          {{ data.mode === 'create' ? 'Create' : 'Save' }}
+          <p-progressSpinner [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
         }
-      </button>
-    </mat-dialog-actions>
+      </p-button>
+    </div>
   `,
   styles: [`
     .driver-form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 16px;
       min-width: 500px;
     }
 
@@ -152,30 +146,49 @@ export interface DriverDialogData {
       gap: 16px;
     }
 
-    .form-row mat-form-field {
+    .field {
       flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .field label {
+      font-weight: 500;
+      margin-bottom: 4px;
     }
 
     .full-width {
       width: 100%;
     }
 
-    mat-dialog-content {
-      padding-top: 16px;
+    .w-full {
+      width: 100%;
     }
 
-    mat-spinner {
-      display: inline-block;
+    .p-error {
+      color: #f44336;
+      font-size: 12px;
+    }
+
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      margin-top: 24px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
     }
   `]
 })
 export class DriverDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<DriverDialogComponent>);
+  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
   private readonly driverService = inject(DriverService);
   private readonly productionSiteService = inject(ProductionSiteService);
 
-  readonly data = inject<DriverDialogData>(MAT_DIALOG_DATA);
+  readonly data: DriverDialogData = this.config.data;
   readonly productionSites = signal<ProductionSite[]>([]);
   readonly saving = signal(false);
 

@@ -1,25 +1,28 @@
-import { Component, inject, signal, OnInit, ViewChild, AfterViewInit } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
-import { MatPaginatorModule, MatPaginator, PageEvent } from '@angular/material/paginator';
-import { MatInputModule } from '@angular/material/input';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSelectModule } from '@angular/material/select';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatMenuModule } from '@angular/material/menu';
+import { TableModule } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { TagModule } from 'primeng/tag';
+import { SelectModule } from 'primeng/select';
+import { CardModule } from 'primeng/card';
+import { TooltipModule } from 'primeng/tooltip';
+import { MenuModule } from 'primeng/menu';
+import { DialogModule } from 'primeng/dialog';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
+import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
 
 import { Return, ReturnStatus } from './models/return.model';
 import { ReturnService } from './services/return.service';
-import { ReturnDialogComponent, ReturnDialogData, ReturnDialogResult } from './return-dialog/return-dialog.component';
-import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ReturnDialogComponent } from './return-dialog/return-dialog.component';
+
+interface StatusOption {
+  label: string;
+  value: ReturnStatus | null;
+}
 
 @Component({
   selector: 'app-returns-list',
@@ -27,225 +30,216 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatInputModule,
-    MatFormFieldModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatSelectModule,
-    MatProgressSpinnerModule,
-    MatTooltipModule,
-    MatChipsModule,
-    MatMenuModule,
+    TableModule,
+    ButtonModule,
+    TagModule,
+    SelectModule,
+    CardModule,
+    TooltipModule,
+    MenuModule,
+    DialogModule,
+    ProgressSpinnerModule,
+    ConfirmDialogModule,
+    ToastModule,
   ],
+  providers: [ConfirmationService, MessageService, DialogService],
   template: `
     <div class="page-container">
       <div class="page-header">
         <h1>Returns</h1>
-        <button mat-raised-button color="primary" (click)="openCreateDialog()">
-          <mat-icon>add</mat-icon>
-          Create Return
-        </button>
+        <p-button
+          label="Create Return"
+          icon="pi pi-plus"
+          (onClick)="openCreateDialog()">
+        </p-button>
       </div>
 
-      <mat-card>
-        <mat-card-content>
-          <div class="filters-row">
-            <mat-form-field appearance="outline" class="status-filter">
-              <mat-label>Status</mat-label>
-              <mat-select [(ngModel)]="statusFilter" (selectionChange)="onStatusFilterChange()">
-                <mat-option [value]="null">All Statuses</mat-option>
-                <mat-option value="PENDING">Pending</mat-option>
-                <mat-option value="PROCESSED">Processed</mat-option>
-                <mat-option value="REJECTED">Rejected</mat-option>
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          @if (isLoading()) {
-            <div class="loading-container">
-              <mat-spinner diameter="40"></mat-spinner>
-              <p>Loading returns...</p>
-            </div>
-          } @else if (error()) {
-            <div class="error-container">
-              <mat-icon color="warn">error</mat-icon>
-              <p>{{ error() }}</p>
-              <button mat-button color="primary" (click)="loadReturns()">
-                <mat-icon>refresh</mat-icon>
-                Retry
-              </button>
-            </div>
-          } @else {
-            <div class="table-container">
-              <table mat-table [dataSource]="dataSource" class="returns-table">
-
-                <ng-container matColumnDef="code">
-                  <th mat-header-cell *matHeaderCellDef>Code</th>
-                  <td mat-cell *matCellDef="let return">{{ return.code }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="customerName">
-                  <th mat-header-cell *matHeaderCellDef>Customer</th>
-                  <td mat-cell *matCellDef="let return">{{ return.customerName }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="returnDate">
-                  <th mat-header-cell *matHeaderCellDef>Return Date</th>
-                  <td mat-cell *matCellDef="let return">{{ return.returnDate | date:'mediumDate' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="totalValue">
-                  <th mat-header-cell *matHeaderCellDef>Total Value</th>
-                  <td mat-cell *matCellDef="let return">\${{ return.totalValue | number:'1.2-2' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="status">
-                  <th mat-header-cell *matHeaderCellDef>Status</th>
-                  <td mat-cell *matCellDef="let return">
-                    <span class="status-chip" [ngClass]="getStatusClass(return.status)">
-                      {{ return.status }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="createdDate">
-                  <th mat-header-cell *matHeaderCellDef>Created</th>
-                  <td mat-cell *matCellDef="let return">{{ return.createdDate | date:'short' }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
-                  <td mat-cell *matCellDef="let return">
-                    <button
-                      mat-icon-button
-                      color="primary"
-                      (click)="viewDetails(return)"
-                      matTooltip="View details">
-                      <mat-icon>visibility</mat-icon>
-                    </button>
-
-                    @if (return.status === 'PENDING') {
-                      <button
-                        mat-icon-button
-                        [matMenuTriggerFor]="statusMenu"
-                        matTooltip="Change status">
-                        <mat-icon>more_vert</mat-icon>
-                      </button>
-                      <mat-menu #statusMenu="matMenu">
-                        <button mat-menu-item (click)="updateStatus(return, 'PROCESSED')">
-                          <mat-icon class="status-icon-processed">check_circle</mat-icon>
-                          <span>Process</span>
-                        </button>
-                        <button mat-menu-item (click)="updateStatus(return, 'REJECTED')">
-                          <mat-icon class="status-icon-rejected">cancel</mat-icon>
-                          <span>Reject</span>
-                        </button>
-                      </mat-menu>
-
-                      <button
-                        mat-icon-button
-                        color="warn"
-                        (click)="confirmDelete(return)"
-                        matTooltip="Delete return">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    }
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-
-                <tr class="mat-row no-data-row" *matNoDataRow>
-                  <td class="mat-cell" [attr.colspan]="displayedColumns.length">
-                    @if (statusFilter) {
-                      No returns found with status "{{ statusFilter }}"
-                    } @else {
-                      No returns found. Click "Create Return" to add one.
-                    }
-                  </td>
-                </tr>
-              </table>
-            </div>
-
-            <mat-paginator
-              [length]="totalItems()"
-              [pageSize]="pageSize()"
-              [pageIndex]="currentPage()"
-              [pageSizeOptions]="[5, 10, 25, 50]"
-              (page)="onPageChange($event)"
-              showFirstLastButtons>
-            </mat-paginator>
-          }
-        </mat-card-content>
-      </mat-card>
-    </div>
-
-    <!-- Return Details Dialog Template -->
-    <ng-template #detailsDialog let-data>
-      <h2 mat-dialog-title>Return Details - {{ data.return.code }}</h2>
-      <mat-dialog-content class="details-content">
-        <div class="details-grid">
-          <div class="detail-item">
-            <span class="detail-label">Customer:</span>
-            <span class="detail-value">{{ data.return.customerName }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Return Date:</span>
-            <span class="detail-value">{{ data.return.returnDate | date:'mediumDate' }}</span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Status:</span>
-            <span class="status-chip" [ngClass]="getStatusClass(data.return.status)">
-              {{ data.return.status }}
-            </span>
-          </div>
-          <div class="detail-item">
-            <span class="detail-label">Total Value:</span>
-            <span class="detail-value total-value">\${{ data.return.totalValue | number:'1.2-2' }}</span>
-          </div>
+      <p-card>
+        <div class="filters-row">
+          <p-select
+            [options]="statusOptions"
+            [(ngModel)]="statusFilter"
+            (onChange)="onStatusFilterChange()"
+            placeholder="All Statuses"
+            [showClear]="true"
+            styleClass="status-filter">
+          </p-select>
         </div>
 
-        @if (data.return.notes) {
-          <div class="notes-section">
-            <span class="detail-label">Notes:</span>
-            <p class="notes-text">{{ data.return.notes }}</p>
+        @if (isLoading()) {
+          <div class="loading-container">
+            <p-progressSpinner [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
+            <p>Loading returns...</p>
           </div>
-        }
+        } @else if (error()) {
+          <div class="error-container">
+            <i class="pi pi-exclamation-circle error-icon"></i>
+            <p>{{ error() }}</p>
+            <p-button
+              label="Retry"
+              icon="pi pi-refresh"
+              [outlined]="true"
+              (onClick)="loadReturns()">
+            </p-button>
+          </div>
+        } @else {
+          <p-table
+            [value]="returns()"
+            [paginator]="true"
+            [rows]="pageSize()"
+            [totalRecords]="totalItems()"
+            [lazy]="true"
+            (onLazyLoad)="onLazyLoad($event)"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            styleClass="returns-table">
 
-        <h3>Items</h3>
-        <table class="items-table">
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Quantity</th>
-              <th>Unit Value</th>
-              <th>Total</th>
-              <th>Reason</th>
-            </tr>
-          </thead>
-          <tbody>
-            @for (item of data.return.items; track item.id) {
+            <ng-template pTemplate="header">
               <tr>
-                <td>{{ item.productName }}</td>
-                <td>{{ item.quantity }}</td>
-                <td>\${{ item.unitValue | number:'1.2-2' }}</td>
-                <td>\${{ item.totalValue | number:'1.2-2' }}</td>
-                <td>{{ item.reason }}</td>
+                <th>Code</th>
+                <th>Customer</th>
+                <th>Return Date</th>
+                <th>Total Value</th>
+                <th>Status</th>
+                <th>Created</th>
+                <th>Actions</th>
               </tr>
-            }
-          </tbody>
-        </table>
-      </mat-dialog-content>
-      <mat-dialog-actions align="end">
-        <button mat-button mat-dialog-close>Close</button>
-      </mat-dialog-actions>
-    </ng-template>
+            </ng-template>
+
+            <ng-template pTemplate="body" let-return>
+              <tr>
+                <td>{{ return.code }}</td>
+                <td>{{ return.customerName }}</td>
+                <td>{{ return.returnDate | date:'mediumDate' }}</td>
+                <td>\${{ return.totalValue | number:'1.2-2' }}</td>
+                <td>
+                  <p-tag
+                    [value]="return.status"
+                    [severity]="getStatusSeverity(return.status)">
+                  </p-tag>
+                </td>
+                <td>{{ return.createdDate | date:'short' }}</td>
+                <td>
+                  <p-button
+                    icon="pi pi-eye"
+                    [rounded]="true"
+                    [text]="true"
+                    (onClick)="viewDetails(return)"
+                    pTooltip="View details">
+                  </p-button>
+
+                  @if (return.status === 'PENDING') {
+                    <p-button
+                      icon="pi pi-ellipsis-v"
+                      [rounded]="true"
+                      [text]="true"
+                      (onClick)="menu.toggle($event)"
+                      pTooltip="Change status">
+                    </p-button>
+                    <p-menu #menu [popup]="true" [model]="getStatusMenuItems(return)"></p-menu>
+
+                    <p-button
+                      icon="pi pi-trash"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="danger"
+                      (onClick)="confirmDelete(return)"
+                      pTooltip="Delete return">
+                    </p-button>
+                  }
+                </td>
+              </tr>
+            </ng-template>
+
+            <ng-template pTemplate="emptymessage">
+              <tr>
+                <td colspan="7" class="no-data-cell">
+                  @if (statusFilter) {
+                    No returns found with status "{{ statusFilter }}"
+                  } @else {
+                    No returns found. Click "Create Return" to add one.
+                  }
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </p-card>
+    </div>
+
+    <!-- Return Details Dialog -->
+    <p-dialog
+      [(visible)]="detailsDialogVisible"
+      [header]="'Return Details - ' + (selectedReturn?.code || '')"
+      [modal]="true"
+      [style]="{width: '700px'}"
+      [maximizable]="true">
+
+      @if (selectedReturn) {
+        <div class="details-content">
+          <div class="details-grid">
+            <div class="detail-item">
+              <span class="detail-label">Customer:</span>
+              <span class="detail-value">{{ selectedReturn.customerName }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Return Date:</span>
+              <span class="detail-value">{{ selectedReturn.returnDate | date:'mediumDate' }}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Status:</span>
+              <p-tag
+                [value]="selectedReturn.status"
+                [severity]="getStatusSeverity(selectedReturn.status)">
+              </p-tag>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Total Value:</span>
+              <span class="detail-value total-value">\${{ selectedReturn.totalValue | number:'1.2-2' }}</span>
+            </div>
+          </div>
+
+          @if (selectedReturn.notes) {
+            <div class="notes-section">
+              <span class="detail-label">Notes:</span>
+              <p class="notes-text">{{ selectedReturn.notes }}</p>
+            </div>
+          }
+
+          <h3>Items</h3>
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Quantity</th>
+                <th>Unit Value</th>
+                <th>Total</th>
+                <th>Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (item of selectedReturn.items; track item.id) {
+                <tr>
+                  <td>{{ item.productName }}</td>
+                  <td>{{ item.quantity }}</td>
+                  <td>\${{ item.unitValue | number:'1.2-2' }}</td>
+                  <td>\${{ item.totalValue | number:'1.2-2' }}</td>
+                  <td>{{ item.reason }}</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      }
+
+      <ng-template pTemplate="footer">
+        <p-button label="Close" [text]="true" (onClick)="detailsDialogVisible = false"></p-button>
+      </ng-template>
+    </p-dialog>
+
+    <p-confirmDialog></p-confirmDialog>
+    <p-toast></p-toast>
   `,
   styles: [`
     .page-container {
@@ -269,7 +263,7 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
       margin-bottom: 16px;
     }
 
-    .status-filter {
+    :host ::ng-deep .status-filter {
       width: 200px;
     }
 
@@ -283,61 +277,20 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
       text-align: center;
     }
 
-    .error-container mat-icon {
+    .error-icon {
       font-size: 48px;
-      width: 48px;
-      height: 48px;
+      color: var(--red-500);
       margin-bottom: 16px;
     }
 
-    .table-container {
-      overflow-x: auto;
-    }
-
-    .returns-table {
+    :host ::ng-deep .returns-table {
       width: 100%;
     }
 
-    .status-chip {
-      display: inline-block;
-      padding: 4px 12px;
-      border-radius: 16px;
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: uppercase;
-    }
-
-    .status-pending {
-      background-color: #fff3e0;
-      color: #f57c00;
-    }
-
-    .status-processed {
-      background-color: #e8f5e9;
-      color: #2e7d32;
-    }
-
-    .status-rejected {
-      background-color: #ffebee;
-      color: #c62828;
-    }
-
-    .status-icon-processed {
-      color: #2e7d32;
-    }
-
-    .status-icon-rejected {
-      color: #c62828;
-    }
-
-    .no-data-row td {
+    .no-data-cell {
       text-align: center;
       padding: 48px;
       color: #9e9e9e;
-    }
-
-    mat-paginator {
-      border-top: 1px solid #e0e0e0;
     }
 
     /* Details dialog styles */
@@ -411,15 +364,13 @@ import { ConfirmDialogComponent, ConfirmDialogData } from '../../shared/componen
     }
   `]
 })
-export class ReturnsListComponent implements OnInit, AfterViewInit {
+export class ReturnsListComponent implements OnInit {
   private readonly returnService = inject(ReturnService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+  private readonly dialogService = inject(DialogService);
 
-  @ViewChild(MatPaginator) paginator!: MatPaginator;
-  @ViewChild('detailsDialog') detailsDialogTemplate: any;
-
-  readonly displayedColumns = ['code', 'customerName', 'returnDate', 'totalValue', 'status', 'createdDate', 'actions'];
+  private dialogRef: DynamicDialogRef<any> | undefined;
 
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
@@ -429,17 +380,17 @@ export class ReturnsListComponent implements OnInit, AfterViewInit {
   readonly pageSize = signal(10);
 
   statusFilter: ReturnStatus | null = null;
+  detailsDialogVisible = false;
+  selectedReturn: Return | null = null;
 
-  dataSource = new MatTableDataSource<Return>([]);
+  readonly statusOptions: StatusOption[] = [
+    { label: 'Pending', value: 'PENDING' },
+    { label: 'Processed', value: 'PROCESSED' },
+    { label: 'Rejected', value: 'REJECTED' }
+  ];
 
   ngOnInit(): void {
     this.loadReturns();
-  }
-
-  ngAfterViewInit(): void {
-    if (this.paginator) {
-      this.dataSource.paginator = this.paginator;
-    }
   }
 
   loadReturns(): void {
@@ -455,7 +406,6 @@ export class ReturnsListComponent implements OnInit, AfterViewInit {
     this.returnService.getReturns(params).subscribe({
       next: (response) => {
         this.returns.set(response.data);
-        this.dataSource.data = response.data;
         this.totalItems.set(response.total);
         this.isLoading.set(false);
       },
@@ -471,45 +421,67 @@ export class ReturnsListComponent implements OnInit, AfterViewInit {
     this.loadReturns();
   }
 
-  onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+  onLazyLoad(event: any): void {
+    this.currentPage.set(Math.floor(event.first / event.rows));
+    this.pageSize.set(event.rows);
     this.loadReturns();
   }
 
-  getStatusClass(status: ReturnStatus): string {
+  getStatusSeverity(status: ReturnStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
     switch (status) {
       case 'PENDING':
-        return 'status-pending';
+        return 'warn';
       case 'PROCESSED':
-        return 'status-processed';
+        return 'success';
       case 'REJECTED':
-        return 'status-rejected';
+        return 'danger';
       default:
-        return '';
+        return undefined;
     }
   }
 
+  getStatusMenuItems(returnItem: Return): MenuItem[] {
+    return [
+      {
+        label: 'Process',
+        icon: 'pi pi-check-circle',
+        command: () => this.updateStatus(returnItem, 'PROCESSED')
+      },
+      {
+        label: 'Reject',
+        icon: 'pi pi-times-circle',
+        command: () => this.updateStatus(returnItem, 'REJECTED')
+      }
+    ];
+  }
+
   openCreateDialog(): void {
-    const dialogData: ReturnDialogData = {
-      mode: 'create'
-    };
-
-    const dialogRef = this.dialog.open(ReturnDialogComponent, {
+    this.dialogRef = this.dialogService.open(ReturnDialogComponent, {
+      header: 'Create Return',
       width: '700px',
-      maxHeight: '90vh',
-      data: dialogData
-    });
+      modal: true,
+      data: {
+        mode: 'create'
+      }
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result: ReturnDialogResult | undefined) => {
+    this.dialogRef?.onClose.subscribe((result: any) => {
       if (result?.action === 'save') {
-        this.returnService.createReturn(result.data as any).subscribe({
+        this.returnService.createReturn(result.data).subscribe({
           next: () => {
-            this.snackBar.open('Return created successfully', 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Return created successfully'
+            });
             this.loadReturns();
           },
           error: (err) => {
-            this.snackBar.open(err.message || 'Failed to create return', 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || 'Failed to create return'
+            });
           }
         });
       }
@@ -517,45 +489,45 @@ export class ReturnsListComponent implements OnInit, AfterViewInit {
   }
 
   viewDetails(returnItem: Return): void {
-    // First fetch the full return with items
     this.returnService.getReturn(returnItem.id).subscribe({
       next: (fullReturn) => {
-        this.dialog.open(this.detailsDialogTemplate, {
-          width: '700px',
-          maxHeight: '90vh',
-          data: { return: fullReturn }
-        });
+        this.selectedReturn = fullReturn;
+        this.detailsDialogVisible = true;
       },
       error: (err) => {
-        this.snackBar.open(err.message || 'Failed to load return details', 'Close', { duration: 5000 });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Failed to load return details'
+        });
       }
     });
   }
 
   updateStatus(returnItem: Return, newStatus: ReturnStatus): void {
     const action = newStatus === 'PROCESSED' ? 'process' : 'reject';
-    const dialogData: ConfirmDialogData = {
-      title: `${action.charAt(0).toUpperCase() + action.slice(1)} Return`,
+
+    this.confirmationService.confirm({
       message: `Are you sure you want to ${action} return "${returnItem.code}"?`,
-      confirmText: action.charAt(0).toUpperCase() + action.slice(1),
-      cancelText: 'Cancel'
-    };
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: dialogData
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
+      header: `${action.charAt(0).toUpperCase() + action.slice(1)} Return`,
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
         this.returnService.updateStatus(returnItem.id, { status: newStatus }).subscribe({
           next: () => {
             const message = newStatus === 'PROCESSED' ? 'Return processed successfully' : 'Return rejected';
-            this.snackBar.open(message, 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: message
+            });
             this.loadReturns();
           },
           error: (err) => {
-            this.snackBar.open(err.message || `Failed to ${action} return`, 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || `Failed to ${action} return`
+            });
           }
         });
       }
@@ -563,27 +535,27 @@ export class ReturnsListComponent implements OnInit, AfterViewInit {
   }
 
   confirmDelete(returnItem: Return): void {
-    const dialogData: ConfirmDialogData = {
-      title: 'Delete Return',
+    this.confirmationService.confirm({
       message: `Are you sure you want to delete return "${returnItem.code}"? This action cannot be undone.`,
-      confirmText: 'Delete',
-      cancelText: 'Cancel'
-    };
-
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: dialogData
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
+      header: 'Delete Return',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
         this.returnService.deleteReturn(returnItem.id).subscribe({
           next: () => {
-            this.snackBar.open('Return deleted successfully', 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Return deleted successfully'
+            });
             this.loadReturns();
           },
           error: (err) => {
-            this.snackBar.open(err.message || 'Failed to delete return', 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || 'Failed to delete return'
+            });
           }
         });
       }

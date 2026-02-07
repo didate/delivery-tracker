@@ -1,24 +1,21 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDialogModule, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatAutocompleteModule } from '@angular/material/autocomplete';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { ButtonModule } from 'primeng/button';
+import { InputTextModule } from 'primeng/inputtext';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { TextareaModule } from 'primeng/textarea';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import {
   Payment,
   PaymentMethod,
   CreatePaymentDto,
   UpdatePaymentDto,
-  PAYMENT_METHOD_LABELS,
-  PAYMENT_METHOD_ICONS
+  PAYMENT_METHOD_LABELS
 } from '../models/payment.model';
 import { PaymentService } from '../services/payment.service';
 import { CustomerService } from '../../customers/services/customer.service';
@@ -35,115 +32,150 @@ export interface PaymentDialogData {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
-    MatAutocompleteModule
+    ButtonModule,
+    InputTextModule,
+    InputNumberModule,
+    TextareaModule,
+    SelectModule,
+    DatePickerModule,
+    ProgressSpinnerModule
   ],
   template: `
-    <h2 mat-dialog-title>{{ isEditMode ? 'Edit Payment' : 'Create Payment' }}</h2>
-    <mat-dialog-content>
-      <form [formGroup]="paymentForm" class="payment-form">
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Customer</mat-label>
-          <mat-select formControlName="customerId" [disabled]="isLoadingCustomers()">
-            @if (isLoadingCustomers()) {
-              <mat-option disabled>Loading customers...</mat-option>
-            } @else {
-              @for (customer of customers(); track customer.id) {
-                <mat-option [value]="customer.id">
-                  {{ customer.name }} ({{ customer.code }})
-                </mat-option>
-              }
-            }
-          </mat-select>
-          @if (paymentForm.controls.customerId.hasError('required') && paymentForm.controls.customerId.touched) {
-            <mat-error>Customer is required</mat-error>
+    <form [formGroup]="paymentForm" class="payment-form">
+      <div class="field">
+        <label for="customerId">Customer <span class="required">*</span></label>
+        <p-select
+          id="customerId"
+          formControlName="customerId"
+          [options]="customerOptions()"
+          [loading]="isLoadingCustomers()"
+          [filter]="true"
+          filterBy="label"
+          placeholder="Select a customer"
+          styleClass="w-full"
+          [showClear]="true">
+        </p-select>
+        @if (paymentForm.controls.customerId.hasError('required') && paymentForm.controls.customerId.touched) {
+          <small class="p-error">Customer is required</small>
+        }
+      </div>
+
+      <div class="form-row">
+        <div class="field half-width">
+          <label for="amount">Amount <span class="required">*</span></label>
+          <p-inputNumber
+            id="amount"
+            formControlName="amount"
+            mode="currency"
+            currency="USD"
+            locale="en-US"
+            [min]="0"
+            placeholder="0.00"
+            styleClass="w-full">
+          </p-inputNumber>
+          @if (paymentForm.controls.amount.hasError('required') && paymentForm.controls.amount.touched) {
+            <small class="p-error">Amount is required</small>
           }
-        </mat-form-field>
-
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Amount</mat-label>
-            <input matInput type="number" formControlName="amount" placeholder="0.00" min="0" step="0.01">
-            <span matTextPrefix>$&nbsp;</span>
-            @if (paymentForm.controls.amount.hasError('required') && paymentForm.controls.amount.touched) {
-              <mat-error>Amount is required</mat-error>
-            }
-            @if (paymentForm.controls.amount.hasError('min') && paymentForm.controls.amount.touched) {
-              <mat-error>Amount must be greater than 0</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline" class="half-width">
-            <mat-label>Payment Method</mat-label>
-            <mat-select formControlName="method">
-              @for (method of paymentMethods; track method) {
-                <mat-option [value]="method">
-                  <mat-icon class="method-icon">{{ getMethodIcon(method) }}</mat-icon>
-                  {{ getMethodLabel(method) }}
-                </mat-option>
-              }
-            </mat-select>
-            @if (paymentForm.controls.method.hasError('required') && paymentForm.controls.method.touched) {
-              <mat-error>Payment method is required</mat-error>
-            }
-          </mat-form-field>
+          @if (paymentForm.controls.amount.hasError('min') && paymentForm.controls.amount.touched) {
+            <small class="p-error">Amount must be greater than 0</small>
+          }
         </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Payment Date</mat-label>
-          <input matInput [matDatepicker]="picker" formControlName="paymentDate">
-          <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-          <mat-datepicker #picker></mat-datepicker>
-          @if (paymentForm.controls.paymentDate.hasError('required') && paymentForm.controls.paymentDate.touched) {
-            <mat-error>Payment date is required</mat-error>
+        <div class="field half-width">
+          <label for="method">Payment Method <span class="required">*</span></label>
+          <p-select
+            id="method"
+            formControlName="method"
+            [options]="paymentMethodOptions"
+            placeholder="Select method"
+            styleClass="w-full">
+          </p-select>
+          @if (paymentForm.controls.method.hasError('required') && paymentForm.controls.method.touched) {
+            <small class="p-error">Payment method is required</small>
           }
-        </mat-form-field>
+        </div>
+      </div>
 
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Reference</mat-label>
-          <input matInput formControlName="reference" placeholder="Check number, transaction ID, etc.">
-          <mat-icon matSuffix>tag</mat-icon>
-        </mat-form-field>
-
-        <mat-form-field appearance="outline" class="full-width">
-          <mat-label>Notes</mat-label>
-          <textarea matInput formControlName="notes" placeholder="Additional notes..." rows="3"></textarea>
-        </mat-form-field>
-
-        @if (errorMessage()) {
-          <div class="error-message">{{ errorMessage() }}</div>
+      <div class="field">
+        <label for="paymentDate">Payment Date <span class="required">*</span></label>
+        <p-datepicker
+          id="paymentDate"
+          formControlName="paymentDate"
+          [showIcon]="true"
+          dateFormat="mm/dd/yy"
+          placeholder="Select date"
+          styleClass="w-full">
+        </p-datepicker>
+        @if (paymentForm.controls.paymentDate.hasError('required') && paymentForm.controls.paymentDate.touched) {
+          <small class="p-error">Payment date is required</small>
         }
-      </form>
-    </mat-dialog-content>
-    <mat-dialog-actions align="end">
-      <button mat-button mat-dialog-close [disabled]="isLoading()">Cancel</button>
-      <button mat-raised-button color="primary" (click)="onSubmit()" [disabled]="isLoading() || paymentForm.invalid">
-        @if (isLoading()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          {{ isEditMode ? 'Update' : 'Create' }}
-        }
-      </button>
-    </mat-dialog-actions>
+      </div>
+
+      <div class="field">
+        <label for="reference">Reference</label>
+        <span class="p-input-icon-right w-full">
+          <i class="pi pi-tag"></i>
+          <input
+            id="reference"
+            type="text"
+            pInputText
+            formControlName="reference"
+            placeholder="Check number, transaction ID, etc."
+            class="w-full" />
+        </span>
+      </div>
+
+      <div class="field">
+        <label for="notes">Notes</label>
+        <textarea
+          id="notes"
+          pTextarea
+          formControlName="notes"
+          placeholder="Additional notes..."
+          rows="3"
+          class="w-full">
+        </textarea>
+      </div>
+
+      @if (errorMessage()) {
+        <div class="error-message">{{ errorMessage() }}</div>
+      }
+    </form>
+
+    <div class="dialog-footer">
+      <p-button
+        label="Cancel"
+        [text]="true"
+        (onClick)="onCancel()"
+        [disabled]="isLoading()">
+      </p-button>
+      <p-button
+        [label]="isEditMode ? 'Update' : 'Create'"
+        (onClick)="onSubmit()"
+        [disabled]="isLoading() || paymentForm.invalid"
+        [loading]="isLoading()">
+      </p-button>
+    </div>
   `,
   styles: [`
     .payment-form {
       display: flex;
       flex-direction: column;
-      min-width: 450px;
-      padding-top: 16px;
+      padding-top: 8px;
     }
 
-    .full-width {
-      width: 100%;
+    .field {
+      margin-bottom: 16px;
+    }
+
+    .field label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .required {
+      color: #f44336;
     }
 
     .form-row {
@@ -155,12 +187,15 @@ export interface PaymentDialogData {
       flex: 1;
     }
 
-    .method-icon {
-      font-size: 18px;
-      width: 18px;
-      height: 18px;
-      margin-right: 8px;
-      vertical-align: middle;
+    .w-full {
+      width: 100%;
+    }
+
+    .p-error {
+      color: #f44336;
+      font-size: 12px;
+      margin-top: 4px;
+      display: block;
     }
 
     .error-message {
@@ -172,25 +207,36 @@ export interface PaymentDialogData {
       border-radius: 4px;
     }
 
-    mat-dialog-content {
-      max-height: 70vh;
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
+      margin-top: 8px;
     }
   `]
 })
 export class PaymentDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<PaymentDialogComponent>);
+  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
+  private readonly dialogConfig = inject(DynamicDialogConfig);
   private readonly paymentService = inject(PaymentService);
   private readonly customerService = inject(CustomerService);
-  readonly data = inject<PaymentDialogData>(MAT_DIALOG_DATA);
 
   readonly isLoading = signal(false);
   readonly isLoadingCustomers = signal(false);
   readonly errorMessage = signal<string | null>(null);
   readonly customers = signal<Customer[]>([]);
+  readonly customerOptions = signal<{ label: string; value: number }[]>([]);
 
+  readonly data: PaymentDialogData = this.dialogConfig.data;
   readonly isEditMode = this.data?.mode === 'edit';
   readonly paymentMethods = Object.values(PaymentMethod);
+  readonly paymentMethodOptions = this.paymentMethods.map(method => ({
+    label: PAYMENT_METHOD_LABELS[method],
+    value: method
+  }));
 
   readonly paymentForm = this.fb.nonNullable.group({
     customerId: [this.data?.payment?.customerId ?? null as number | null, [Validators.required]],
@@ -210,6 +256,12 @@ export class PaymentDialogComponent implements OnInit {
     this.customerService.getCustomers({ size: 1000, active: true }).subscribe({
       next: (response) => {
         this.customers.set(response.data);
+        this.customerOptions.set(
+          response.data.map(customer => ({
+            label: `${customer.name} (${customer.code})`,
+            value: customer.id
+          }))
+        );
         this.isLoadingCustomers.set(false);
       },
       error: (err) => {
@@ -219,12 +271,8 @@ export class PaymentDialogComponent implements OnInit {
     });
   }
 
-  getMethodLabel(method: PaymentMethod): string {
-    return PAYMENT_METHOD_LABELS[method] || method;
-  }
-
-  getMethodIcon(method: PaymentMethod): string {
-    return PAYMENT_METHOD_ICONS[method] || 'payment';
+  onCancel(): void {
+    this.dialogRef.close(null);
   }
 
   onSubmit(): void {

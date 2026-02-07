@@ -1,18 +1,16 @@
 import { Component } from '@angular/core';
-import { MatCardModule } from '@angular/material/card';
+import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-rounds-list',
   standalone: true,
-  imports: [MatCardModule],
+  imports: [CardModule],
   template: `
     <div class="page-container">
       <h1>Rounds</h1>
-      <mat-card>
-        <mat-card-content>
-          <p>Rounds management coming soon...</p>
-        </mat-card-content>
-      </mat-card>
+      <p-card>
+        <p>Rounds management coming soon...</p>
+      </p-card>
     </div>
   `,
   styles: [`

@@ -1,22 +1,25 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { MatCardModule } from '@angular/material/card';
-import { MatTableModule } from '@angular/material/table';
-import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTooltipModule } from '@angular/material/tooltip';
-import { MatDialog, MatDialogModule } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
+import { TableModule, TablePageEvent } from 'primeng/table';
+import { ButtonModule } from 'primeng/button';
+import { CardModule } from 'primeng/card';
+import { SelectModule } from 'primeng/select';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TooltipModule } from 'primeng/tooltip';
+import { TagModule } from 'primeng/tag';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { MessageService } from 'primeng/api';
+import { ToastModule } from 'primeng/toast';
 import { Product } from './models/product.model';
 import { ProductService } from './services/product.service';
-import { ProductDialogComponent, ProductDialogData } from './product-dialog/product-dialog.component';
-import { PriceDialogComponent, PriceDialogData } from './price-dialog/price-dialog.component';
+import { ProductDialogComponent } from './product-dialog/product-dialog.component';
+import { PriceDialogComponent } from './price-dialog/price-dialog.component';
+
+interface StatusOption {
+  label: string;
+  value: boolean | null;
+}
 
 @Component({
   selector: 'app-products-list',
@@ -24,122 +27,118 @@ import { PriceDialogComponent, PriceDialogData } from './price-dialog/price-dial
   imports: [
     CommonModule,
     FormsModule,
-    MatCardModule,
-    MatTableModule,
-    MatPaginatorModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    MatFormFieldModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatTooltipModule,
-    MatDialogModule,
-    MatSnackBarModule,
+    TableModule,
+    ButtonModule,
+    CardModule,
+    SelectModule,
+    ProgressSpinnerModule,
+    TooltipModule,
+    TagModule,
+    ToastModule,
     CurrencyPipe
   ],
+  providers: [DialogService, MessageService],
   template: `
     <div class="page-container">
       <div class="page-header">
         <h1>Products</h1>
-        <button mat-raised-button color="primary" (click)="openCreateDialog()">
-          <mat-icon>add</mat-icon>
-          Add Product
-        </button>
+        <p-button label="Add Product" icon="pi pi-plus" (onClick)="openCreateDialog()"></p-button>
       </div>
 
-      <mat-card>
-        <mat-card-content>
-          <div class="filters">
-            <mat-form-field appearance="outline" class="filter-field">
-              <mat-label>Status</mat-label>
-              <mat-select [(value)]="activeFilter" (selectionChange)="onFilterChange()">
-                <mat-option [value]="null">All</mat-option>
-                <mat-option [value]="true">Active</mat-option>
-                <mat-option [value]="false">Inactive</mat-option>
-              </mat-select>
-            </mat-form-field>
+      <p-card>
+        <div class="filters">
+          <p-select
+            [options]="statusOptions"
+            [(ngModel)]="activeFilter"
+            optionLabel="label"
+            optionValue="value"
+            placeholder="Status"
+            (onChange)="onFilterChange()"
+            [style]="{'min-width': '150px'}">
+          </p-select>
+        </div>
+
+        @if (isLoading()) {
+          <div class="loading-container">
+            <p-progressSpinner [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
           </div>
+        } @else if (products().length === 0) {
+          <div class="empty-state">
+            <i class="pi pi-box" style="font-size: 48px; margin-bottom: 16px;"></i>
+            <p>No products found</p>
+          </div>
+        } @else {
+          <p-table
+            [value]="products()"
+            [paginator]="true"
+            [rows]="pageSize()"
+            [totalRecords]="totalItems()"
+            [lazy]="true"
+            [first]="first()"
+            [rowsPerPageOptions]="[5, 10, 25, 50]"
+            [showCurrentPageReport]="true"
+            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
+            (onPage)="onPageChange($event)"
+            [tableStyle]="{'min-width': '60rem'}">
 
-          @if (isLoading()) {
-            <div class="loading-container">
-              <mat-spinner diameter="40"></mat-spinner>
-            </div>
-          } @else if (products().length === 0) {
-            <div class="empty-state">
-              <mat-icon>inventory_2</mat-icon>
-              <p>No products found</p>
-            </div>
-          } @else {
-            <div class="table-container">
-              <table mat-table [dataSource]="products()">
-                <ng-container matColumnDef="code">
-                  <th mat-header-cell *matHeaderCellDef>Code</th>
-                  <td mat-cell *matCellDef="let product">{{ product.code }}</td>
-                </ng-container>
+            <ng-template pTemplate="header">
+              <tr>
+                <th>Code</th>
+                <th>Name</th>
+                <th>Description</th>
+                <th>Price</th>
+                <th>Active</th>
+                <th>Actions</th>
+              </tr>
+            </ng-template>
 
-                <ng-container matColumnDef="name">
-                  <th mat-header-cell *matHeaderCellDef>Name</th>
-                  <td mat-cell *matCellDef="let product">{{ product.name }}</td>
-                </ng-container>
-
-                <ng-container matColumnDef="description">
-                  <th mat-header-cell *matHeaderCellDef>Description</th>
-                  <td mat-cell *matCellDef="let product" class="description-cell">
-                    {{ product.description || '-' }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="price">
-                  <th mat-header-cell *matHeaderCellDef>Price</th>
-                  <td mat-cell *matCellDef="let product" class="price-cell">
-                    {{ product.price | currency }}
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="active">
-                  <th mat-header-cell *matHeaderCellDef>Active</th>
-                  <td mat-cell *matCellDef="let product">
-                    <span [class]="product.active ? 'status-active' : 'status-inactive'">
-                      {{ product.active ? 'Active' : 'Inactive' }}
-                    </span>
-                  </td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef>Actions</th>
-                  <td mat-cell *matCellDef="let product">
-                    <div class="action-buttons">
-                      <button mat-icon-button color="primary" matTooltip="Edit" (click)="openEditDialog(product)">
-                        <mat-icon>edit</mat-icon>
-                      </button>
-                      <button mat-icon-button color="accent" matTooltip="Update Price" (click)="openPriceDialog(product)">
-                        <mat-icon>attach_money</mat-icon>
-                      </button>
-                      <button mat-icon-button color="warn" matTooltip="Delete" (click)="deleteProduct(product)">
-                        <mat-icon>delete</mat-icon>
-                      </button>
-                    </div>
-                  </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-              </table>
-            </div>
-
-            <mat-paginator
-              [length]="totalItems()"
-              [pageSize]="pageSize()"
-              [pageIndex]="currentPage()"
-              [pageSizeOptions]="[5, 10, 25, 50]"
-              (page)="onPageChange($event)"
-              showFirstLastButtons>
-            </mat-paginator>
-          }
-        </mat-card-content>
-      </mat-card>
+            <ng-template pTemplate="body" let-product>
+              <tr>
+                <td>{{ product.code }}</td>
+                <td>{{ product.name }}</td>
+                <td class="description-cell">{{ product.description || '-' }}</td>
+                <td class="price-cell">{{ product.price | currency }}</td>
+                <td>
+                  <p-tag
+                    [value]="product.active ? 'Active' : 'Inactive'"
+                    [severity]="product.active ? 'success' : 'danger'">
+                  </p-tag>
+                </td>
+                <td>
+                  <div class="action-buttons">
+                    <p-button
+                      icon="pi pi-pencil"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="info"
+                      pTooltip="Edit"
+                      (onClick)="openEditDialog(product)">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-dollar"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="help"
+                      pTooltip="Update Price"
+                      (onClick)="openPriceDialog(product)">
+                    </p-button>
+                    <p-button
+                      icon="pi pi-trash"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="danger"
+                      pTooltip="Delete"
+                      (onClick)="deleteProduct(product)">
+                    </p-button>
+                  </div>
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        }
+      </p-card>
     </div>
+    <p-toast></p-toast>
   `,
   styles: [`
     .page-container {
@@ -159,9 +158,6 @@ import { PriceDialogComponent, PriceDialogData } from './price-dialog/price-dial
       gap: 16px;
       margin-bottom: 16px;
     }
-    .filter-field {
-      min-width: 150px;
-    }
     .loading-container {
       display: flex;
       justify-content: center;
@@ -174,18 +170,6 @@ import { PriceDialogComponent, PriceDialogData } from './price-dialog/price-dial
       padding: 48px;
       color: #999;
     }
-    .empty-state mat-icon {
-      font-size: 48px;
-      width: 48px;
-      height: 48px;
-      margin-bottom: 16px;
-    }
-    .table-container {
-      overflow-x: auto;
-    }
-    table {
-      width: 100%;
-    }
     .description-cell {
       max-width: 250px;
       overflow: hidden;
@@ -194,39 +178,35 @@ import { PriceDialogComponent, PriceDialogData } from './price-dialog/price-dial
     }
     .price-cell {
       font-weight: 500;
-      color: #1976d2;
-    }
-    .status-active {
-      color: #4caf50;
-      font-weight: 500;
-    }
-    .status-inactive {
-      color: #f44336;
-      font-weight: 500;
+      color: var(--primary-color);
     }
     .action-buttons {
       display: flex;
       gap: 4px;
     }
-    mat-paginator {
-      margin-top: 16px;
-    }
   `]
 })
 export class ProductsListComponent implements OnInit {
   private readonly productService = inject(ProductService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialogService = inject(DialogService);
+  private readonly messageService = inject(MessageService);
 
-  readonly displayedColumns = ['code', 'name', 'description', 'price', 'active', 'actions'];
+  private dialogRef: DynamicDialogRef | undefined;
 
   readonly products = signal<Product[]>([]);
   readonly isLoading = signal(false);
   readonly totalItems = signal(0);
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
+  readonly first = signal(0);
 
   activeFilter: boolean | null = null;
+
+  readonly statusOptions: StatusOption[] = [
+    { label: 'All', value: null },
+    { label: 'Active', value: true },
+    { label: 'Inactive', value: false }
+  ];
 
   ngOnInit(): void {
     this.loadProducts();
@@ -259,22 +239,26 @@ export class ProductsListComponent implements OnInit {
 
   onFilterChange(): void {
     this.currentPage.set(0);
+    this.first.set(0);
     this.loadProducts();
   }
 
-  onPageChange(event: PageEvent): void {
-    this.currentPage.set(event.pageIndex);
-    this.pageSize.set(event.pageSize);
+  onPageChange(event: TablePageEvent): void {
+    this.first.set(event.first);
+    this.currentPage.set(event.first / event.rows);
+    this.pageSize.set(event.rows);
     this.loadProducts();
   }
 
   openCreateDialog(): void {
-    const dialogRef = this.dialog.open(ProductDialogComponent, {
+    this.dialogRef = this.dialogService.open(ProductDialogComponent, {
+      header: 'Create Product',
       width: '500px',
-      data: {} as ProductDialogData
-    });
+      contentStyle: { overflow: 'auto' },
+      data: {}
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogRef?.onClose.subscribe((result) => {
       if (result) {
         this.showSuccess('Product created successfully');
         this.loadProducts();
@@ -283,12 +267,14 @@ export class ProductsListComponent implements OnInit {
   }
 
   openEditDialog(product: Product): void {
-    const dialogRef = this.dialog.open(ProductDialogComponent, {
+    this.dialogRef = this.dialogService.open(ProductDialogComponent, {
+      header: 'Edit Product',
       width: '500px',
-      data: { product } as ProductDialogData
-    });
+      contentStyle: { overflow: 'auto' },
+      data: { product }
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogRef?.onClose.subscribe((result) => {
       if (result) {
         this.showSuccess('Product updated successfully');
         this.loadProducts();
@@ -297,12 +283,14 @@ export class ProductsListComponent implements OnInit {
   }
 
   openPriceDialog(product: Product): void {
-    const dialogRef = this.dialog.open(PriceDialogComponent, {
+    this.dialogRef = this.dialogService.open(PriceDialogComponent, {
+      header: 'Update Price',
       width: '500px',
-      data: { product } as PriceDialogData
-    });
+      contentStyle: { overflow: 'auto' },
+      data: { product }
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result) => {
+    this.dialogRef?.onClose.subscribe((result) => {
       if (result) {
         this.showSuccess('Price updated successfully');
         this.loadProducts();
@@ -325,20 +313,20 @@ export class ProductsListComponent implements OnInit {
   }
 
   private showSuccess(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 3000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      panelClass: ['success-snackbar']
+    this.messageService.add({
+      severity: 'success',
+      summary: 'Success',
+      detail: message,
+      life: 3000
     });
   }
 
   private showError(message: string): void {
-    this.snackBar.open(message, 'Close', {
-      duration: 5000,
-      horizontalPosition: 'end',
-      verticalPosition: 'top',
-      panelClass: ['error-snackbar']
+    this.messageService.add({
+      severity: 'error',
+      summary: 'Error',
+      detail: message,
+      life: 5000
     });
   }
 }

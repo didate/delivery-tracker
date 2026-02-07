@@ -1,17 +1,18 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatDialogModule, MatDialog } from '@angular/material/dialog';
-import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatChipsModule } from '@angular/material/chips';
-import { MatTableModule } from '@angular/material/table';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatMenuModule } from '@angular/material/menu';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { CardModule } from 'primeng/card';
+import { ButtonModule } from 'primeng/button';
+import { TableModule } from 'primeng/table';
+import { TagModule } from 'primeng/tag';
+import { MenuModule } from 'primeng/menu';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { DividerModule } from 'primeng/divider';
+import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { ToastModule } from 'primeng/toast';
 
 import {
   Delivery,
@@ -19,10 +20,8 @@ import {
   DeliveryStatus,
   DELIVERY_STATUS_OPTIONS,
   DELIVERY_STATUS_COLORS,
-  CreateDeliveryItemDto
 } from '../models/delivery.model';
 import { DeliveryService } from '../services/delivery.service';
-import { ConfirmDialogComponent } from '../../../shared/components/confirm-dialog/confirm-dialog.component';
 import { AddItemDialogComponent, AddItemDialogResult } from './add-item-dialog.component';
 
 @Component({
@@ -30,186 +29,189 @@ import { AddItemDialogComponent, AddItemDialogResult } from './add-item-dialog.c
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatButtonModule,
-    MatIconModule,
-    MatDialogModule,
-    MatSnackBarModule,
-    MatProgressSpinnerModule,
-    MatChipsModule,
-    MatTableModule,
-    MatDividerModule,
-    MatMenuModule,
-    MatTooltipModule,
+    CardModule,
+    ButtonModule,
+    TableModule,
+    TagModule,
+    MenuModule,
+    TooltipModule,
+    ProgressSpinnerModule,
+    DividerModule,
+    ConfirmDialogModule,
+    ToastModule,
     DatePipe,
     CurrencyPipe,
   ],
+  providers: [DialogService, ConfirmationService, MessageService],
   template: `
     <div class="page-container">
       @if (isLoading()) {
         <div class="loading-container">
-          <mat-spinner diameter="40"></mat-spinner>
+          <p-progressSpinner strokeWidth="4" [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
           <p>Loading delivery...</p>
         </div>
       } @else if (error()) {
         <div class="error-container">
-          <mat-icon color="warn">error</mat-icon>
+          <i class="pi pi-exclamation-circle error-icon"></i>
           <p>{{ error() }}</p>
-          <button mat-button color="primary" (click)="loadDelivery()">
-            <mat-icon>refresh</mat-icon>
-            Retry
-          </button>
+          <p-button
+            label="Retry"
+            icon="pi pi-refresh"
+            [text]="true"
+            (onClick)="loadDelivery()">
+          </p-button>
         </div>
       } @else if (delivery()) {
         <div class="page-header">
           <div class="header-left">
-            <button mat-icon-button (click)="goBack()" matTooltip="Back to list">
-              <mat-icon>arrow_back</mat-icon>
-            </button>
+            <p-button
+              icon="pi pi-arrow-left"
+              [rounded]="true"
+              [text]="true"
+              (onClick)="goBack()"
+              pTooltip="Back to list">
+            </p-button>
             <h1>Delivery {{ delivery()!.code }}</h1>
-            <span class="status-chip" [style.background-color]="getStatusColor(delivery()!.status)">
-              {{ getStatusLabel(delivery()!.status) }}
-            </span>
+            <p-tag
+              [value]="getStatusLabel(delivery()!.status)"
+              [severity]="getStatusSeverity(delivery()!.status)">
+            </p-tag>
           </div>
           <div class="header-actions">
             @if (canChangeStatus()) {
-              <button mat-raised-button [matMenuTriggerFor]="statusMenu">
-                <mat-icon>swap_horiz</mat-icon>
-                Change Status
-              </button>
-              <mat-menu #statusMenu="matMenu">
-                @for (status of getAvailableStatuses(delivery()!.status); track status.value) {
-                  <button mat-menu-item (click)="updateStatus(status.value)">
-                    <span [style.color]="getStatusColor(status.value)">
-                      {{ status.label }}
-                    </span>
-                  </button>
-                }
-              </mat-menu>
+              <p-button
+                label="Change Status"
+                icon="pi pi-arrows-h"
+                (onClick)="statusMenu.toggle($event)">
+              </p-button>
+              <p-menu
+                #statusMenu
+                [model]="statusMenuItems"
+                [popup]="true">
+              </p-menu>
             }
             @if (delivery()!.status === 'PENDING') {
-              <button mat-raised-button color="warn" (click)="confirmDelete()">
-                <mat-icon>delete</mat-icon>
-                Delete
-              </button>
+              <p-button
+                label="Delete"
+                icon="pi pi-trash"
+                severity="danger"
+                (onClick)="confirmDelete()">
+              </p-button>
             }
           </div>
         </div>
 
         <div class="content-grid">
-          <mat-card class="info-card">
-            <mat-card-header>
-              <mat-card-title>Delivery Information</mat-card-title>
-            </mat-card-header>
-            <mat-card-content>
-              <div class="info-grid">
-                <div class="info-item">
-                  <span class="info-label">Code</span>
-                  <span class="info-value">{{ delivery()!.code }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Customer</span>
-                  <span class="info-value">{{ delivery()!.customerName }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Driver</span>
-                  <span class="info-value">
-                    @if (delivery()!.driverName) {
-                      {{ delivery()!.driverName }}
-                    } @else {
-                      <span class="no-value">Not assigned</span>
-                    }
-                  </span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Delivery Date</span>
-                  <span class="info-value">{{ delivery()!.deliveryDate | date:'longDate' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Created Date</span>
-                  <span class="info-value">{{ delivery()!.createdDate | date:'medium' }}</span>
-                </div>
-                <div class="info-item">
-                  <span class="info-label">Total Amount</span>
-                  <span class="info-value total-amount">{{ delivery()!.totalAmount | currency }}</span>
-                </div>
+          <p-card styleClass="info-card">
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <h3>Delivery Information</h3>
               </div>
-              @if (delivery()!.notes) {
-                <mat-divider></mat-divider>
-                <div class="notes-section">
-                  <span class="info-label">Notes</span>
-                  <p class="notes-content">{{ delivery()!.notes }}</p>
-                </div>
-              }
-            </mat-card-content>
-          </mat-card>
+            </ng-template>
+            <div class="info-grid">
+              <div class="info-item">
+                <span class="info-label">Code</span>
+                <span class="info-value">{{ delivery()!.code }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Customer</span>
+                <span class="info-value">{{ delivery()!.customerName }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Driver</span>
+                <span class="info-value">
+                  @if (delivery()!.driverName) {
+                    {{ delivery()!.driverName }}
+                  } @else {
+                    <span class="no-value">Not assigned</span>
+                  }
+                </span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Delivery Date</span>
+                <span class="info-value">{{ delivery()!.deliveryDate | date:'longDate' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Created Date</span>
+                <span class="info-value">{{ delivery()!.createdDate | date:'medium' }}</span>
+              </div>
+              <div class="info-item">
+                <span class="info-label">Total Amount</span>
+                <span class="info-value total-amount">{{ delivery()!.totalAmount | currency }}</span>
+              </div>
+            </div>
+            @if (delivery()!.notes) {
+              <p-divider></p-divider>
+              <div class="notes-section">
+                <span class="info-label">Notes</span>
+                <p class="notes-content">{{ delivery()!.notes }}</p>
+              </div>
+            }
+          </p-card>
 
-          <mat-card class="items-card">
-            <mat-card-header>
-              <mat-card-title>Items</mat-card-title>
-              @if (canEditItems()) {
-                <button mat-button color="primary" (click)="openAddItemDialog()">
-                  <mat-icon>add</mat-icon>
-                  Add Item
-                </button>
-              }
-            </mat-card-header>
-            <mat-card-content>
-              @if (delivery()!.items.length === 0) {
-                <div class="no-items">
-                  <mat-icon>inventory_2</mat-icon>
-                  <p>No items in this delivery</p>
-                </div>
-              } @else {
-                <table mat-table [dataSource]="delivery()!.items" class="items-table">
-                  <ng-container matColumnDef="product">
-                    <th mat-header-cell *matHeaderCellDef>Product</th>
-                    <td mat-cell *matCellDef="let item">{{ item.productName }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="quantity">
-                    <th mat-header-cell *matHeaderCellDef>Quantity</th>
-                    <td mat-cell *matCellDef="let item">{{ item.quantity }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="unitPrice">
-                    <th mat-header-cell *matHeaderCellDef>Unit Price</th>
-                    <td mat-cell *matCellDef="let item">{{ item.unitPrice | currency }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="totalPrice">
-                    <th mat-header-cell *matHeaderCellDef>Total</th>
-                    <td mat-cell *matCellDef="let item">{{ item.totalPrice | currency }}</td>
-                  </ng-container>
-
-                  <ng-container matColumnDef="actions">
-                    <th mat-header-cell *matHeaderCellDef></th>
-                    <td mat-cell *matCellDef="let item">
+          <p-card styleClass="items-card">
+            <ng-template pTemplate="header">
+              <div class="card-header">
+                <h3>Items</h3>
+                @if (canEditItems()) {
+                  <p-button
+                    label="Add Item"
+                    icon="pi pi-plus"
+                    [text]="true"
+                    (onClick)="openAddItemDialog()">
+                  </p-button>
+                }
+              </div>
+            </ng-template>
+            @if (delivery()!.items.length === 0) {
+              <div class="no-items">
+                <i class="pi pi-inbox"></i>
+                <p>No items in this delivery</p>
+              </div>
+            } @else {
+              <p-table [value]="delivery()!.items" styleClass="p-datatable-striped">
+                <ng-template pTemplate="header">
+                  <tr>
+                    <th>Product</th>
+                    <th>Quantity</th>
+                    <th>Unit Price</th>
+                    <th>Total</th>
+                    <th></th>
+                  </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item>
+                  <tr>
+                    <td>{{ item.productName }}</td>
+                    <td>{{ item.quantity }}</td>
+                    <td>{{ item.unitPrice | currency }}</td>
+                    <td>{{ item.totalPrice | currency }}</td>
+                    <td>
                       @if (canEditItems()) {
-                        <button
-                          mat-icon-button
-                          color="warn"
-                          (click)="confirmRemoveItem(item)"
-                          matTooltip="Remove item">
-                          <mat-icon>delete</mat-icon>
-                        </button>
+                        <p-button
+                          icon="pi pi-trash"
+                          [rounded]="true"
+                          [text]="true"
+                          severity="danger"
+                          (onClick)="confirmRemoveItem(item)"
+                          pTooltip="Remove item">
+                        </p-button>
                       }
                     </td>
-                  </ng-container>
+                  </tr>
+                </ng-template>
+              </p-table>
 
-                  <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
-                  <tr mat-row *matRowDef="let row; columns: itemColumns;"></tr>
-                </table>
-
-                <div class="items-footer">
-                  <strong>Total: {{ delivery()!.totalAmount | currency }}</strong>
-                </div>
-              }
-            </mat-card-content>
-          </mat-card>
+              <div class="items-footer">
+                <strong>Total: {{ delivery()!.totalAmount | currency }}</strong>
+              </div>
+            }
+          </p-card>
         </div>
       }
     </div>
+
+    <p-confirmDialog></p-confirmDialog>
+    <p-toast></p-toast>
   `,
   styles: [`
     .page-container {
@@ -226,10 +228,9 @@ import { AddItemDialogComponent, AddItemDialogResult } from './add-item-dialog.c
       text-align: center;
     }
 
-    .error-container mat-icon {
+    .error-icon {
       font-size: 48px;
-      width: 48px;
-      height: 48px;
+      color: var(--red-500);
       margin-bottom: 16px;
     }
 
@@ -255,15 +256,6 @@ import { AddItemDialogComponent, AddItemDialogResult } from './add-item-dialog.c
       gap: 8px;
     }
 
-    .status-chip {
-      padding: 4px 12px;
-      border-radius: 16px;
-      font-size: 12px;
-      font-weight: 500;
-      color: white;
-      text-transform: uppercase;
-    }
-
     .content-grid {
       display: grid;
       grid-template-columns: 1fr 1.5fr;
@@ -276,12 +268,18 @@ import { AddItemDialogComponent, AddItemDialogResult } from './add-item-dialog.c
       }
     }
 
-    .info-card mat-card-header,
-    .items-card mat-card-header {
+    .card-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 16px;
+      padding: 16px;
+      border-bottom: 1px solid var(--surface-border);
+    }
+
+    .card-header h3 {
+      margin: 0;
+      font-size: 1.125rem;
+      font-weight: 600;
     }
 
     .info-grid {
@@ -336,27 +334,26 @@ import { AddItemDialogComponent, AddItemDialogResult } from './add-item-dialog.c
       color: #9e9e9e;
     }
 
-    .no-items mat-icon {
+    .no-items i {
       font-size: 48px;
-      width: 48px;
-      height: 48px;
       margin-bottom: 8px;
-    }
-
-    .items-table {
-      width: 100%;
     }
 
     .items-footer {
       display: flex;
       justify-content: flex-end;
       padding: 16px;
-      background-color: #f5f5f5;
+      background-color: var(--surface-100);
       border-radius: 0 0 4px 4px;
     }
 
-    mat-divider {
-      margin: 16px 0;
+    :host ::ng-deep .p-card .p-card-body {
+      padding: 16px;
+    }
+
+    :host ::ng-deep .info-card .p-card-header,
+    :host ::ng-deep .items-card .p-card-header {
+      padding: 0;
     }
   `]
 })
@@ -364,8 +361,11 @@ export class DeliveryDetailComponent implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly deliveryService = inject(DeliveryService);
-  private readonly dialog = inject(MatDialog);
-  private readonly snackBar = inject(MatSnackBar);
+  private readonly dialogService = inject(DialogService);
+  private readonly confirmationService = inject(ConfirmationService);
+  private readonly messageService = inject(MessageService);
+
+  private dialogRef: DynamicDialogRef<any> | undefined;
 
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
@@ -374,7 +374,7 @@ export class DeliveryDetailComponent implements OnInit {
   readonly statusOptions = DELIVERY_STATUS_OPTIONS;
   readonly statusColors = DELIVERY_STATUS_COLORS;
 
-  readonly itemColumns = ['product', 'quantity', 'unitPrice', 'totalPrice', 'actions'];
+  statusMenuItems: MenuItem[] = [];
 
   private deliveryId!: number;
 
@@ -390,6 +390,7 @@ export class DeliveryDetailComponent implements OnInit {
     this.deliveryService.getDelivery(this.deliveryId).subscribe({
       next: (delivery) => {
         this.delivery.set(delivery);
+        this.updateStatusMenuItems();
         this.isLoading.set(false);
       },
       error: (err) => {
@@ -399,12 +400,28 @@ export class DeliveryDetailComponent implements OnInit {
     });
   }
 
+  private updateStatusMenuItems(): void {
+    const currentStatus = this.delivery()?.status;
+    if (currentStatus) {
+      this.statusMenuItems = this.getAvailableStatuses(currentStatus).map(status => ({
+        label: status.label,
+        command: () => this.updateStatus(status.value)
+      }));
+    }
+  }
+
   goBack(): void {
     this.router.navigate(['/deliveries']);
   }
 
-  getStatusColor(status: DeliveryStatus): string {
-    return this.statusColors[status] || '#9e9e9e';
+  getStatusSeverity(status: DeliveryStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
+    const severityMap: Record<DeliveryStatus, 'success' | 'info' | 'warn' | 'danger'> = {
+      PENDING: 'warn',
+      IN_PROGRESS: 'info',
+      COMPLETED: 'success',
+      CANCELLED: 'danger',
+    };
+    return severityMap[status];
   }
 
   getStatusLabel(status: DeliveryStatus): string {
@@ -437,28 +454,47 @@ export class DeliveryDetailComponent implements OnInit {
     this.deliveryService.updateStatus(this.deliveryId, { status: newStatus }).subscribe({
       next: (updatedDelivery) => {
         this.delivery.set(updatedDelivery);
-        this.snackBar.open(`Status updated to ${this.getStatusLabel(newStatus)}`, 'Close', { duration: 3000 });
+        this.updateStatusMenuItems();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Success',
+          detail: `Status updated to ${this.getStatusLabel(newStatus)}`
+        });
       },
       error: (err) => {
-        this.snackBar.open(err.message || 'Failed to update status', 'Close', { duration: 5000 });
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err.message || 'Failed to update status'
+        });
       }
     });
   }
 
   openAddItemDialog(): void {
-    const dialogRef = this.dialog.open(AddItemDialogComponent, {
-      width: '500px'
-    });
+    this.dialogRef = this.dialogService.open(AddItemDialogComponent, {
+      header: 'Add Item',
+      width: '500px',
+      modal: true
+    }) ?? undefined;
 
-    dialogRef.afterClosed().subscribe((result: AddItemDialogResult | undefined) => {
+    this.dialogRef?.onClose.subscribe((result: AddItemDialogResult | undefined) => {
       if (result?.action === 'add') {
         this.deliveryService.addItem(this.deliveryId, result.data).subscribe({
           next: () => {
-            this.snackBar.open('Item added successfully', 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Item added successfully'
+            });
             this.loadDelivery();
           },
           error: (err) => {
-            this.snackBar.open(err.message || 'Failed to add item', 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || 'Failed to add item'
+            });
           }
         });
       }
@@ -466,25 +502,29 @@ export class DeliveryDetailComponent implements OnInit {
   }
 
   confirmRemoveItem(item: DeliveryItem): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Remove Item',
-        message: `Are you sure you want to remove "${item.productName}" from this delivery?`,
-        confirmText: 'Remove',
-        cancelText: 'Cancel'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
+    this.confirmationService.confirm({
+      message: `Are you sure you want to remove "${item.productName}" from this delivery?`,
+      header: 'Remove Item',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Remove',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
         this.deliveryService.removeItem(this.deliveryId, item.id).subscribe({
           next: () => {
-            this.snackBar.open('Item removed successfully', 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Item removed successfully'
+            });
             this.loadDelivery();
           },
           error: (err) => {
-            this.snackBar.open(err.message || 'Failed to remove item', 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || 'Failed to remove item'
+            });
           }
         });
       }
@@ -492,25 +532,29 @@ export class DeliveryDetailComponent implements OnInit {
   }
 
   confirmDelete(): void {
-    const dialogRef = this.dialog.open(ConfirmDialogComponent, {
-      width: '400px',
-      data: {
-        title: 'Delete Delivery',
-        message: `Are you sure you want to delete this delivery?`,
-        confirmText: 'Delete',
-        cancelText: 'Cancel'
-      }
-    });
-
-    dialogRef.afterClosed().subscribe((confirmed: boolean) => {
-      if (confirmed) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete this delivery?',
+      header: 'Delete Delivery',
+      icon: 'pi pi-exclamation-triangle',
+      acceptLabel: 'Delete',
+      rejectLabel: 'Cancel',
+      acceptButtonStyleClass: 'p-button-danger',
+      accept: () => {
         this.deliveryService.deleteDelivery(this.deliveryId).subscribe({
           next: () => {
-            this.snackBar.open('Delivery deleted successfully', 'Close', { duration: 3000 });
+            this.messageService.add({
+              severity: 'success',
+              summary: 'Success',
+              detail: 'Delivery deleted successfully'
+            });
             this.router.navigate(['/deliveries']);
           },
           error: (err) => {
-            this.snackBar.open(err.message || 'Failed to delete delivery', 'Close', { duration: 5000 });
+            this.messageService.add({
+              severity: 'error',
+              summary: 'Error',
+              detail: err.message || 'Failed to delete delivery'
+            });
           }
         });
       }

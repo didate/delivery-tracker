@@ -1,13 +1,13 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { ButtonModule } from 'primeng/button';
+import { ToggleSwitchModule } from 'primeng/toggleswitch';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { TextareaModule } from 'primeng/textarea';
+import { InputNumberModule } from 'primeng/inputnumber';
 import { Customer, CreateCustomerDto, UpdateCustomerDto } from '../models/customer.model';
 
 export interface CustomerDialogData {
@@ -26,107 +26,153 @@ export interface CustomerDialogResult {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSlideToggleModule,
-    MatProgressSpinnerModule,
+    InputTextModule,
+    ButtonModule,
+    ToggleSwitchModule,
+    ProgressSpinnerModule,
+    TextareaModule,
+    InputNumberModule,
   ],
   template: `
-    <h2 mat-dialog-title>{{ isEditMode() ? 'Edit Customer' : 'Add Customer' }}</h2>
+    <form [formGroup]="customerForm" class="customer-form">
+      <div class="form-row">
+        <div class="field full-width">
+          <label for="code">Code</label>
+          <input
+            id="code"
+            type="text"
+            pInputText
+            formControlName="code"
+            placeholder="Enter customer code"
+            class="w-full" />
+          @if (customerForm.controls.code.hasError('required') && customerForm.controls.code.touched) {
+            <small class="p-error">Code is required</small>
+          }
+        </div>
+      </div>
 
-    <mat-dialog-content>
-      <form [formGroup]="customerForm" class="customer-form">
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Code</mat-label>
-            <input matInput formControlName="code" placeholder="Enter customer code">
-            @if (customerForm.controls.code.hasError('required') && customerForm.controls.code.touched) {
-              <mat-error>Code is required</mat-error>
-            }
-          </mat-form-field>
+      <div class="form-row">
+        <div class="field full-width">
+          <label for="name">Name</label>
+          <input
+            id="name"
+            type="text"
+            pInputText
+            formControlName="name"
+            placeholder="Enter customer name"
+            class="w-full" />
+          @if (customerForm.controls.name.hasError('required') && customerForm.controls.name.touched) {
+            <small class="p-error">Name is required</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-row two-columns">
+        <div class="field">
+          <label for="phone">Phone</label>
+          <input
+            id="phone"
+            type="text"
+            pInputText
+            formControlName="phone"
+            placeholder="Enter phone number"
+            class="w-full" />
+          @if (customerForm.controls.phone.hasError('required') && customerForm.controls.phone.touched) {
+            <small class="p-error">Phone is required</small>
+          }
         </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Name</mat-label>
-            <input matInput formControlName="name" placeholder="Enter customer name">
-            @if (customerForm.controls.name.hasError('required') && customerForm.controls.name.touched) {
-              <mat-error>Name is required</mat-error>
-            }
-          </mat-form-field>
+        <div class="field">
+          <label for="email">Email</label>
+          <input
+            id="email"
+            type="email"
+            pInputText
+            formControlName="email"
+            placeholder="Enter email"
+            class="w-full" />
+          @if (customerForm.controls.email.hasError('required') && customerForm.controls.email.touched) {
+            <small class="p-error">Email is required</small>
+          }
+          @if (customerForm.controls.email.hasError('email') && customerForm.controls.email.touched) {
+            <small class="p-error">Please enter a valid email</small>
+          }
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field full-width">
+          <label for="address">Address</label>
+          <textarea
+            id="address"
+            pTextarea
+            formControlName="address"
+            placeholder="Enter address"
+            rows="2"
+            class="w-full">
+          </textarea>
+        </div>
+      </div>
+
+      <div class="form-row two-columns">
+        <div class="field">
+          <label for="latitude">Latitude</label>
+          <p-inputNumber
+            id="latitude"
+            formControlName="latitude"
+            placeholder="e.g., 48.8566"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="6"
+            mode="decimal"
+            [useGrouping]="false"
+            styleClass="w-full">
+          </p-inputNumber>
         </div>
 
-        <div class="form-row two-columns">
-          <mat-form-field appearance="outline">
-            <mat-label>Phone</mat-label>
-            <input matInput formControlName="phone" placeholder="Enter phone number">
-            @if (customerForm.controls.phone.hasError('required') && customerForm.controls.phone.touched) {
-              <mat-error>Phone is required</mat-error>
-            }
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Email</mat-label>
-            <input matInput formControlName="email" type="email" placeholder="Enter email">
-            @if (customerForm.controls.email.hasError('required') && customerForm.controls.email.touched) {
-              <mat-error>Email is required</mat-error>
-            }
-            @if (customerForm.controls.email.hasError('email') && customerForm.controls.email.touched) {
-              <mat-error>Please enter a valid email</mat-error>
-            }
-          </mat-form-field>
+        <div class="field">
+          <label for="longitude">Longitude</label>
+          <p-inputNumber
+            id="longitude"
+            formControlName="longitude"
+            placeholder="e.g., 2.3522"
+            [minFractionDigits]="0"
+            [maxFractionDigits]="6"
+            mode="decimal"
+            [useGrouping]="false"
+            styleClass="w-full">
+          </p-inputNumber>
         </div>
+      </div>
 
-        <div class="form-row">
-          <mat-form-field appearance="outline" class="full-width">
-            <mat-label>Address</mat-label>
-            <textarea matInput formControlName="address" placeholder="Enter address" rows="2"></textarea>
-          </mat-form-field>
+      <div class="form-row">
+        <div class="field-checkbox">
+          <p-toggleswitch formControlName="active"></p-toggleswitch>
+          <label for="active">Active</label>
         </div>
+      </div>
+    </form>
 
-        <div class="form-row two-columns">
-          <mat-form-field appearance="outline">
-            <mat-label>Latitude</mat-label>
-            <input matInput formControlName="latitude" type="number" step="any" placeholder="e.g., 48.8566">
-          </mat-form-field>
-
-          <mat-form-field appearance="outline">
-            <mat-label>Longitude</mat-label>
-            <input matInput formControlName="longitude" type="number" step="any" placeholder="e.g., 2.3522">
-          </mat-form-field>
-        </div>
-
-        <div class="form-row">
-          <mat-slide-toggle formControlName="active" color="primary">
-            Active
-          </mat-slide-toggle>
-        </div>
-      </form>
-    </mat-dialog-content>
-
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onSave()"
+    <div class="dialog-actions">
+      <p-button
+        label="Cancel"
+        [text]="true"
+        (onClick)="onCancel()">
+      </p-button>
+      <p-button
+        [label]="isEditMode() ? 'Update' : 'Create'"
+        (onClick)="onSave()"
         [disabled]="customerForm.invalid || isSaving()">
         @if (isSaving()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          {{ isEditMode() ? 'Update' : 'Create' }}
+          <p-progressSpinner [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
         }
-      </button>
-    </mat-dialog-actions>
+      </p-button>
+    </div>
   `,
   styles: [`
     .customer-form {
       display: flex;
       flex-direction: column;
-      gap: 8px;
+      gap: 16px;
       min-width: 400px;
       padding-top: 8px;
     }
@@ -142,35 +188,63 @@ export interface CustomerDialogResult {
       gap: 16px;
     }
 
+    .field {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .field label {
+      font-weight: 500;
+    }
+
+    .field-checkbox {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
     .full-width {
       width: 100%;
     }
 
-    mat-form-field {
+    .w-full {
       width: 100%;
     }
 
-    mat-dialog-content {
-      max-height: 70vh;
-      overflow-y: auto;
+    .dialog-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 24px;
+      border-top: 1px solid var(--surface-border);
+      margin-top: 16px;
     }
 
-    mat-dialog-actions {
-      padding: 16px 0 0 0;
+    .p-error {
+      color: var(--red-500);
     }
 
-    mat-spinner {
-      display: inline-block;
+    :host ::ng-deep .p-inputnumber {
+      width: 100%;
+    }
+
+    :host ::ng-deep .p-inputnumber-input {
+      width: 100%;
     }
   `]
 })
 export class CustomerDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<CustomerDialogComponent>);
-  readonly data = inject<CustomerDialogData>(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
 
   readonly isSaving = signal(false);
   readonly isEditMode = signal(false);
+
+  get data(): CustomerDialogData {
+    return this.config.data;
+  }
 
   readonly customerForm = this.fb.nonNullable.group({
     code: ['', [Validators.required]],

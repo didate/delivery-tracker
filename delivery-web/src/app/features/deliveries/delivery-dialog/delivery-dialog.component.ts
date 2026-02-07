@@ -1,18 +1,17 @@
 import { Component, inject, signal, OnInit, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
-import { MAT_DIALOG_DATA, MatDialogRef, MatDialogModule } from '@angular/material/dialog';
-import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatInputModule } from '@angular/material/input';
-import { MatButtonModule } from '@angular/material/button';
-import { MatIconModule } from '@angular/material/icon';
-import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatDividerModule } from '@angular/material/divider';
-import { MatTableModule } from '@angular/material/table';
-import { MatTooltipModule } from '@angular/material/tooltip';
+import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
+import { InputTextModule } from 'primeng/inputtext';
+import { TextareaModule } from 'primeng/textarea';
+import { InputNumberModule } from 'primeng/inputnumber';
+import { ButtonModule } from 'primeng/button';
+import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
+import { TableModule } from 'primeng/table';
+import { DividerModule } from 'primeng/divider';
+import { TooltipModule } from 'primeng/tooltip';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 import { Delivery, CreateDeliveryDto, UpdateDeliveryDto, CreateDeliveryItemDto } from '../models/delivery.model';
 import { Customer } from '../../customers/models/customer.model';
@@ -46,79 +45,103 @@ interface ItemFormGroup {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    MatDialogModule,
-    MatFormFieldModule,
-    MatInputModule,
-    MatButtonModule,
-    MatIconModule,
-    MatSelectModule,
-    MatDatepickerModule,
-    MatNativeDateModule,
-    MatProgressSpinnerModule,
-    MatDividerModule,
-    MatTableModule,
-    MatTooltipModule,
+    InputTextModule,
+    TextareaModule,
+    InputNumberModule,
+    ButtonModule,
+    SelectModule,
+    DatePickerModule,
+    TableModule,
+    DividerModule,
+    TooltipModule,
+    ProgressSpinnerModule,
     CurrencyPipe,
   ],
   template: `
-    <h2 mat-dialog-title>{{ isEditMode() ? 'Edit Delivery' : 'New Delivery' }}</h2>
-
-    <mat-dialog-content>
+    <div class="delivery-dialog">
       <form [formGroup]="deliveryForm" class="delivery-form">
         <div class="form-section">
           <h3>Delivery Information</h3>
 
           <div class="form-row two-columns">
-            <mat-form-field appearance="outline">
-              <mat-label>Customer</mat-label>
-              <mat-select formControlName="customerId" (selectionChange)="onCustomerChange($event.value)">
-                @for (customer of customers(); track customer.id) {
-                  <mat-option [value]="customer.id">{{ customer.name }}</mat-option>
-                }
-              </mat-select>
+            <div class="form-field">
+              <label for="customerId">Customer *</label>
+              <p-select
+                id="customerId"
+                formControlName="customerId"
+                [options]="customerOptions()"
+                (onChange)="onCustomerChange($event.value)"
+                placeholder="Select a customer"
+                optionLabel="label"
+                optionValue="value"
+                [filter]="true"
+                filterPlaceholder="Search customers"
+                styleClass="w-full"
+                [class.ng-invalid]="deliveryForm.controls.customerId.invalid && deliveryForm.controls.customerId.touched">
+              </p-select>
               @if (deliveryForm.controls.customerId.hasError('required') && deliveryForm.controls.customerId.touched) {
-                <mat-error>Customer is required</mat-error>
+                <small class="p-error">Customer is required</small>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Driver (Optional)</mat-label>
-              <mat-select formControlName="driverId">
-                <mat-option [value]="null">Not assigned</mat-option>
-                @for (driver of drivers(); track driver.id) {
-                  <mat-option [value]="driver.id">{{ driver.firstName }} {{ driver.lastName }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
+            <div class="form-field">
+              <label for="driverId">Driver (Optional)</label>
+              <p-select
+                id="driverId"
+                formControlName="driverId"
+                [options]="driverOptions()"
+                placeholder="Not assigned"
+                optionLabel="label"
+                optionValue="value"
+                [filter]="true"
+                filterPlaceholder="Search drivers"
+                [showClear]="true"
+                styleClass="w-full">
+              </p-select>
+            </div>
           </div>
 
           <div class="form-row two-columns">
-            <mat-form-field appearance="outline">
-              <mat-label>Delivery Date</mat-label>
-              <input matInput [matDatepicker]="picker" formControlName="deliveryDate">
-              <mat-datepicker-toggle matIconSuffix [for]="picker"></mat-datepicker-toggle>
-              <mat-datepicker #picker></mat-datepicker>
+            <div class="form-field">
+              <label for="deliveryDate">Delivery Date *</label>
+              <p-datepicker
+                id="deliveryDate"
+                formControlName="deliveryDate"
+                dateFormat="mm/dd/yy"
+                [showIcon]="true"
+                styleClass="w-full"
+                [class.ng-invalid]="deliveryForm.controls.deliveryDate.invalid && deliveryForm.controls.deliveryDate.touched">
+              </p-datepicker>
               @if (deliveryForm.controls.deliveryDate.hasError('required') && deliveryForm.controls.deliveryDate.touched) {
-                <mat-error>Delivery date is required</mat-error>
+                <small class="p-error">Delivery date is required</small>
               }
-            </mat-form-field>
+            </div>
 
-            <mat-form-field appearance="outline">
-              <mat-label>Notes (Optional)</mat-label>
-              <textarea matInput formControlName="notes" rows="1" placeholder="Add notes..."></textarea>
-            </mat-form-field>
+            <div class="form-field">
+              <label for="notes">Notes (Optional)</label>
+              <textarea
+                pTextarea
+                id="notes"
+                formControlName="notes"
+                rows="1"
+                placeholder="Add notes..."
+                class="w-full">
+              </textarea>
+            </div>
           </div>
         </div>
 
-        <mat-divider></mat-divider>
+        <p-divider></p-divider>
 
         <div class="form-section">
           <div class="section-header">
             <h3>Items</h3>
-            <button mat-button color="primary" type="button" (click)="addItem()">
-              <mat-icon>add</mat-icon>
-              Add Item
-            </button>
+            <p-button
+              label="Add Item"
+              icon="pi pi-plus"
+              [text]="true"
+              (onClick)="addItem()">
+            </p-button>
           </div>
 
           @if (itemsFormArray.length === 0) {
@@ -126,59 +149,69 @@ interface ItemFormGroup {
               <p>No items added yet. Click "Add Item" to add products to this delivery.</p>
             </div>
           } @else {
-            <div class="items-table-container">
-              <table mat-table [dataSource]="itemsFormArray.controls" class="items-table">
-                <ng-container matColumnDef="product">
-                  <th mat-header-cell *matHeaderCellDef>Product</th>
-                  <td mat-cell *matCellDef="let item; let i = index">
-                    <mat-form-field appearance="outline" class="compact-field">
-                      <mat-select [formControl]="getItemControl(i, 'productId')" (selectionChange)="onProductChange(i, $event.value)">
-                        @for (product of products(); track product.id) {
-                          <mat-option [value]="product.id">{{ product.name }}</mat-option>
-                        }
-                      </mat-select>
-                    </mat-form-field>
+            <p-table [value]="itemsFormArray.controls" styleClass="p-datatable-sm">
+              <ng-template pTemplate="header">
+                <tr>
+                  <th>Product</th>
+                  <th style="width: 100px">Quantity</th>
+                  <th style="width: 130px">Unit Price</th>
+                  <th style="width: 100px">Total</th>
+                  <th style="width: 60px"></th>
+                </tr>
+              </ng-template>
+              <ng-template pTemplate="body" let-item let-i="rowIndex">
+                <tr>
+                  <td>
+                    <p-select
+                      [formControl]="getItemControl(i, 'productId')"
+                      [options]="productOptions()"
+                      (onChange)="onProductChange(i, $event.value)"
+                      placeholder="Select product"
+                      optionLabel="label"
+                      optionValue="value"
+                      [filter]="true"
+                      filterPlaceholder="Search products"
+                      styleClass="w-full compact-dropdown">
+                    </p-select>
                   </td>
-                </ng-container>
-
-                <ng-container matColumnDef="quantity">
-                  <th mat-header-cell *matHeaderCellDef>Quantity</th>
-                  <td mat-cell *matCellDef="let item; let i = index">
-                    <mat-form-field appearance="outline" class="compact-field quantity-field">
-                      <input matInput type="number" min="1" [formControl]="getItemControl(i, 'quantity')" (input)="updateItemTotal(i)">
-                    </mat-form-field>
+                  <td>
+                    <p-inputNumber
+                      [formControl]="getItemControl(i, 'quantity')"
+                      (onInput)="updateItemTotal(i)"
+                      [min]="1"
+                      [showButtons]="true"
+                      buttonLayout="horizontal"
+                      spinnerMode="horizontal"
+                      inputStyleClass="compact-input"
+                      styleClass="compact-spinner">
+                    </p-inputNumber>
                   </td>
-                </ng-container>
-
-                <ng-container matColumnDef="unitPrice">
-                  <th mat-header-cell *matHeaderCellDef>Unit Price</th>
-                  <td mat-cell *matCellDef="let item; let i = index">
-                    <mat-form-field appearance="outline" class="compact-field price-field">
-                      <input matInput type="number" min="0" step="0.01" [formControl]="getItemControl(i, 'unitPrice')" (input)="updateItemTotal(i)">
-                    </mat-form-field>
+                  <td>
+                    <p-inputNumber
+                      [formControl]="getItemControl(i, 'unitPrice')"
+                      (onInput)="updateItemTotal(i)"
+                      mode="currency"
+                      currency="USD"
+                      [min]="0"
+                      inputStyleClass="compact-input">
+                    </p-inputNumber>
                   </td>
-                </ng-container>
-
-                <ng-container matColumnDef="totalPrice">
-                  <th mat-header-cell *matHeaderCellDef>Total</th>
-                  <td mat-cell *matCellDef="let item; let i = index">
+                  <td class="total-cell">
                     {{ getItemValue(i, 'totalPrice') | currency }}
                   </td>
-                </ng-container>
-
-                <ng-container matColumnDef="actions">
-                  <th mat-header-cell *matHeaderCellDef></th>
-                  <td mat-cell *matCellDef="let item; let i = index">
-                    <button mat-icon-button color="warn" type="button" (click)="removeItem(i)" matTooltip="Remove item">
-                      <mat-icon>delete</mat-icon>
-                    </button>
+                  <td>
+                    <p-button
+                      icon="pi pi-trash"
+                      [rounded]="true"
+                      [text]="true"
+                      severity="danger"
+                      pTooltip="Remove item"
+                      (onClick)="removeItem(i)">
+                    </p-button>
                   </td>
-                </ng-container>
-
-                <tr mat-header-row *matHeaderRowDef="itemColumns"></tr>
-                <tr mat-row *matRowDef="let row; columns: itemColumns;"></tr>
-              </table>
-            </div>
+                </tr>
+              </ng-template>
+            </p-table>
 
             <div class="total-row">
               <strong>Total Amount: {{ grandTotal() | currency }}</strong>
@@ -186,30 +219,34 @@ interface ItemFormGroup {
           }
         </div>
       </form>
-    </mat-dialog-content>
 
-    <mat-dialog-actions align="end">
-      <button mat-button (click)="onCancel()">Cancel</button>
-      <button
-        mat-raised-button
-        color="primary"
-        (click)="onSave()"
-        [disabled]="deliveryForm.invalid || itemsFormArray.length === 0 || isSaving()">
-        @if (isSaving()) {
-          <mat-spinner diameter="20"></mat-spinner>
-        } @else {
-          {{ isEditMode() ? 'Update' : 'Create' }}
-        }
-      </button>
-    </mat-dialog-actions>
+      <div class="dialog-footer">
+        <p-button
+          label="Cancel"
+          [text]="true"
+          (onClick)="onCancel()">
+        </p-button>
+        <p-button
+          [label]="isEditMode() ? 'Update' : 'Create'"
+          (onClick)="onSave()"
+          [disabled]="deliveryForm.invalid || itemsFormArray.length === 0 || isSaving()"
+          [loading]="isSaving()">
+        </p-button>
+      </div>
+    </div>
   `,
   styles: [`
+    .delivery-dialog {
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+
     .delivery-form {
       display: flex;
       flex-direction: column;
       gap: 16px;
       min-width: 600px;
-      padding-top: 8px;
     }
 
     .form-section {
@@ -247,7 +284,19 @@ interface ItemFormGroup {
       gap: 16px;
     }
 
-    mat-form-field {
+    .form-field {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .form-field label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #666;
+    }
+
+    .w-full {
       width: 100%;
     }
 
@@ -259,30 +308,6 @@ interface ItemFormGroup {
       border-radius: 4px;
     }
 
-    .items-table-container {
-      overflow-x: auto;
-    }
-
-    .items-table {
-      width: 100%;
-    }
-
-    .compact-field {
-      margin: 4px 0;
-    }
-
-    .compact-field ::ng-deep .mat-mdc-form-field-subscript-wrapper {
-      display: none;
-    }
-
-    .quantity-field {
-      width: 80px;
-    }
-
-    .price-field {
-      width: 120px;
-    }
-
     .total-row {
       display: flex;
       justify-content: flex-end;
@@ -292,28 +317,55 @@ interface ItemFormGroup {
       margin-top: 8px;
     }
 
-    mat-dialog-content {
-      max-height: 70vh;
-      overflow-y: auto;
+    .total-cell {
+      font-weight: 500;
     }
 
-    mat-dialog-actions {
-      padding: 16px 0 0 0;
+    .dialog-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 8px;
+      padding-top: 16px;
+      border-top: 1px solid #e0e0e0;
     }
 
-    mat-spinner {
-      display: inline-block;
+    .p-error {
+      color: var(--red-500);
+      font-size: 12px;
     }
 
-    mat-divider {
-      margin: 16px 0;
+    :host ::ng-deep .compact-dropdown .p-select {
+      height: 36px;
+    }
+
+    :host ::ng-deep .compact-input {
+      height: 36px;
+      width: 100%;
+    }
+
+    :host ::ng-deep .compact-spinner {
+      width: 100%;
+    }
+
+    :host ::ng-deep .compact-spinner .p-inputnumber-input {
+      width: 50px;
+      text-align: center;
+    }
+
+    :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
+      padding: 8px;
+      vertical-align: middle;
+    }
+
+    :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
+      padding: 8px;
     }
   `]
 })
 export class DeliveryDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(MatDialogRef<DeliveryDialogComponent>);
-  readonly data = inject<DeliveryDialogData>(MAT_DIALOG_DATA);
+  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
+  private readonly config = inject(DynamicDialogConfig);
 
   private readonly customerService = inject(CustomerService);
   private readonly driverService = inject(DriverService);
@@ -325,7 +377,17 @@ export class DeliveryDialogComponent implements OnInit {
   readonly drivers = signal<Driver[]>([]);
   readonly products = signal<Product[]>([]);
 
-  readonly itemColumns = ['product', 'quantity', 'unitPrice', 'totalPrice', 'actions'];
+  readonly customerOptions = computed(() =>
+    this.customers().map(c => ({ label: c.name, value: c.id }))
+  );
+
+  readonly driverOptions = computed(() =>
+    this.drivers().map(d => ({ label: `${d.firstName} ${d.lastName}`, value: d.id }))
+  );
+
+  readonly productOptions = computed(() =>
+    this.products().map(p => ({ label: p.name, value: p.id }))
+  );
 
   readonly deliveryForm = this.fb.nonNullable.group({
     customerId: [null as number | null, [Validators.required]],
@@ -339,6 +401,10 @@ export class DeliveryDialogComponent implements OnInit {
     return this.deliveryForm.get('items') as FormArray;
   }
 
+  get data(): DeliveryDialogData {
+    return this.config.data;
+  }
+
   readonly grandTotal = computed(() => {
     let total = 0;
     for (let i = 0; i < this.itemsFormArray.length; i++) {
@@ -348,12 +414,12 @@ export class DeliveryDialogComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.isEditMode.set(this.data.mode === 'edit');
+    this.isEditMode.set(this.data?.mode === 'edit');
     this.loadCustomers();
     this.loadDrivers();
     this.loadProducts();
 
-    if (this.data.delivery) {
+    if (this.data?.delivery) {
       this.patchFormWithDelivery(this.data.delivery);
     }
   }

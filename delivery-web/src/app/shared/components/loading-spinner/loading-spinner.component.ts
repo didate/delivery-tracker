@@ -1,14 +1,14 @@
 import { Component, input } from '@angular/core';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-loading-spinner',
   standalone: true,
-  imports: [MatProgressSpinnerModule],
+  imports: [ProgressSpinnerModule],
   template: `
     @if (loading()) {
       <div class="loading-overlay">
-        <mat-spinner diameter="50"></mat-spinner>
+        <p-progressSpinner [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
       </div>
     }
   `,
