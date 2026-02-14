@@ -127,10 +127,8 @@
           <tbody class="divide-y divide-gray-100">
             @for (driver of drivers(); track trackId(driver)) {
               <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 whitespace-nowrap">
-                  <a [routerLink]="['/driver', driver.id, 'view']" class="text-orange-600 hover:text-orange-700 font-medium">
-                    {{ driver.name }}
-                  </a>
+                <td class="px-4 py-3 whitespace-nowrap font-medium text-gray-900">
+                  {{ driver.name }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                   {{ driver.code }}
