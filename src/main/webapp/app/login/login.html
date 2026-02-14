@@ -1,14 +1,14 @@
-<div class="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-orange-500 flex items-center justify-center px-4 py-12">
+<div class="min-h-screen bg-gradient-to-br from-orange-400 via-orange-500 to-orange-600 flex items-center justify-center px-4 py-12">
   <div class="w-full max-w-md">
     <!-- Logo/Icon Section -->
     <div class="text-center mb-8">
       <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
-        <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <svg class="w-12 h-12 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
           <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
         </svg>
       </div>
       <h1 class="text-3xl font-bold text-white" jhiTranslate="login.title">Delivery</h1>
-      <p class="text-blue-100 mt-2">Sign in to your account</p>
+      <p class="text-orange-100 mt-2">Sign in to your account</p>
     </div>
 
     <!-- Login Card -->
@@ -16,7 +16,7 @@
       @if (authenticationError()) {
         <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" data-cy="loginError">
           <div class="flex items-center">
-            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg class="w-5 h-5 text-red-500 mr-2 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path
                 stroke-linecap="round"
                 stroke-linejoin="round"
@@ -50,7 +50,7 @@
             </div>
             <input
               type="text"
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
               name="username"
               id="username"
               #username
@@ -77,7 +77,7 @@
             </div>
             <input
               type="password"
-              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
               name="password"
               id="password"
               placeholder="{{ 'login.form.password.placeholder' | translate }}"
@@ -91,7 +91,7 @@
         <div class="mb-6">
           <label class="flex items-center cursor-pointer" for="rememberMe">
             <input
-              class="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+              class="w-4 h-4 text-orange-500 border-gray-300 rounded focus:ring-orange-500 accent-orange-500"
               type="checkbox"
               name="rememberMe"
               id="rememberMe"
@@ -104,7 +104,7 @@
         <!-- Submit Button -->
         <button
           type="submit"
-          class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg"
+          class="w-full bg-orange-500 text-white py-3 px-4 rounded-lg font-semibold hover:bg-orange-600 focus:outline-none focus:ring-2 focus:ring-orange-500 focus:ring-offset-2 transition-all duration-200 shadow-lg"
           data-cy="submit"
           jhiTranslate="login.form.button"
         >
@@ -115,7 +115,7 @@
       <!-- Forgot Password Link -->
       <div class="mt-6 text-center">
         <a
-          class="text-sm text-blue-500 hover:text-blue-700 font-medium transition-colors"
+          class="text-sm text-orange-500 hover:text-orange-600 font-medium transition-colors"
           routerLink="/account/reset/request"
           data-cy="forgetYourPasswordSelector"
           jhiTranslate="login.password.forgot"
@@ -148,7 +148,7 @@
 
     <!-- Footer -->
     <div class="mt-8 text-center">
-      <p class="text-sm text-blue-100">Delivery Management System</p>
+      <p class="text-sm text-orange-100">Delivery Management System</p>
     </div>
   </div>
 </div>
