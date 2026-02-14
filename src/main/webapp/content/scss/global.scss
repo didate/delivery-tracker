@@ -6,6 +6,10 @@
 Global styles for Delivery App
 ===============================================================*/
 
+html {
+  font-size: 15px;
+}
+
 body,
 h1,
 h2,
@@ -16,7 +20,7 @@ h4 {
 
 /* Links */
 a {
-  @apply text-primary-600 font-bold;
+  @apply text-primary-600;
 }
 
 a:hover {
