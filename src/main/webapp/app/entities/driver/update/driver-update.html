@@ -1,168 +1,266 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
+<div class="p-6">
+  <!-- Page Header -->
+  <div class="mb-6">
+    <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+      <a routerLink="/driver" class="hover:text-orange-600">Drivers</a>
+      <fa-icon icon="chevron-right" class="text-xs" />
+      <span class="text-gray-900">{{ editForm.get('id')?.value ? 'Edit' : 'New' }}</span>
+    </div>
+    <h2
+      id="jhi-driver-heading"
+      data-cy="DriverCreateUpdateHeading"
+      class="text-2xl font-bold text-gray-900"
+      jhiTranslate="deliveryApp.driver.home.createOrEditLabel"
+    >
+      Créer ou éditer un Driver
+    </h2>
+  </div>
+
+  <jhi-alert-error />
+
+  <!-- Form Card -->
+  <div class="bg-white rounded-lg shadow overflow-hidden max-w-2xl">
     <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-      <h2 id="jhi-driver-heading" data-cy="DriverCreateUpdateHeading" jhiTranslate="deliveryApp.driver.home.createOrEditLabel">
-        Créer ou éditer un Driver
-      </h2>
-
-      <div>
-        <jhi-alert-error />
-
+      <div class="p-6 space-y-6">
+        <!-- ID Field (readonly) -->
         @if (editForm.controls.id.value !== null) {
-          <div class="mb-3">
-            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.driver.id">ID</label>
-            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_id" jhiTranslate="deliveryApp.driver.id">ID</label>
+            <input
+              type="number"
+              class="w-full px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-500 cursor-not-allowed"
+              name="id"
+              id="field_id"
+              data-cy="id"
+              formControlName="id"
+              [readonly]="true"
+            />
           </div>
         }
 
+        <!-- Code Field -->
         @let codeRef = editForm.get('code')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_code" jhiTranslate="deliveryApp.driver.code">Code</label>
-          <input type="text" class="form-control" name="code" id="field_code" data-cy="code" formControlName="code" />
-          @if (codeRef.invalid && (codeRef.dirty || codeRef.touched)) {
-            <div>
-              @if (editForm.get('code')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-              @if (editForm.get('code')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '20' }"
-                  >Ce champ doit faire au maximum 20 caractères.</small
-                >
-              }
-            </div>
-          }
-        </div>
-
-        @let nameRef = editForm.get('name')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_name" jhiTranslate="deliveryApp.driver.name">Name</label>
-          <input type="text" class="form-control" name="name" id="field_name" data-cy="name" formControlName="name" />
-          @if (nameRef.invalid && (nameRef.dirty || nameRef.touched)) {
-            <div>
-              @if (editForm.get('name')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-              @if (editForm.get('name')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }"
-                  >Ce champ doit faire au maximum 100 caractères.</small
-                >
-              }
-            </div>
-          }
-        </div>
-
-        @let phoneRef = editForm.get('phone')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_phone" jhiTranslate="deliveryApp.driver.phone">Phone</label>
-          <input type="text" class="form-control" name="phone" id="field_phone" data-cy="phone" formControlName="phone" />
-          @if (phoneRef.invalid && (phoneRef.dirty || phoneRef.touched)) {
-            <div>
-              @if (editForm.get('phone')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '20' }"
-                  >Ce champ doit faire au maximum 20 caractères.</small
-                >
-              }
-            </div>
-          }
-        </div>
-
-        @let emailRef = editForm.get('email')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_email" jhiTranslate="deliveryApp.driver.email">Email</label>
-          <input type="text" class="form-control" name="email" id="field_email" data-cy="email" formControlName="email" />
-          @if (emailRef.invalid && (emailRef.dirty || emailRef.touched)) {
-            <div>
-              @if (editForm.get('email')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }"
-                  >Ce champ doit faire au maximum 100 caractères.</small
-                >
-              }
-            </div>
-          }
-        </div>
-
-        @let licenseNumberRef = editForm.get('licenseNumber')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_licenseNumber" jhiTranslate="deliveryApp.driver.licenseNumber">License Number</label>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="field_code">
+            <span jhiTranslate="deliveryApp.driver.code">Code</span>
+            <span class="text-red-500">*</span>
+          </label>
           <input
             type="text"
-            class="form-control"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+            [class.border-red-500]="codeRef.invalid && (codeRef.dirty || codeRef.touched)"
+            name="code"
+            id="field_code"
+            data-cy="code"
+            formControlName="code"
+          />
+          @if (codeRef.invalid && (codeRef.dirty || codeRef.touched)) {
+            <div class="mt-1">
+              @if (codeRef.errors?.required) {
+                <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+              }
+              @if (codeRef.errors?.maxlength) {
+                <p class="text-sm text-red-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '20' }">
+                  Ce champ doit faire au maximum 20 caractères.
+                </p>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Name Field -->
+        @let nameRef = editForm.get('name')!;
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1" for="field_name">
+            <span jhiTranslate="deliveryApp.driver.name">Name</span>
+            <span class="text-red-500">*</span>
+          </label>
+          <input
+            type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+            [class.border-red-500]="nameRef.invalid && (nameRef.dirty || nameRef.touched)"
+            name="name"
+            id="field_name"
+            data-cy="name"
+            formControlName="name"
+          />
+          @if (nameRef.invalid && (nameRef.dirty || nameRef.touched)) {
+            <div class="mt-1">
+              @if (nameRef.errors?.required) {
+                <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+              }
+              @if (nameRef.errors?.maxlength) {
+                <p class="text-sm text-red-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }">
+                  Ce champ doit faire au maximum 100 caractères.
+                </p>
+              }
+            </div>
+          }
+        </div>
+
+        <!-- Phone and Email in a row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Phone Field -->
+          @let phoneRef = editForm.get('phone')!;
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_phone" jhiTranslate="deliveryApp.driver.phone"
+              >Phone</label
+            >
+            <input
+              type="text"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              [class.border-red-500]="phoneRef.invalid && (phoneRef.dirty || phoneRef.touched)"
+              name="phone"
+              id="field_phone"
+              data-cy="phone"
+              formControlName="phone"
+            />
+            @if (phoneRef.invalid && (phoneRef.dirty || phoneRef.touched)) {
+              <div class="mt-1">
+                @if (phoneRef.errors?.maxlength) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '20' }">
+                    Ce champ doit faire au maximum 20 caractères.
+                  </p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Email Field -->
+          @let emailRef = editForm.get('email')!;
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_email" jhiTranslate="deliveryApp.driver.email"
+              >Email</label
+            >
+            <input
+              type="email"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+              [class.border-red-500]="emailRef.invalid && (emailRef.dirty || emailRef.touched)"
+              name="email"
+              id="field_email"
+              data-cy="email"
+              formControlName="email"
+            />
+            @if (emailRef.invalid && (emailRef.dirty || emailRef.touched)) {
+              <div class="mt-1">
+                @if (emailRef.errors?.maxlength) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }">
+                    Ce champ doit faire au maximum 100 caractères.
+                  </p>
+                }
+              </div>
+            }
+          </div>
+        </div>
+
+        <!-- License Number Field -->
+        @let licenseNumberRef = editForm.get('licenseNumber')!;
+        <div>
+          <label
+            class="block text-sm font-medium text-gray-700 mb-1"
+            for="field_licenseNumber"
+            jhiTranslate="deliveryApp.driver.licenseNumber"
+            >License Number</label
+          >
+          <input
+            type="text"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors"
+            [class.border-red-500]="licenseNumberRef.invalid && (licenseNumberRef.dirty || licenseNumberRef.touched)"
             name="licenseNumber"
             id="field_licenseNumber"
             data-cy="licenseNumber"
             formControlName="licenseNumber"
           />
           @if (licenseNumberRef.invalid && (licenseNumberRef.dirty || licenseNumberRef.touched)) {
-            <div>
-              @if (editForm.get('licenseNumber')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                  >Ce champ doit faire au maximum 50 caractères.</small
-                >
+            <div class="mt-1">
+              @if (licenseNumberRef.errors?.maxlength) {
+                <p class="text-sm text-red-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }">
+                  Ce champ doit faire au maximum 50 caractères.
+                </p>
               }
             </div>
           }
         </div>
 
-        @let activeRef = editForm.get('active')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_active" jhiTranslate="deliveryApp.driver.active">Active</label>
-          <input type="checkbox" class="form-check" name="active" id="field_active" data-cy="active" formControlName="active" />
-          @if (activeRef.invalid && (activeRef.dirty || activeRef.touched)) {
-            <div>
-              @if (editForm.get('active')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="field_tenant" jhiTranslate="deliveryApp.driver.tenant">Tenant</label>
-          <select
-            class="form-control"
-            id="field_tenant"
-            data-cy="tenant"
-            name="tenant"
-            formControlName="tenant"
-            [compareWith]="compareTenant"
+        <!-- Active Toggle -->
+        <div class="flex items-center gap-3">
+          <input
+            type="checkbox"
+            class="w-5 h-5 text-orange-500 border-gray-300 rounded focus:ring-orange-500 cursor-pointer"
+            name="active"
+            id="field_active"
+            data-cy="active"
+            formControlName="active"
+          />
+          <label class="text-sm font-medium text-gray-700 cursor-pointer" for="field_active" jhiTranslate="deliveryApp.driver.active"
+            >Active</label
           >
-            @if (!editForm.get('tenant')!.value) {
-              <option [ngValue]="null" selected></option>
-            }
-            @for (tenantOption of tenantsSharedCollection(); track $index) {
-              <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
-            }
-          </select>
         </div>
-        @if (editForm.get(['tenant'])!.invalid && (editForm.get(['tenant'])!.dirty || editForm.get(['tenant'])!.touched)) {
+
+        <!-- Tenant and Vehicle in a row -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <!-- Tenant Field -->
           <div>
-            @if (editForm.get(['tenant'])?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_tenant" jhiTranslate="deliveryApp.driver.tenant"
+              >Tenant</label
+            >
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-white"
+              id="field_tenant"
+              data-cy="tenant"
+              name="tenant"
+              formControlName="tenant"
+              [compareWith]="compareTenant"
+            >
+              @if (!editForm.get('tenant')!.value) {
+                <option [ngValue]="null" selected></option>
+              }
+              @for (tenantOption of tenantsSharedCollection(); track $index) {
+                <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
+              }
+            </select>
+            @if (editForm.get('tenant')!.invalid && (editForm.get('tenant')!.dirty || editForm.get('tenant')!.touched)) {
+              <div class="mt-1">
+                @if (editForm.get('tenant')?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+              </div>
             }
           </div>
-        }
 
-        <div class="mb-3">
-          <label class="form-label" for="field_vehicle" jhiTranslate="deliveryApp.driver.vehicle">Vehicle</label>
-          <select
-            class="form-control"
-            id="field_vehicle"
-            data-cy="vehicle"
-            name="vehicle"
-            formControlName="vehicle"
-            [compareWith]="compareVehicle"
-          >
-            <option [ngValue]="null"></option>
-            @for (vehicleOption of vehiclesSharedCollection(); track $index) {
-              <option [ngValue]="vehicleOption">{{ vehicleOption.id }}</option>
-            }
-          </select>
+          <!-- Vehicle Field -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_vehicle" jhiTranslate="deliveryApp.driver.vehicle"
+              >Vehicle</label
+            >
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors bg-white"
+              id="field_vehicle"
+              data-cy="vehicle"
+              name="vehicle"
+              formControlName="vehicle"
+              [compareWith]="compareVehicle"
+            >
+              <option [ngValue]="null"></option>
+              @for (vehicleOption of vehiclesSharedCollection(); track $index) {
+                <option [ngValue]="vehicleOption">{{ vehicleOption.id }}</option>
+              }
+            </select>
+          </div>
         </div>
       </div>
 
-      <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
-          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
+      <!-- Form Footer -->
+      <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-end gap-3">
+        <button
+          type="button"
+          id="cancel-save"
+          data-cy="entityCreateCancelButton"
+          class="px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+          (click)="previousState()"
+        >
+          <fa-icon icon="ban" class="mr-2" />
+          <span jhiTranslate="entity.action.cancel">Annuler</span>
         </button>
 
         <button
@@ -170,9 +268,10 @@
           id="save-entity"
           data-cy="entityCreateSaveButton"
           [disabled]="editForm.invalid || isSaving()"
-          class="btn btn-primary"
+          class="px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
+          <fa-icon icon="save" class="mr-2" />
+          <span jhiTranslate="entity.action.save">Sauvegarder</span>
         </button>
       </div>
     </form>

@@ -1,70 +1,165 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
-    @if (driver(); as driverRef) {
-      <div>
-        <h2 data-cy="driverDetailsHeading"><span jhiTranslate="deliveryApp.driver.detail.title">Driver</span></h2>
-
-        <hr />
-
-        <jhi-alert-error />
-
-        <jhi-alert />
-
-        <dl class="row-md jh-entity-details">
-          <dt><span jhiTranslate="global.field.id">ID</span></dt>
-          <dd>
-            <span>{{ driverRef.id }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.code">Code</span></dt>
-          <dd>
-            <span>{{ driverRef.code }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.name">Name</span></dt>
-          <dd>
-            <span>{{ driverRef.name }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.phone">Phone</span></dt>
-          <dd>
-            <span>{{ driverRef.phone }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.email">Email</span></dt>
-          <dd>
-            <span>{{ driverRef.email }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.licenseNumber">License Number</span></dt>
-          <dd>
-            <span>{{ driverRef.licenseNumber }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.active">Active</span></dt>
-          <dd>
-            <span>{{ driverRef.active }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.tenant">Tenant</span></dt>
-          <dd>
-            @if (driver()!.tenant) {
-              <div>
-                <a [routerLink]="['/tenant', driver()!.tenant?.id, 'view']">{{ driverRef.tenant?.id }}</a>
-              </div>
-            }
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.driver.vehicle">Vehicle</span></dt>
-          <dd>
-            @if (driver()!.vehicle) {
-              <div>
-                <a [routerLink]="['/vehicle', driver()!.vehicle?.id, 'view']">{{ driverRef.vehicle?.id }}</a>
-              </div>
-            }
-          </dd>
-        </dl>
-
-        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
-          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
-        </button>
-
-        <button type="button" [routerLink]="['/driver', driverRef.id, 'edit']" class="btn btn-primary">
-          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
-        </button>
+<div class="p-6">
+  @if (driver(); as driverRef) {
+    <!-- Page Header -->
+    <div class="mb-6">
+      <div class="flex items-center gap-2 text-sm text-gray-500 mb-2">
+        <a routerLink="/driver" class="hover:text-orange-600">Drivers</a>
+        <fa-icon icon="chevron-right" class="text-xs" />
+        <span class="text-gray-900">{{ driverRef.name }}</span>
       </div>
-    }
-  </div>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+        <h2 data-cy="driverDetailsHeading" class="text-2xl font-bold text-gray-900">
+          <span jhiTranslate="deliveryApp.driver.detail.title">Driver</span>
+        </h2>
+        <div class="flex gap-2 mt-4 sm:mt-0">
+          <button
+            type="button"
+            (click)="previousState()"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            data-cy="entityDetailsBackButton"
+          >
+            <fa-icon icon="arrow-left" />
+            <span jhiTranslate="entity.action.back">Retour</span>
+          </button>
+          <a
+            [routerLink]="['/driver', driverRef.id, 'edit']"
+            class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            <fa-icon icon="pencil-alt" />
+            <span jhiTranslate="entity.action.edit">Editer</span>
+          </a>
+        </div>
+      </div>
+    </div>
+
+    <jhi-alert-error />
+    <jhi-alert />
+
+    <!-- Driver Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <!-- Driver Header with Avatar -->
+      <div class="bg-gradient-to-r from-orange-500 to-orange-600 px-6 py-8">
+        <div class="flex items-center gap-4">
+          <div class="w-16 h-16 bg-white/20 rounded-full flex items-center justify-center">
+            <fa-icon icon="id-card" class="text-white text-2xl" />
+          </div>
+          <div>
+            <h3 class="text-xl font-bold text-white">{{ driverRef.name }}</h3>
+            <p class="text-orange-100">{{ driverRef.code }}</p>
+          </div>
+          <div class="ml-auto">
+            @if (driverRef.active) {
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                <span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>
+                Active
+              </span>
+            } @else {
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-gray-100 text-gray-800">
+                <span class="w-2 h-2 bg-gray-400 rounded-full mr-2"></span>
+                Inactive
+              </span>
+            }
+          </div>
+        </div>
+      </div>
+
+      <!-- Driver Details -->
+      <div class="p-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Contact Info -->
+          <div class="space-y-4">
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">Contact Information</h4>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <fa-icon icon="phone" class="text-gray-500" />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500" jhiTranslate="deliveryApp.driver.phone">Phone</p>
+                <p class="text-sm font-medium text-gray-900">{{ driverRef.phone || '-' }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <fa-icon icon="envelope" class="text-gray-500" />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500" jhiTranslate="deliveryApp.driver.email">Email</p>
+                <p class="text-sm font-medium text-gray-900">{{ driverRef.email || '-' }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- License & Vehicle -->
+          <div class="space-y-4">
+            <h4 class="text-sm font-semibold text-gray-500 uppercase tracking-wider">License & Vehicle</h4>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <fa-icon icon="id-card" class="text-gray-500" />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500" jhiTranslate="deliveryApp.driver.licenseNumber">License Number</p>
+                <p class="text-sm font-medium text-gray-900">{{ driverRef.licenseNumber || '-' }}</p>
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <fa-icon icon="car" class="text-gray-500" />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500" jhiTranslate="deliveryApp.driver.vehicle">Vehicle</p>
+                @if (driverRef.vehicle) {
+                  <a
+                    [routerLink]="['/vehicle', driverRef.vehicle.id, 'view']"
+                    class="text-sm font-medium text-orange-600 hover:text-orange-700"
+                  >
+                    {{ driverRef.vehicle.id }}
+                  </a>
+                } @else {
+                  <p class="text-sm text-gray-500">-</p>
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Info -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <fa-icon icon="building" class="text-gray-500" />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500" jhiTranslate="deliveryApp.driver.tenant">Tenant</p>
+                @if (driverRef.tenant) {
+                  <a
+                    [routerLink]="['/tenant', driverRef.tenant.id, 'view']"
+                    class="text-sm font-medium text-orange-600 hover:text-orange-700"
+                  >
+                    {{ driverRef.tenant.id }}
+                  </a>
+                } @else {
+                  <p class="text-sm text-gray-500">-</p>
+                }
+              </div>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                <fa-icon icon="hashtag" class="text-gray-500" />
+              </div>
+              <div>
+                <p class="text-xs text-gray-500" jhiTranslate="global.field.id">ID</p>
+                <p class="text-sm font-medium text-gray-900">{{ driverRef.id }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  }
 </div>
