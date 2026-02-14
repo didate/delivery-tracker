@@ -2,10 +2,10 @@
   "deliveryApp": {
     "DeliveryStatus": {
       "null": "",
-      "PENDING": "PENDING",
-      "IN_PROGRESS": "IN_PROGRESS",
-      "DELIVERED": "DELIVERED",
-      "CANCELLED": "CANCELLED"
+      "PENDING": "En attente",
+      "IN_PROGRESS": "En cours",
+      "DELIVERED": "Livrée",
+      "CANCELLED": "Annulée"
     }
   }
 }

@@ -2,30 +2,30 @@
   "deliveryApp": {
     "driver": {
       "home": {
-        "title": "Drivers",
+        "title": "Chauffeurs",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Driver",
-        "createOrEditLabel": "Créer ou éditer un Driver",
-        "notFound": "Aucun Driver trouvé"
+        "createLabel": "Créer un nouveau Chauffeur",
+        "createOrEditLabel": "Créer ou éditer un Chauffeur",
+        "notFound": "Aucun Chauffeur trouvé"
       },
-      "created": "Un nouveau Driver a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Driver avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Driver avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Chauffeur a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Chauffeur avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Chauffeur avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Driver {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Chauffeur {{ id }} ?"
       },
       "detail": {
-        "title": "Driver"
+        "title": "Chauffeur"
       },
       "id": "ID",
       "code": "Code",
-      "name": "Name",
-      "phone": "Phone",
+      "name": "Nom",
+      "phone": "Téléphone",
       "email": "Email",
-      "licenseNumber": "License Number",
-      "active": "Active",
-      "tenant": "Tenant",
-      "vehicle": "Vehicle"
+      "licenseNumber": "Numéro de permis",
+      "active": "Actif",
+      "tenant": "Locataire",
+      "vehicle": "Véhicule"
     }
   }
 }

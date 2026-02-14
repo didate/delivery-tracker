@@ -2,10 +2,10 @@
   "deliveryApp": {
     "RoundStatus": {
       "null": "",
-      "PLANNED": "PLANNED",
-      "IN_PROGRESS": "IN_PROGRESS",
-      "COMPLETED": "COMPLETED",
-      "CANCELLED": "CANCELLED"
+      "PLANNED": "Planifiée",
+      "IN_PROGRESS": "En cours",
+      "COMPLETED": "Terminée",
+      "CANCELLED": "Annulée"
     }
   }
 }

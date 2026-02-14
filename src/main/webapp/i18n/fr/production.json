@@ -4,26 +4,26 @@
       "home": {
         "title": "Productions",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Production",
-        "createOrEditLabel": "Créer ou éditer un Production",
-        "notFound": "Aucun Production trouvé"
+        "createLabel": "Créer une nouvelle Production",
+        "createOrEditLabel": "Créer ou éditer une Production",
+        "notFound": "Aucune Production trouvée"
       },
-      "created": "Un nouveau Production a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Production avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Production avec l'identifiant {{ param }} a été supprimé",
+      "created": "Une nouvelle Production a été créée avec l'identifiant {{ param }}",
+      "updated": "La Production avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Production avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Production {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer la Production {{ id }} ?"
       },
       "detail": {
         "title": "Production"
       },
       "id": "ID",
-      "productionDate": "Production Date",
-      "quantity": "Quantity",
+      "productionDate": "Date de production",
+      "quantity": "Quantité",
       "notes": "Notes",
-      "tenant": "Tenant",
-      "product": "Product",
-      "productionSite": "Production Site"
+      "tenant": "Locataire",
+      "product": "Produit",
+      "productionSite": "Site de production"
     }
   }
 }

@@ -2,30 +2,30 @@
   "deliveryApp": {
     "round": {
       "home": {
-        "title": "Rounds",
+        "title": "Tournées",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Round",
-        "createOrEditLabel": "Créer ou éditer un Round",
-        "notFound": "Aucun Round trouvé"
+        "createLabel": "Créer une nouvelle Tournée",
+        "createOrEditLabel": "Créer ou éditer une Tournée",
+        "notFound": "Aucune Tournée trouvée"
       },
-      "created": "Un nouveau Round a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Round avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Round avec l'identifiant {{ param }} a été supprimé",
+      "created": "Une nouvelle Tournée a été créée avec l'identifiant {{ param }}",
+      "updated": "La Tournée avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Tournée avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Round {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer la Tournée {{ id }} ?"
       },
       "detail": {
-        "title": "Round"
+        "title": "Tournée"
       },
       "id": "ID",
-      "name": "Name",
-      "roundDate": "Round Date",
-      "status": "Status",
-      "startTime": "Start Time",
-      "endTime": "End Time",
+      "name": "Nom",
+      "roundDate": "Date de tournée",
+      "status": "Statut",
+      "startTime": "Heure de début",
+      "endTime": "Heure de fin",
       "notes": "Notes",
-      "tenant": "Tenant",
-      "driver": "Driver"
+      "tenant": "Locataire",
+      "driver": "Chauffeur"
     }
   }
 }

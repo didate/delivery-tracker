@@ -2,10 +2,10 @@
   "deliveryApp": {
     "PaymentMethod": {
       "null": "",
-      "CASH": "CASH",
-      "BANK_TRANSFER": "BANK_TRANSFER",
-      "CHECK": "CHECK",
-      "MOBILE_PAYMENT": "MOBILE_PAYMENT"
+      "CASH": "Espèces",
+      "BANK_TRANSFER": "Virement bancaire",
+      "CHECK": "Chèque",
+      "MOBILE_PAYMENT": "Paiement mobile"
     }
   }
 }

@@ -2,30 +2,30 @@
   "deliveryApp": {
     "payment": {
       "home": {
-        "title": "Payments",
+        "title": "Paiements",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Payment",
-        "createOrEditLabel": "Créer ou éditer un Payment",
-        "notFound": "Aucun Payment trouvé"
+        "createLabel": "Créer un nouveau Paiement",
+        "createOrEditLabel": "Créer ou éditer un Paiement",
+        "notFound": "Aucun Paiement trouvé"
       },
-      "created": "Un nouveau Payment a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Payment avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Payment avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Paiement a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Paiement avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Paiement avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Payment {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Paiement {{ id }} ?"
       },
       "detail": {
-        "title": "Payment"
+        "title": "Paiement"
       },
       "id": "ID",
-      "paymentDate": "Payment Date",
-      "amount": "Amount",
-      "method": "Method",
-      "reference": "Reference",
+      "paymentDate": "Date de paiement",
+      "amount": "Montant",
+      "method": "Méthode",
+      "reference": "Référence",
       "notes": "Notes",
-      "tenant": "Tenant",
-      "customer": "Customer",
-      "delivery": "Delivery"
+      "tenant": "Locataire",
+      "customer": "Client",
+      "delivery": "Livraison"
     }
   }
 }

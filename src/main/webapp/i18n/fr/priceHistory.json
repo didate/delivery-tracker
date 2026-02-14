@@ -2,25 +2,25 @@
   "deliveryApp": {
     "priceHistory": {
       "home": {
-        "title": "PriceHistories",
+        "title": "Historique des prix",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Price History",
-        "createOrEditLabel": "Créer ou éditer un Price History",
-        "notFound": "Aucun Price History trouvé"
+        "createLabel": "Créer un nouvel Historique de prix",
+        "createOrEditLabel": "Créer ou éditer un Historique de prix",
+        "notFound": "Aucun Historique de prix trouvé"
       },
-      "created": "Un nouveau Price History a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Price History avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Price History avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouvel Historique de prix a été créé avec l'identifiant {{ param }}",
+      "updated": "L'Historique de prix avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "L'Historique de prix avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Price History {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer l'Historique de prix {{ id }} ?"
       },
       "detail": {
-        "title": "Price History"
+        "title": "Historique de prix"
       },
       "id": "ID",
-      "price": "Price",
-      "effectiveDate": "Effective Date",
-      "product": "Product"
+      "price": "Prix",
+      "effectiveDate": "Date d'effet",
+      "product": "Produit"
     }
   }
 }

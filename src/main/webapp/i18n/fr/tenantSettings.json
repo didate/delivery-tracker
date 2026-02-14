@@ -2,27 +2,27 @@
   "deliveryApp": {
     "tenantSettings": {
       "home": {
-        "title": "TenantSettings",
+        "title": "Paramètres du locataire",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Tenant Settings",
-        "createOrEditLabel": "Créer ou éditer un Tenant Settings",
-        "notFound": "Aucun Tenant Settings trouvé"
+        "createLabel": "Créer de nouveaux Paramètres du locataire",
+        "createOrEditLabel": "Créer ou éditer les Paramètres du locataire",
+        "notFound": "Aucun Paramètre de locataire trouvé"
       },
-      "created": "Un nouveau Tenant Settings a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Tenant Settings avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Tenant Settings avec l'identifiant {{ param }} a été supprimé",
+      "created": "De nouveaux Paramètres de locataire ont été créés avec l'identifiant {{ param }}",
+      "updated": "Les Paramètres de locataire avec l'identifiant {{ param }} ont été mis à jour",
+      "deleted": "Les Paramètres de locataire avec l'identifiant {{ param }} ont été supprimés",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Tenant Settings {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer les Paramètres de locataire {{ id }} ?"
       },
       "detail": {
-        "title": "Tenant Settings"
+        "title": "Paramètres du locataire"
       },
       "id": "ID",
-      "currency": "Currency",
-      "timezone": "Timezone",
-      "dateFormat": "Date Format",
-      "language": "Language",
-      "tenant": "Tenant"
+      "currency": "Devise",
+      "timezone": "Fuseau horaire",
+      "dateFormat": "Format de date",
+      "language": "Langue",
+      "tenant": "Locataire"
     }
   }
 }

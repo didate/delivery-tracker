@@ -2,27 +2,27 @@
   "deliveryApp": {
     "expenseCategory": {
       "home": {
-        "title": "ExpenseCategories",
+        "title": "Catégories de dépenses",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Expense Category",
-        "createOrEditLabel": "Créer ou éditer un Expense Category",
-        "notFound": "Aucun Expense Category trouvé"
+        "createLabel": "Créer une nouvelle Catégorie de dépense",
+        "createOrEditLabel": "Créer ou éditer une Catégorie de dépense",
+        "notFound": "Aucune Catégorie de dépense trouvée"
       },
-      "created": "Un nouveau Expense Category a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Expense Category avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Expense Category avec l'identifiant {{ param }} a été supprimé",
+      "created": "Une nouvelle Catégorie de dépense a été créée avec l'identifiant {{ param }}",
+      "updated": "La Catégorie de dépense avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Catégorie de dépense avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Expense Category {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer la Catégorie de dépense {{ id }} ?"
       },
       "detail": {
-        "title": "Expense Category"
+        "title": "Catégorie de dépense"
       },
       "id": "ID",
       "code": "Code",
-      "name": "Name",
+      "name": "Nom",
       "description": "Description",
-      "active": "Active",
-      "tenant": "Tenant"
+      "active": "Actif",
+      "tenant": "Locataire"
     }
   }
 }

@@ -2,27 +2,27 @@
   "deliveryApp": {
     "deliveryItem": {
       "home": {
-        "title": "DeliveryItems",
+        "title": "Articles de livraison",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Delivery Item",
-        "createOrEditLabel": "Créer ou éditer un Delivery Item",
-        "notFound": "Aucun Delivery Item trouvé"
+        "createLabel": "Créer un nouvel Article de livraison",
+        "createOrEditLabel": "Créer ou éditer un Article de livraison",
+        "notFound": "Aucun Article de livraison trouvé"
       },
-      "created": "Un nouveau Delivery Item a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Delivery Item avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Delivery Item avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouvel Article de livraison a été créé avec l'identifiant {{ param }}",
+      "updated": "L'Article de livraison avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "L'Article de livraison avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Delivery Item {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer l'Article de livraison {{ id }} ?"
       },
       "detail": {
-        "title": "Delivery Item"
+        "title": "Article de livraison"
       },
       "id": "ID",
-      "quantity": "Quantity",
-      "unitPrice": "Unit Price",
-      "totalPrice": "Total Price",
-      "delivery": "Delivery",
-      "product": "Product"
+      "quantity": "Quantité",
+      "unitPrice": "Prix unitaire",
+      "totalPrice": "Prix total",
+      "delivery": "Livraison",
+      "product": "Produit"
     }
   }
 }

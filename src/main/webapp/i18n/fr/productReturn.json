@@ -2,28 +2,28 @@
   "deliveryApp": {
     "productReturn": {
       "home": {
-        "title": "ProductReturns",
+        "title": "Retours de produits",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Product Return",
-        "createOrEditLabel": "Créer ou éditer un Product Return",
-        "notFound": "Aucun Product Return trouvé"
+        "createLabel": "Créer un nouveau Retour de produit",
+        "createOrEditLabel": "Créer ou éditer un Retour de produit",
+        "notFound": "Aucun Retour de produit trouvé"
       },
-      "created": "Un nouveau Product Return a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Product Return avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Product Return avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Retour de produit a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Retour de produit avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Retour de produit avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Product Return {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Retour de produit {{ id }} ?"
       },
       "detail": {
-        "title": "Product Return"
+        "title": "Retour de produit"
       },
       "id": "ID",
-      "returnDate": "Return Date",
-      "reason": "Reason",
+      "returnDate": "Date de retour",
+      "reason": "Motif",
       "notes": "Notes",
-      "tenant": "Tenant",
-      "customer": "Customer",
-      "delivery": "Delivery"
+      "tenant": "Locataire",
+      "customer": "Client",
+      "delivery": "Livraison"
     }
   }
 }

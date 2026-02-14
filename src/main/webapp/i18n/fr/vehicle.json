@@ -2,34 +2,34 @@
   "deliveryApp": {
     "vehicle": {
       "home": {
-        "title": "Vehicles",
+        "title": "Véhicules",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Vehicle",
-        "createOrEditLabel": "Créer ou éditer un Vehicle",
-        "notFound": "Aucun Vehicle trouvé"
+        "createLabel": "Créer un nouveau Véhicule",
+        "createOrEditLabel": "Créer ou éditer un Véhicule",
+        "notFound": "Aucun Véhicule trouvé"
       },
-      "created": "Un nouveau Vehicle a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Vehicle avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Vehicle avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Véhicule a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Véhicule avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Véhicule avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Vehicle {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Véhicule {{ id }} ?"
       },
       "detail": {
-        "title": "Vehicle"
+        "title": "Véhicule"
       },
       "id": "ID",
       "code": "Code",
-      "name": "Name",
+      "name": "Nom",
       "type": "Type",
-      "brand": "Brand",
-      "model": "Model",
-      "registrationNumber": "Registration Number",
-      "year": "Year",
-      "capacity": "Capacity",
-      "fuelType": "Fuel Type",
-      "active": "Active",
+      "brand": "Marque",
+      "model": "Modèle",
+      "registrationNumber": "Immatriculation",
+      "year": "Année",
+      "capacity": "Capacité",
+      "fuelType": "Type de carburant",
+      "active": "Actif",
       "notes": "Notes",
-      "tenant": "Tenant"
+      "tenant": "Locataire"
     }
   }
 }

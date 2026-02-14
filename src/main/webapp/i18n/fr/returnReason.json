@@ -2,12 +2,12 @@
   "deliveryApp": {
     "ReturnReason": {
       "null": "",
-      "DAMAGED": "DAMAGED",
-      "EXPIRED": "EXPIRED",
-      "WRONG_PRODUCT": "WRONG_PRODUCT",
-      "EXCESS": "EXCESS",
-      "CUSTOMER_REFUSAL": "CUSTOMER_REFUSAL",
-      "OTHER": "OTHER"
+      "DAMAGED": "Endommagé",
+      "EXPIRED": "Expiré",
+      "WRONG_PRODUCT": "Mauvais produit",
+      "EXCESS": "Excédent",
+      "CUSTOMER_REFUSAL": "Refus client",
+      "OTHER": "Autre"
     }
   }
 }

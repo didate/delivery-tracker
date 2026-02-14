@@ -2,28 +2,28 @@
   "deliveryApp": {
     "roundCustomer": {
       "home": {
-        "title": "RoundCustomers",
+        "title": "Clients de tournée",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Round Customer",
-        "createOrEditLabel": "Créer ou éditer un Round Customer",
-        "notFound": "Aucun Round Customer trouvé"
+        "createLabel": "Créer un nouveau Client de tournée",
+        "createOrEditLabel": "Créer ou éditer un Client de tournée",
+        "notFound": "Aucun Client de tournée trouvé"
       },
-      "created": "Un nouveau Round Customer a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Round Customer avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Round Customer avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Client de tournée a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Client de tournée avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Client de tournée avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Round Customer {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Client de tournée {{ id }} ?"
       },
       "detail": {
-        "title": "Round Customer"
+        "title": "Client de tournée"
       },
       "id": "ID",
-      "sequenceOrder": "Sequence Order",
-      "visited": "Visited",
-      "visitTime": "Visit Time",
+      "sequenceOrder": "Ordre de passage",
+      "visited": "Visité",
+      "visitTime": "Heure de visite",
       "notes": "Notes",
-      "round": "Round",
-      "customer": "Customer"
+      "round": "Tournée",
+      "customer": "Client"
     }
   }
 }

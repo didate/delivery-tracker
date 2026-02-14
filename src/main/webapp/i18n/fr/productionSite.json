@@ -2,28 +2,28 @@
   "deliveryApp": {
     "productionSite": {
       "home": {
-        "title": "ProductionSites",
+        "title": "Sites de production",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Production Site",
-        "createOrEditLabel": "Créer ou éditer un Production Site",
-        "notFound": "Aucun Production Site trouvé"
+        "createLabel": "Créer un nouveau Site de production",
+        "createOrEditLabel": "Créer ou éditer un Site de production",
+        "notFound": "Aucun Site de production trouvé"
       },
-      "created": "Un nouveau Production Site a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Production Site avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Production Site avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Site de production a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Site de production avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Site de production avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Production Site {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Site de production {{ id }} ?"
       },
       "detail": {
-        "title": "Production Site"
+        "title": "Site de production"
       },
       "id": "ID",
       "code": "Code",
-      "name": "Name",
-      "address": "Address",
-      "phone": "Phone",
-      "active": "Active",
-      "tenant": "Tenant"
+      "name": "Nom",
+      "address": "Adresse",
+      "phone": "Téléphone",
+      "active": "Actif",
+      "tenant": "Locataire"
     }
   }
 }

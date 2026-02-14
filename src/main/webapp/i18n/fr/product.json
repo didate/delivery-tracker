@@ -2,28 +2,28 @@
   "deliveryApp": {
     "product": {
       "home": {
-        "title": "Products",
+        "title": "Produits",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Product",
-        "createOrEditLabel": "Créer ou éditer un Product",
-        "notFound": "Aucun Product trouvé"
+        "createLabel": "Créer un nouveau Produit",
+        "createOrEditLabel": "Créer ou éditer un Produit",
+        "notFound": "Aucun Produit trouvé"
       },
-      "created": "Un nouveau Product a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Product avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Product avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Produit a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Produit avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Produit avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Product {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Produit {{ id }} ?"
       },
       "detail": {
-        "title": "Product"
+        "title": "Produit"
       },
       "id": "ID",
       "code": "Code",
-      "name": "Name",
+      "name": "Nom",
       "description": "Description",
-      "price": "Price",
-      "active": "Active",
-      "tenant": "Tenant"
+      "price": "Prix",
+      "active": "Actif",
+      "tenant": "Locataire"
     }
   }
 }

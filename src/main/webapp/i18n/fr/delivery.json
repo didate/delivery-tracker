@@ -2,30 +2,30 @@
   "deliveryApp": {
     "delivery": {
       "home": {
-        "title": "Deliveries",
+        "title": "Livraisons",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Delivery",
-        "createOrEditLabel": "Créer ou éditer un Delivery",
-        "notFound": "Aucun Delivery trouvé"
+        "createLabel": "Créer une nouvelle Livraison",
+        "createOrEditLabel": "Créer ou éditer une Livraison",
+        "notFound": "Aucune Livraison trouvée"
       },
-      "created": "Un nouveau Delivery a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Delivery avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Delivery avec l'identifiant {{ param }} a été supprimé",
+      "created": "Une nouvelle Livraison a été créée avec l'identifiant {{ param }}",
+      "updated": "La Livraison avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Livraison avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Delivery {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer la Livraison {{ id }} ?"
       },
       "detail": {
-        "title": "Delivery"
+        "title": "Livraison"
       },
       "id": "ID",
-      "deliveryDate": "Delivery Date",
-      "status": "Status",
-      "totalAmount": "Total Amount",
-      "paidAmount": "Paid Amount",
+      "deliveryDate": "Date de livraison",
+      "status": "Statut",
+      "totalAmount": "Montant total",
+      "paidAmount": "Montant payé",
       "notes": "Notes",
-      "tenant": "Tenant",
-      "customer": "Customer",
-      "driver": "Driver"
+      "tenant": "Locataire",
+      "customer": "Client",
+      "driver": "Chauffeur"
     }
   }
 }

@@ -2,29 +2,29 @@
   "deliveryApp": {
     "expense": {
       "home": {
-        "title": "Expenses",
+        "title": "Dépenses",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Expense",
-        "createOrEditLabel": "Créer ou éditer un Expense",
-        "notFound": "Aucun Expense trouvé"
+        "createLabel": "Créer une nouvelle Dépense",
+        "createOrEditLabel": "Créer ou éditer une Dépense",
+        "notFound": "Aucune Dépense trouvée"
       },
-      "created": "Un nouveau Expense a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Expense avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Expense avec l'identifiant {{ param }} a été supprimé",
+      "created": "Une nouvelle Dépense a été créée avec l'identifiant {{ param }}",
+      "updated": "La Dépense avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "La Dépense avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Expense {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer la Dépense {{ id }} ?"
       },
       "detail": {
-        "title": "Expense"
+        "title": "Dépense"
       },
       "id": "ID",
-      "expenseDate": "Expense Date",
-      "amount": "Amount",
+      "expenseDate": "Date de dépense",
+      "amount": "Montant",
       "description": "Description",
-      "receiptUrl": "Receipt Url",
-      "tenant": "Tenant",
-      "category": "Category",
-      "driver": "Driver"
+      "receiptUrl": "URL du reçu",
+      "tenant": "Locataire",
+      "category": "Catégorie",
+      "driver": "Chauffeur"
     }
   }
 }

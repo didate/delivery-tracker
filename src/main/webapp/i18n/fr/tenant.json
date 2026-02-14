@@ -2,29 +2,29 @@
   "deliveryApp": {
     "tenant": {
       "home": {
-        "title": "Tenants",
+        "title": "Locataires",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Tenant",
-        "createOrEditLabel": "Créer ou éditer un Tenant",
-        "notFound": "Aucun Tenant trouvé"
+        "createLabel": "Créer un nouveau Locataire",
+        "createOrEditLabel": "Créer ou éditer un Locataire",
+        "notFound": "Aucun Locataire trouvé"
       },
-      "created": "Un nouveau Tenant a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Tenant avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Tenant avec l'identifiant {{ param }} a été supprimé",
+      "created": "Un nouveau Locataire a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Locataire avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Locataire avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Tenant {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer le Locataire {{ id }} ?"
       },
       "detail": {
-        "title": "Tenant"
+        "title": "Locataire"
       },
       "id": "ID",
       "code": "Code",
-      "name": "Name",
+      "name": "Nom",
       "email": "Email",
-      "phone": "Phone",
-      "address": "Address",
-      "logoUrl": "Logo Url",
-      "active": "Active"
+      "phone": "Téléphone",
+      "address": "Adresse",
+      "logoUrl": "URL du logo",
+      "active": "Actif"
     }
   }
 }

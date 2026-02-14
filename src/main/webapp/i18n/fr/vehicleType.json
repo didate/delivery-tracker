@@ -2,10 +2,10 @@
   "deliveryApp": {
     "VehicleType": {
       "null": "",
-      "CAR": "CAR",
-      "MOTO": "MOTO",
-      "TRUCK": "TRUCK",
-      "VAN": "VAN"
+      "CAR": "Voiture",
+      "MOTO": "Moto",
+      "TRUCK": "Camion",
+      "VAN": "Fourgon"
     }
   }
 }

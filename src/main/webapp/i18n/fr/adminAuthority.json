@@ -2,22 +2,22 @@
   "deliveryApp": {
     "adminAuthority": {
       "home": {
-        "title": "Authorities",
+        "title": "Autorités",
         "refreshListLabel": "Actualiser la liste",
-        "createLabel": "Créer un nouveau Authority",
-        "createOrEditLabel": "Créer ou éditer un Authority",
-        "notFound": "Aucun Authority trouvé"
+        "createLabel": "Créer une nouvelle Autorité",
+        "createOrEditLabel": "Créer ou éditer une Autorité",
+        "notFound": "Aucune Autorité trouvée"
       },
-      "created": "Un nouveau Authority a été créé avec l'identifiant {{ param }}",
-      "updated": "Le Authority avec l'identifiant {{ param }} a été mis à jour",
-      "deleted": "Le Authority avec l'identifiant {{ param }} a été supprimé",
+      "created": "Une nouvelle Autorité a été créée avec l'identifiant {{ param }}",
+      "updated": "L'Autorité avec l'identifiant {{ param }} a été mise à jour",
+      "deleted": "L'Autorité avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Authority {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer l'Autorité {{ id }} ?"
       },
       "detail": {
-        "title": "Authority"
+        "title": "Autorité"
       },
-      "name": "Name"
+      "name": "Nom"
     }
   }
 }
