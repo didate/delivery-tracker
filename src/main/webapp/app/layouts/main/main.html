@@ -1,18 +1,17 @@
 <jhi-page-ribbon />
 
-<!-- Main Layout with Right Sidebar -->
 <div class="min-h-screen bg-gray-50">
-  <!-- Sidebar Navigation (positioned on the right) -->
-  <router-outlet name="navbar" />
+  <jhi-sidebar />
 
-  <!-- Main Content Area with margin-right for sidebar on desktop -->
-  <main class="lg:mr-[280px] min-h-screen transition-all duration-300">
-    <div class="p-4 lg:p-8">
-      <div class="bg-white rounded-xl shadow-soft p-6">
+  <div class="lg:pl-64">
+    <jhi-header />
+
+    <main class="py-10">
+      <div class="px-4 sm:px-6 lg:px-8">
         <router-outlet />
       </div>
-
-      <jhi-footer />
-    </div>
-  </main>
+    </main>
+  </div>
 </div>
+
+<jhi-footer />

@@ -1,0 +1,272 @@
+@if (account() !== null) {
+  <aside class="fixed top-0 left-0 z-40 w-64 h-screen transition-transform -translate-x-full sm:translate-x-0 bg-gray-800">
+    <!-- Logo/Brand Section -->
+    <div class="p-6 border-b border-slate-700">
+      <a routerLink="/" (click)="collapseNavbar()" class="flex items-center gap-3 group">
+        <div
+          class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200"
+        >
+          <fa-icon icon="truck" class="text-white text-xl" />
+        </div>
+        <div class="flex flex-col">
+          <span class="text-white font-bold text-xl" jhiTranslate="global.title">Delivery</span>
+          <span class="text-slate-400 text-xs">{{ version }}</span>
+        </div>
+      </a>
+    </div>
+
+    <!-- Navigation Links -->
+    <nav class="flex-1 overflow-y-auto py-4 px-3">
+      <!-- Home -->
+      <a
+        routerLink="/"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="home" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.home">Accueil</span>
+      </a>
+
+      <!-- Entities Section -->
+      <div class="mt-4 mb-2">
+        <span class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider" jhiTranslate="global.menu.entities.main"
+          >Entites</span
+        >
+      </div>
+
+      <a
+        routerLink="/tenant"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="building" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.tenant">Tenant</span>
+      </a>
+
+      <a
+        routerLink="/product"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="box" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.product">Product</span>
+      </a>
+
+      <a
+        routerLink="/price-history"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="chart-line" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.priceHistory">Price History</span>
+      </a>
+
+      <a
+        routerLink="/vehicle"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="car" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.vehicle">Vehicle</span>
+      </a>
+
+      <a
+        routerLink="/driver"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="id-card" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.driver">Driver</span>
+      </a>
+
+      <a
+        routerLink="/production-site"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="industry" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.productionSite">Production Site</span>
+      </a>
+
+      <a
+        routerLink="/customer"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="users" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.customer">Customer</span>
+      </a>
+
+      <a
+        routerLink="/production"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="cogs" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.production">Production</span>
+      </a>
+
+      <a
+        routerLink="/delivery"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="truck" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.delivery">Delivery</span>
+      </a>
+
+      <a
+        routerLink="/round"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="route" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.round">Round</span>
+      </a>
+
+      <a
+        routerLink="/payment"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="credit-card" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.payment">Payment</span>
+      </a>
+
+      <a
+        routerLink="/product-return"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="undo" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.productReturn">Product Return</span>
+      </a>
+
+      <a
+        routerLink="/expense"
+        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+        [routerLinkActiveOptions]="{ exact: true }"
+        (click)="collapseNavbar()"
+        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+      >
+        <fa-icon icon="receipt" [fixedWidth]="true" class="text-lg" />
+        <span jhiTranslate="global.menu.entities.expense">Expense</span>
+      </a>
+
+      <!-- Admin Section -->
+      <div *jhiHasAnyAuthority="'ROLE_ADMIN'" class="mt-6">
+        <div class="mb-2">
+          <span class="px-4 text-xs font-semibold text-slate-500 uppercase tracking-wider" jhiTranslate="global.menu.admin.main"
+            >Administration</span
+          >
+        </div>
+
+        <a
+          routerLink="/admin/user-management"
+          routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="collapseNavbar()"
+          class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+        >
+          <fa-icon icon="users-cog" [fixedWidth]="true" class="text-lg" />
+          <span jhiTranslate="global.menu.admin.userManagement">Gestion des utilisateurs</span>
+        </a>
+
+        <a
+          routerLink="/admin/metrics"
+          routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="collapseNavbar()"
+          class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+        >
+          <fa-icon icon="tachometer-alt" [fixedWidth]="true" class="text-lg" />
+          <span jhiTranslate="global.menu.admin.metrics">Metriques</span>
+        </a>
+
+        <a
+          routerLink="/admin/health"
+          routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="collapseNavbar()"
+          class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+        >
+          <fa-icon icon="heart" [fixedWidth]="true" class="text-lg" />
+          <span jhiTranslate="global.menu.admin.health">Diagnostics</span>
+        </a>
+
+        <a
+          routerLink="/admin/configuration"
+          routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="collapseNavbar()"
+          class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+        >
+          <fa-icon icon="cogs" [fixedWidth]="true" class="text-lg" />
+          <span jhiTranslate="global.menu.admin.configuration">Configuration</span>
+        </a>
+
+        <a
+          routerLink="/admin/logs"
+          routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+          [routerLinkActiveOptions]="{ exact: true }"
+          (click)="collapseNavbar()"
+          class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+        >
+          <fa-icon icon="tasks" [fixedWidth]="true" class="text-lg" />
+          <span jhiTranslate="global.menu.admin.logs">Logs</span>
+        </a>
+
+        @if (openAPIEnabled()) {
+          <a
+            routerLink="/admin/docs"
+            routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
+            [routerLinkActiveOptions]="{ exact: true }"
+            (click)="collapseNavbar()"
+            class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+          >
+            <fa-icon icon="book" [fixedWidth]="true" class="text-lg" />
+            <span jhiTranslate="global.menu.admin.apidocs">API</span>
+          </a>
+        }
+
+        @if (!inProduction()) {
+          <a
+            href="./h2-console/"
+            target="_tab"
+            (click)="collapseNavbar()"
+            class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+          >
+            <fa-icon icon="database" [fixedWidth]="true" class="text-lg" />
+            <span jhiTranslate="global.menu.admin.database">Base de donnees</span>
+          </a>
+        }
+      </div>
+    </nav>
+  </aside>
+}

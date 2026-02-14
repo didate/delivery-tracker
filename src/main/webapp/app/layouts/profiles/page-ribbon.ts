@@ -11,6 +11,7 @@ import { ProfileService } from './profile.service';
 
 @Component({
   selector: 'jhi-page-ribbon',
+  standalone: true,
   template: `
     @if (ribbonEnvSignal?.(); as ribbonEnv) {
       <div class="fixed top-10 -left-10 z-50 rotate-[-45deg] pointer-events-none">

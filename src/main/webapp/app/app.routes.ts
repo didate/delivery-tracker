@@ -13,7 +13,7 @@ const routes: Routes = [
   },
   {
     path: '',
-    loadComponent: () => import('./layouts/navbar/navbar'),
+    loadComponent: () => import('./layouts/header/header.component'),
     outlet: 'navbar',
   },
   {
