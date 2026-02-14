@@ -158,7 +158,11 @@
 
     <!-- Mobile menu, show/hide based on menu state. -->
     @if (!isNavbarCollapsed()) {
-      <div class="lg:hidden" id="mobile-menu">
+      <div class="lg:hidden bg-gray-50 border-t border-gray-200" id="mobile-menu">
+        <div class="space-y-1 pb-3 pt-2">
+          <!-- Mobile Navigation Links could go here if duplication is desired, 
+                 but sidebar handles main nav. We typically only put user menu here. -->
+        </div>
         <div class="border-t border-gray-200 pb-3 pt-4">
           @let accountRef = account();
           @if (accountRef !== null) {
@@ -196,7 +200,9 @@
             </div>
           } @else {
             <div class="mt-3 space-y-1">
-              <a (click)="login()" class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800"
+              <a
+                (click)="login()"
+                class="block px-4 py-2 text-base font-medium text-gray-500 hover:bg-gray-100 hover:text-gray-800 cursor-pointer"
                 >Sign in</a
               >
               <a

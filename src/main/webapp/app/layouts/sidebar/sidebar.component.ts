@@ -49,10 +49,15 @@ export default class SidebarComponent implements OnInit {
   }
 
   collapseNavbar(): void {
-    this.isNavbarCollapsed.set(true);
+    // Only collapse on mobile (lg breakpoint is 1024px in Tailwind)
+    if (window.innerWidth < 1024) {
+      this.sidebarService.collapse();
+      this.isNavbarCollapsed.set(true);
+    }
   }
 
   toggleNavbar(): void {
+    this.sidebarService.toggle();
     this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
   }
 

@@ -1,4 +1,15 @@
 @if (account() !== null) {
+  <!-- Backdrop for mobile -->
+  @if (!sidebarService.isCollapsed()) {
+    <div
+      class="fixed inset-0 bg-gray-900/50 z-30 lg:hidden transition-opacity duration-300 ease-in-out"
+      role="button"
+      tabindex="0"
+      (click)="sidebarService.toggle()"
+      (keydown)="sidebarService.toggle()"
+    ></div>
+  }
+
   <aside
     class="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-800 transition-transform duration-300 ease-in-out flex flex-col"
     [ngClass]="{
@@ -7,7 +18,7 @@
     }"
   >
     <!-- Logo/Brand Section -->
-    <div class="p-6 border-b border-slate-700 flex-shrink-0">
+    <div class="p-6 border-b border-slate-700 flex-shrink-0 flex items-center justify-between">
       <a routerLink="/" (click)="collapseNavbar()" class="flex items-center gap-3 group">
         <div
           class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200"
@@ -19,6 +30,11 @@
           <span class="text-slate-400 text-xs">{{ version }}</span>
         </div>
       </a>
+
+      <!-- Close Sidebar Button (Mobile) -->
+      <button type="button" class="lg:hidden text-slate-400 hover:text-white transition-colors" (click)="collapseNavbar()">
+        <fa-icon icon="times" class="text-xl" />
+      </button>
     </div>
 
     <!-- Navigation Links - Scrollable -->
