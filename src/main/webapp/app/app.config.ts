@@ -13,7 +13,6 @@ import {
 } from '@angular/router';
 import { ServiceWorkerModule } from '@angular/service-worker';
 
-import { NgbDateAdapter } from '@ng-bootstrap/ng-bootstrap';
 import { environment } from 'environments/environment';
 
 import { authExpiredInterceptor } from 'app/core/interceptor/auth-expired.interceptor';
@@ -26,7 +25,6 @@ import { TranslationModule } from 'app/shared/language/translation.module';
 
 import { AppPageTitleStrategy } from './app-page-title-strategy';
 import routes from './app.routes';
-import { NgbDateDayjsAdapter } from './config/datepicker-adapter';
 
 const routerFeatures: RouterFeatures[] = [
   withComponentInputBinding(),
@@ -60,7 +58,6 @@ export const appConfig: ApplicationConfig = {
     ),
     Title,
     { provide: LOCALE_ID, useValue: 'fr' },
-    { provide: NgbDateAdapter, useClass: NgbDateDayjsAdapter },
     { provide: TitleStrategy, useClass: AppPageTitleStrategy },
   ],
 };

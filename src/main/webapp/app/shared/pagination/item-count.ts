@@ -7,7 +7,13 @@ import TranslateDirective from '../language/translate.directive';
  */
 @Component({
   selector: 'jhi-item-count',
-  template: ` <div jhiTranslate="global.item-count" [translateValues]="{ first: first(), second: second(), total: total() }"></div> `,
+  template: `
+    <div
+      class="text-sm text-gray-600"
+      jhiTranslate="global.item-count"
+      [translateValues]="{ first: first(), second: second(), total: total() }"
+    ></div>
+  `,
   imports: [TranslateDirective],
 })
 export default class ItemCount {

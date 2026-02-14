@@ -9,20 +9,19 @@
           {{ garbageCollectorMetricsRef['jvm.gc.max.data.size'] / 1048576 | number: '1.0-0' }}M)
         </span>
 
-        <ngb-progressbar
+        <jhi-progress-bar
           [max]="garbageCollectorMetricsRef['jvm.gc.max.data.size']"
           [value]="garbageCollectorMetricsRef['jvm.gc.live.data.size']"
           [striped]="true"
-          [animated]="false"
           type="success"
         >
-          <span>
+          <span class="text-xs text-white px-2">
             {{
               (100 * garbageCollectorMetricsRef['jvm.gc.live.data.size']) / garbageCollectorMetricsRef['jvm.gc.max.data.size']
                 | number: '1.0-2'
             }}%
           </span>
-        </ngb-progressbar>
+        </jhi-progress-bar>
       </div>
     </div>
 
@@ -33,20 +32,19 @@
           {{ garbageCollectorMetricsRef['jvm.gc.memory.allocated'] / 1048576 | number: '1.0-0' }}M)
         </span>
 
-        <ngb-progressbar
+        <jhi-progress-bar
           [max]="garbageCollectorMetricsRef['jvm.gc.memory.allocated']"
           [value]="garbageCollectorMetricsRef['jvm.gc.memory.promoted']"
           [striped]="true"
-          [animated]="false"
           type="success"
         >
-          <span>
+          <span class="text-xs text-white px-2">
             {{
               (100 * garbageCollectorMetricsRef['jvm.gc.memory.promoted']) / garbageCollectorMetricsRef['jvm.gc.memory.allocated']
                 | number: '1.0-2'
             }}%
           </span>
-        </ngb-progressbar>
+        </jhi-progress-bar>
       </div>
     </div>
 

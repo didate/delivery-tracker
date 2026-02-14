@@ -18,19 +18,14 @@
         @let expenseDateRef = editForm.get('expenseDate')!;
         <div class="mb-3">
           <label class="form-label" for="field_expenseDate" jhiTranslate="deliveryApp.expense.expenseDate">Expense Date</label>
-          <div class="input-group">
-            <input
-              id="field_expenseDate"
-              data-cy="expenseDate"
-              type="text"
-              class="form-control"
-              name="expenseDate"
-              ngbDatepicker
-              #expenseDateDp="ngbDatepicker"
-              formControlName="expenseDate"
-            />
-            <button type="button" class="btn btn-secondary" (click)="expenseDateDp.toggle()"><fa-icon icon="calendar-alt" /></button>
-          </div>
+          <input
+            id="field_expenseDate"
+            data-cy="expenseDate"
+            type="date"
+            class="form-control"
+            name="expenseDate"
+            formControlName="expenseDate"
+          />
           @if (expenseDateRef.invalid && (expenseDateRef.dirty || expenseDateRef.touched)) {
             <div>
               @if (editForm.get('expenseDate')?.errors?.required) {

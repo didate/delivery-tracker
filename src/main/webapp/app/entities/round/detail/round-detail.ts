@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DataUtils } from 'app/core/util/data-util.service';
@@ -17,7 +17,6 @@ import { IRound } from '../round.model';
   templateUrl: './round-detail.html',
   imports: [
     FontAwesomeModule,
-    NgbModule,
     Alert,
     AlertError,
     TranslateDirective,

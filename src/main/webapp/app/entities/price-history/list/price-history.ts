@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
 
@@ -15,7 +15,7 @@ import { AlertError } from 'app/shared/alert/alert-error';
 import { FormatMediumDatePipe } from 'app/shared/date';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
-import { ItemCount } from 'app/shared/pagination';
+import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { PriceHistoryDeleteDialog } from '../delete/price-history-delete-dialog';
 import { IPriceHistory } from '../price-history.model';
@@ -28,7 +28,6 @@ import { EntityArrayResponseType, PriceHistoryService } from '../service/price-h
     RouterLink,
     FormsModule,
     FontAwesomeModule,
-    NgbModule,
     AlertError,
     Alert,
     SortDirective,
@@ -38,6 +37,7 @@ import { EntityArrayResponseType, PriceHistoryService } from '../service/price-h
     FormatMediumDatePipe,
     Filter,
     ItemCount,
+    PaginationComponent,
   ],
 })
 export class PriceHistory implements OnInit {
@@ -56,7 +56,7 @@ export class PriceHistory implements OnInit {
   protected readonly priceHistoryService = inject(PriceHistoryService);
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
-  protected modalService = inject(NgbModal);
+  protected modalService = inject(ModalService);
 
   trackId = (item: IPriceHistory): number => this.priceHistoryService.getPriceHistoryIdentifier(item);
 

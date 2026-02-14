@@ -1,84 +1,143 @@
 @defer (when loggers() && !isLoading()) {
-  <div class="table-responsive">
-    <h2 id="logs-page-heading" data-cy="logsPageHeading" jhiTranslate="logs.title">Logs</h2>
+  <div class="p-6">
+    <!-- Header -->
+    <div class="mb-6">
+      <h2 id="logs-page-heading" class="text-2xl font-semibold text-neutral-800" data-cy="logsPageHeading" jhiTranslate="logs.title">
+        Logs
+      </h2>
+      <p class="mt-2 text-sm text-neutral-600" jhiTranslate="logs.nbloggers" [translateValues]="{ total: loggers()?.length }">
+        Total de {{ loggers()?.length }} &quot;loggers&quot;.
+      </p>
+    </div>
 
-    <p jhiTranslate="logs.nbloggers" [translateValues]="{ total: loggers()?.length }">
-      Total de {{ loggers()?.length }} &quot;loggers&quot;.
-    </p>
+    <!-- Filter Input -->
+    <div class="mb-6">
+      <label class="block text-sm font-medium text-neutral-700 mb-2" jhiTranslate="logs.filter">Filtrer</label>
+      <input
+        type="text"
+        [ngModel]="filter()"
+        (ngModelChange)="filter.set($event)"
+        class="w-full max-w-md px-4 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+        placeholder="Rechercher un logger..."
+      />
+    </div>
 
-    <span jhiTranslate="logs.filter">Filtrer</span>
-    <input type="text" [ngModel]="filter()" (ngModelChange)="filter.set($event)" class="form-control" />
-
-    <table class="table table-sm table-striped table-bordered" aria-describedby="logs-page-heading">
-      <thead>
-        <tr jhiSort [(sortState)]="sortState">
-          <th jhiSortBy="name" scope="col"><span jhiTranslate="logs.table.name">Nom</span> <fa-icon icon="sort" /></th>
-          <th jhiSortBy="level" scope="col"><span jhiTranslate="logs.table.level">Niveau</span> <fa-icon icon="sort" /></th>
-        </tr>
-      </thead>
-
-      <tbody>
-        @for (logger of filteredAndOrderedLoggers(); track $index) {
-          <tr>
-            <td>
-              <small>{{ logger.name | slice: 0 : 140 }}</small>
-            </td>
-            <td>
-              <button
-                (click)="changeLevel(logger.name, 'TRACE')"
-                [class]="logger.level === 'TRACE' ? 'btn-primary' : 'btn-light'"
-                class="btn btn-sm"
+    <!-- Loggers Table Card -->
+    <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full" aria-describedby="logs-page-heading">
+          <thead class="bg-neutral-50 border-b border-neutral-200">
+            <tr jhiSort [(sortState)]="sortState">
+              <th
+                jhiSortBy="name"
+                scope="col"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
               >
-                TRACE
-              </button>
-
-              <button
-                (click)="changeLevel(logger.name, 'DEBUG')"
-                [class]="logger.level === 'DEBUG' ? 'btn-success' : 'btn-light'"
-                class="btn btn-sm"
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="logs.table.name">Nom</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+              <th
+                jhiSortBy="level"
+                scope="col"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
               >
-                DEBUG
-              </button>
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="logs.table.level">Niveau</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+            </tr>
+          </thead>
 
-              <button
-                (click)="changeLevel(logger.name, 'INFO')"
-                [class]="logger.level === 'INFO' ? 'btn-info' : 'btn-light'"
-                class="btn btn-sm"
-              >
-                INFO
-              </button>
+          <tbody class="divide-y divide-neutral-100">
+            @for (logger of filteredAndOrderedLoggers(); track $index) {
+              <tr class="hover:bg-neutral-50 transition-colors duration-150">
+                <td class="px-6 py-4">
+                  <span class="text-sm text-neutral-700 break-all">{{ logger.name | slice: 0 : 140 }}</span>
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex flex-wrap gap-1">
+                    <button
+                      (click)="changeLevel(logger.name, 'TRACE')"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      [ngClass]="{
+                        'bg-primary-500 text-white focus:ring-primary-500': logger.level === 'TRACE',
+                        'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 focus:ring-neutral-400': logger.level !== 'TRACE',
+                      }"
+                    >
+                      TRACE
+                    </button>
 
-              <button
-                (click)="changeLevel(logger.name, 'WARN')"
-                [class]="logger.level === 'WARN' ? 'btn-warning' : 'btn-light'"
-                class="btn btn-sm"
-              >
-                WARN
-              </button>
+                    <button
+                      (click)="changeLevel(logger.name, 'DEBUG')"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      [ngClass]="{
+                        'bg-success-500 text-white focus:ring-success-500': logger.level === 'DEBUG',
+                        'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 focus:ring-neutral-400': logger.level !== 'DEBUG',
+                      }"
+                    >
+                      DEBUG
+                    </button>
 
-              <button
-                (click)="changeLevel(logger.name, 'ERROR')"
-                [class]="logger.level === 'ERROR' ? 'btn-danger' : 'btn-light'"
-                class="btn btn-sm"
-              >
-                ERROR
-              </button>
+                    <button
+                      (click)="changeLevel(logger.name, 'INFO')"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      [ngClass]="{
+                        'bg-primary-400 text-white focus:ring-primary-400': logger.level === 'INFO',
+                        'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 focus:ring-neutral-400': logger.level !== 'INFO',
+                      }"
+                    >
+                      INFO
+                    </button>
 
-              <button
-                (click)="changeLevel(logger.name, 'OFF')"
-                [class]="logger.level === 'OFF' ? 'btn-secondary' : 'btn-light'"
-                class="btn btn-sm"
-              >
-                OFF
-              </button>
-            </td>
-          </tr>
-        }
-      </tbody>
-    </table>
+                    <button
+                      (click)="changeLevel(logger.name, 'WARN')"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      [ngClass]="{
+                        'bg-warning-500 text-white focus:ring-warning-500': logger.level === 'WARN',
+                        'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 focus:ring-neutral-400': logger.level !== 'WARN',
+                      }"
+                    >
+                      WARN
+                    </button>
+
+                    <button
+                      (click)="changeLevel(logger.name, 'ERROR')"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      [ngClass]="{
+                        'bg-danger-500 text-white focus:ring-danger-500': logger.level === 'ERROR',
+                        'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 focus:ring-neutral-400': logger.level !== 'ERROR',
+                      }"
+                    >
+                      ERROR
+                    </button>
+
+                    <button
+                      (click)="changeLevel(logger.name, 'OFF')"
+                      class="px-3 py-1.5 text-xs font-medium rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-offset-1"
+                      [ngClass]="{
+                        'bg-neutral-500 text-white focus:ring-neutral-500': logger.level === 'OFF',
+                        'bg-neutral-100 text-neutral-600 hover:bg-neutral-200 focus:ring-neutral-400': logger.level !== 'OFF',
+                      }"
+                    >
+                      OFF
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
   </div>
 } @loading {
-  <div class="d-flex justify-content-center me-3">
-    <div class="spinner-border"></div>
+  <div class="flex items-center justify-center min-h-[200px] p-6">
+    <div class="flex flex-col items-center gap-3">
+      <div class="w-10 h-10 border-4 border-primary-200 border-t-primary-500 rounded-full animate-spin"></div>
+      <span class="text-sm text-neutral-600">Chargement...</span>
+    </div>
   </div>
 }

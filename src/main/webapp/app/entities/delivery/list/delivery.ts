@@ -1,10 +1,11 @@
+import { DecimalPipe } from '@angular/common';
 import { HttpHeaders } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
 
@@ -16,7 +17,7 @@ import { AlertError } from 'app/shared/alert/alert-error';
 import { FormatMediumDatePipe } from 'app/shared/date';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
-import { ItemCount } from 'app/shared/pagination';
+import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { DeliveryDeleteDialog } from '../delete/delivery-delete-dialog';
 import { IDelivery } from '../delivery.model';
@@ -29,7 +30,6 @@ import { DeliveryService, EntityArrayResponseType } from '../service/delivery.se
     RouterLink,
     FormsModule,
     FontAwesomeModule,
-    NgbModule,
     AlertError,
     Alert,
     SortDirective,
@@ -39,6 +39,8 @@ import { DeliveryService, EntityArrayResponseType } from '../service/delivery.se
     FormatMediumDatePipe,
     Filter,
     ItemCount,
+    PaginationComponent,
+    DecimalPipe,
   ],
 })
 export class Delivery implements OnInit {
@@ -58,7 +60,7 @@ export class Delivery implements OnInit {
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
   protected dataUtils = inject(DataUtils);
-  protected modalService = inject(NgbModal);
+  protected modalService = inject(ModalService);
 
   trackId = (item: IDelivery): number => this.deliveryService.getDeliveryIdentifier(item);
 

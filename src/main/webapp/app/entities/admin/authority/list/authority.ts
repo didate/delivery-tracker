@@ -3,7 +3,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
 
@@ -23,7 +23,6 @@ import { AuthorityService, EntityArrayResponseType } from '../service/authority.
     RouterLink,
     FormsModule,
     FontAwesomeModule,
-    NgbModule,
     AlertError,
     Alert,
     SortDirective,
@@ -43,7 +42,7 @@ export class Authority implements OnInit {
   protected readonly authorityService = inject(AuthorityService);
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
-  protected modalService = inject(NgbModal);
+  protected modalService = inject(ModalService);
 
   trackName = (item: IAuthority): string => this.authorityService.getAuthorityIdentifier(item);
 

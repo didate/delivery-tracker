@@ -1,46 +1,93 @@
-<div>
-  <h2>
-    <span id="metrics-page-heading" data-cy="metricsPageHeading" jhiTranslate="metrics.title">Métriques de l&apos;application</span>
+<div class="p-6">
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h2 class="text-2xl font-semibold text-neutral-800 mb-4 sm:mb-0">
+      <span id="metrics-page-heading" data-cy="metricsPageHeading" jhiTranslate="metrics.title">Métriques de l&apos;application</span>
+    </h2>
 
-    <button class="btn btn-primary float-end" (click)="refresh()">
-      <fa-icon icon="sync" /> <span jhiTranslate="metrics.refresh.button">Rafraîchir</span>
+    <button
+      class="inline-flex items-center px-4 py-2 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      (click)="refresh()"
+    >
+      <fa-icon icon="sync" class="mr-2" />
+      <span jhiTranslate="metrics.refresh.button">Rafraîchir</span>
     </button>
-  </h2>
+  </div>
 
-  <h3 jhiTranslate="metrics.jvm.title">Métriques de la JVM</h3>
+  <!-- JVM Metrics Section -->
+  <div class="mb-8">
+    <h3 class="text-lg font-semibold text-neutral-800 mb-4" jhiTranslate="metrics.jvm.title">Métriques de la JVM</h3>
 
-  @let metricsRef = metrics();
-  @if (metricsRef && !updatingMetrics()) {
-    <div class="row">
-      <jhi-jvm-memory class="col-md-4" [updating]="updatingMetrics()" [jvmMemoryMetrics]="metricsRef.jvm" />
+    @let metricsRef = metrics();
+    @if (metricsRef && !updatingMetrics()) {
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+          <jhi-jvm-memory [updating]="updatingMetrics()" [jvmMemoryMetrics]="metricsRef.jvm" />
+        </div>
 
-      <jhi-jvm-threads class="col-md-4" [threads]="threads()" />
+        <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+          <jhi-jvm-threads [threads]="threads()" />
+        </div>
 
-      <jhi-metrics-system class="col-md-4" [updating]="updatingMetrics()" [systemMetrics]="metricsRef.processMetrics" />
+        <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+          <jhi-metrics-system [updating]="updatingMetrics()" [systemMetrics]="metricsRef.processMetrics" />
+        </div>
+      </div>
+    }
+  </div>
+
+  <!-- Garbage Collector Metrics -->
+  @if (metricsRef?.garbageCollector; as metricsRefGarbageCollector) {
+    <div class="mb-8">
+      <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+        <jhi-metrics-garbagecollector [updating]="updatingMetrics()" [garbageCollectorMetrics]="metricsRefGarbageCollector" />
+      </div>
     </div>
   }
 
-  @if (metricsRef?.garbageCollector; as metricsRefGarbageCollector) {
-    <jhi-metrics-garbagecollector [updating]="updatingMetrics()" [garbageCollectorMetrics]="metricsRefGarbageCollector" />
-  }
-
+  <!-- Updating Indicator -->
   @if (updatingMetrics()) {
-    <div class="well well-lg" jhiTranslate="metrics.updating">Mise à jour...</div>
+    <div class="mb-8 p-4 bg-primary-50 border border-primary-200 rounded-lg">
+      <div class="flex items-center gap-3">
+        <div class="w-5 h-5 border-2 border-primary-300 border-t-primary-600 rounded-full animate-spin"></div>
+        <span class="text-sm font-medium text-primary-700" jhiTranslate="metrics.updating">Mise à jour...</span>
+      </div>
+    </div>
   }
 
+  <!-- HTTP Server Requests Metrics -->
   @if (metricsRef?.['http.server.requests']; as metricsRefHttpServerRequests) {
-    <jhi-metrics-request [updating]="updatingMetrics()" [requestMetrics]="metricsRefHttpServerRequests" />
+    <div class="mb-8">
+      <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+        <jhi-metrics-request [updating]="updatingMetrics()" [requestMetrics]="metricsRefHttpServerRequests" />
+      </div>
+    </div>
   }
 
+  <!-- Endpoints Requests Metrics -->
   @if (metricsRef?.services; as metricsRefServices) {
-    <jhi-metrics-endpoints-requests [updating]="updatingMetrics()" [endpointsRequestsMetrics]="metricsRefServices" />
+    <div class="mb-8">
+      <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+        <jhi-metrics-endpoints-requests [updating]="updatingMetrics()" [endpointsRequestsMetrics]="metricsRefServices" />
+      </div>
+    </div>
   }
 
+  <!-- Cache Metrics -->
   @if (metricsRef?.cache; as metricsRefCache) {
-    <jhi-metrics-cache [updating]="updatingMetrics()" [cacheMetrics]="metricsRefCache" />
+    <div class="mb-8">
+      <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+        <jhi-metrics-cache [updating]="updatingMetrics()" [cacheMetrics]="metricsRefCache" />
+      </div>
+    </div>
   }
 
+  <!-- Datasource Metrics -->
   @if (metricsRef && metricsKeyExistsAndObjectNotEmpty('databases')) {
-    <jhi-metrics-datasource [updating]="updatingMetrics()" [datasourceMetrics]="metricsRef.databases" />
+    <div class="mb-8">
+      <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+        <jhi-metrics-datasource [updating]="updatingMetrics()" [datasourceMetrics]="metricsRef.databases" />
+      </div>
+    </div>
   }
 </div>

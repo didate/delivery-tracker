@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DataUtils } from 'app/core/util/data-util.service';
@@ -14,7 +14,7 @@ import { ICustomer } from '../customer.model';
 @Component({
   selector: 'jhi-customer-detail',
   templateUrl: './customer-detail.html',
-  imports: [FontAwesomeModule, NgbModule, Alert, AlertError, TranslateDirective, TranslateModule, RouterLink],
+  imports: [FontAwesomeModule, Alert, AlertError, TranslateDirective, TranslateModule, RouterLink],
 })
 export class CustomerDetail {
   customer = input<ICustomer | null>(null);

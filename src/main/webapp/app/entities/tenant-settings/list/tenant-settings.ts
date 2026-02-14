@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
 
@@ -14,7 +14,7 @@ import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
-import { ItemCount } from 'app/shared/pagination';
+import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { TenantSettingsDeleteDialog } from '../delete/tenant-settings-delete-dialog';
 import { EntityArrayResponseType, TenantSettingsService } from '../service/tenant-settings.service';
@@ -27,7 +27,6 @@ import { ITenantSettings } from '../tenant-settings.model';
     RouterLink,
     FormsModule,
     FontAwesomeModule,
-    NgbModule,
     AlertError,
     Alert,
     SortDirective,
@@ -36,6 +35,7 @@ import { ITenantSettings } from '../tenant-settings.model';
     TranslateModule,
     Filter,
     ItemCount,
+    PaginationComponent,
   ],
 })
 export class TenantSettings implements OnInit {
@@ -54,7 +54,7 @@ export class TenantSettings implements OnInit {
   protected readonly tenantSettingsService = inject(TenantSettingsService);
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
-  protected modalService = inject(NgbModal);
+  protected modalService = inject(ModalService);
 
   trackId = (item: ITenantSettings): number => this.tenantSettingsService.getTenantSettingsIdentifier(item);
 

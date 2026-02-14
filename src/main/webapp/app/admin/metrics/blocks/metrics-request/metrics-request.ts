@@ -1,18 +1,18 @@
 import { DecimalPipe, KeyValuePipe } from '@angular/common';
 import { ChangeDetectionStrategy, Component, input } from '@angular/core';
 
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { HttpServerRequests } from 'app/admin/metrics/metrics.model';
 import { filterNaN } from 'app/core/util/operators';
 import { TranslateDirective } from 'app/shared/language';
+import { ProgressBarComponent } from 'app/shared/progress-bar';
 
 @Component({
   selector: 'jhi-metrics-request',
   templateUrl: './metrics-request.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
-  imports: [NgbModule, KeyValuePipe, DecimalPipe, TranslateDirective, TranslateModule],
+  imports: [KeyValuePipe, DecimalPipe, TranslateDirective, TranslateModule, ProgressBarComponent],
 })
 export class MetricsRequest {
   /**

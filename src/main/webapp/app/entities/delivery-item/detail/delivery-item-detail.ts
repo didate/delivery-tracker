@@ -2,7 +2,7 @@ import { Component, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { TranslateModule } from '@ngx-translate/core';
 
 import { Alert } from 'app/shared/alert/alert';
@@ -13,7 +13,7 @@ import { IDeliveryItem } from '../delivery-item.model';
 @Component({
   selector: 'jhi-delivery-item-detail',
   templateUrl: './delivery-item-detail.html',
-  imports: [FontAwesomeModule, NgbModule, Alert, AlertError, TranslateDirective, TranslateModule, RouterLink],
+  imports: [FontAwesomeModule, Alert, AlertError, TranslateDirective, TranslateModule, RouterLink],
 })
 export class DeliveryItemDetail {
   deliveryItem = input<IDeliveryItem | null>(null);

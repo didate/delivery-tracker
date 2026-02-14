@@ -13,12 +13,17 @@ import { ProfileService } from './profile.service';
   selector: 'jhi-page-ribbon',
   template: `
     @if (ribbonEnvSignal?.(); as ribbonEnv) {
-      <div class="ribbon">
-        <a href="" [jhiTranslate]="'global.ribbon.' + (ribbonEnv ?? '')">{{ { dev: 'Développement' }[ribbonEnv ?? ''] }}</a>
+      <div class="fixed top-10 -left-10 z-50 rotate-[-45deg] pointer-events-none">
+        <a
+          href=""
+          class="block bg-red-600/75 text-white text-center py-2 px-12 text-sm font-medium shadow-md pointer-events-none"
+          [jhiTranslate]="'global.ribbon.' + (ribbonEnv ?? '')"
+        >
+          {{ { dev: 'Developpement' }[ribbonEnv ?? ''] }}
+        </a>
       </div>
     }
   `,
-  styleUrl: './page-ribbon.scss',
   imports: [TranslateDirective, TranslateModule],
 })
 export default class PageRibbon implements OnInit {

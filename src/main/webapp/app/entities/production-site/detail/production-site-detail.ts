@@ -2,7 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
+
 import { TranslateModule } from '@ngx-translate/core';
 
 import { DataUtils } from 'app/core/util/data-util.service';
@@ -14,7 +14,7 @@ import { IProductionSite } from '../production-site.model';
 @Component({
   selector: 'jhi-production-site-detail',
   templateUrl: './production-site-detail.html',
-  imports: [FontAwesomeModule, NgbModule, Alert, AlertError, TranslateDirective, TranslateModule, RouterLink],
+  imports: [FontAwesomeModule, Alert, AlertError, TranslateDirective, TranslateModule, RouterLink],
 })
 export class ProductionSiteDetail {
   productionSite = input<IProductionSite | null>(null);

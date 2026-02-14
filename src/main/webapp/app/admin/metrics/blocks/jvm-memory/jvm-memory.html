@@ -11,9 +11,9 @@
           </span>
 
           <div>Committed : {{ entry.value.committed / 1048576 | number: '1.0-0' }}M</div>
-          <ngb-progressbar type="success" [value]="(100 * entry.value.used) / entry.value.max" [striped]="true" [animated]="false">
-            <span>{{ (entry.value.used * 100) / entry.value.max | number: '1.0-0' }}%</span>
-          </ngb-progressbar>
+          <jhi-progress-bar type="success" [value]="(100 * entry.value.used) / entry.value.max" [striped]="true">
+            <span class="text-xs text-white px-2">{{ (entry.value.used * 100) / entry.value.max | number: '1.0-0' }}%</span>
+          </jhi-progress-bar>
         } @else {
           <span
             ><span>{{ entry.key }}</span> {{ entry.value.used / 1048576 | number: '1.0-0' }}M</span

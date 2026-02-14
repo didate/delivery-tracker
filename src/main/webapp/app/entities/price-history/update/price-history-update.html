@@ -38,19 +38,14 @@
         @let effectiveDateRef = editForm.get('effectiveDate')!;
         <div class="mb-3">
           <label class="form-label" for="field_effectiveDate" jhiTranslate="deliveryApp.priceHistory.effectiveDate">Effective Date</label>
-          <div class="input-group">
-            <input
-              id="field_effectiveDate"
-              data-cy="effectiveDate"
-              type="text"
-              class="form-control"
-              name="effectiveDate"
-              ngbDatepicker
-              #effectiveDateDp="ngbDatepicker"
-              formControlName="effectiveDate"
-            />
-            <button type="button" class="btn btn-secondary" (click)="effectiveDateDp.toggle()"><fa-icon icon="calendar-alt" /></button>
-          </div>
+          <input
+            id="field_effectiveDate"
+            data-cy="effectiveDate"
+            type="date"
+            class="form-control"
+            name="effectiveDate"
+            formControlName="effectiveDate"
+          />
           @if (effectiveDateRef.invalid && (effectiveDateRef.dirty || effectiveDateRef.touched)) {
             <div>
               @if (editForm.get('effectiveDate')?.errors?.required) {

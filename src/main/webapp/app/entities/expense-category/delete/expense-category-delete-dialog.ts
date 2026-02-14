@@ -2,12 +2,12 @@ import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { ITEM_DELETED_EVENT } from 'app/config/navigation.constants';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { TranslateDirective } from 'app/shared/language';
+import { ModalRef } from 'app/shared/modal';
 import { IExpenseCategory } from '../expense-category.model';
 import { ExpenseCategoryService } from '../service/expense-category.service';
 
@@ -17,17 +17,17 @@ import { ExpenseCategoryService } from '../service/expense-category.service';
 })
 export class ExpenseCategoryDeleteDialog {
   expenseCategory?: IExpenseCategory;
+  activeModal?: ModalRef;
 
   protected expenseCategoryService = inject(ExpenseCategoryService);
-  protected activeModal = inject(NgbActiveModal);
 
   cancel(): void {
-    this.activeModal.dismiss();
+    this.activeModal?.dismiss();
   }
 
   confirmDelete(id: number): void {
     this.expenseCategoryService.delete(id).subscribe(() => {
-      this.activeModal.close(ITEM_DELETED_EVENT);
+      this.activeModal?.close(ITEM_DELETED_EVENT);
     });
   }
 }

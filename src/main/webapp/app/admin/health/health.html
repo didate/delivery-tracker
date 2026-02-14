@@ -1,62 +1,86 @@
-<div>
-  <h2>
-    <span id="health-page-heading" data-cy="healthPageHeading" jhiTranslate="health.title">Diagnostics</span>
+<div class="p-6">
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h2 class="text-2xl font-semibold text-neutral-800 mb-4 sm:mb-0">
+      <span id="health-page-heading" data-cy="healthPageHeading" jhiTranslate="health.title">Diagnostics</span>
+    </h2>
 
-    <button class="btn btn-primary float-end" (click)="refresh()">
-      <fa-icon icon="sync" /> <span jhiTranslate="health.refresh.button">Rafraîchir</span>
+    <button
+      class="inline-flex items-center px-4 py-2 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+      (click)="refresh()"
+    >
+      <fa-icon icon="sync" class="mr-2" />
+      <span jhiTranslate="health.refresh.button">Rafraîchir</span>
     </button>
-  </h2>
+  </div>
 
-  <div class="table-responsive">
-    <table id="healthCheck" class="table table-striped" aria-describedby="health-page-heading">
-      <thead>
-        <tr>
-          <th scope="col" jhiTranslate="health.table.service">Nom du service</th>
-          <th scope="col" class="text-center" jhiTranslate="health.table.status">État</th>
-          <th scope="col" class="text-center" jhiTranslate="health.details.details">Détails</th>
-        </tr>
-      </thead>
-      @if (health(); as health) {
-        <tbody>
-          @for (componentHealth of health.components | keyvalue; track componentHealth.key) {
-            <tr>
-              <td [jhiTranslate]="'health.indicator.' + componentHealth.key">
-                {{
-                  {
-                    diskSpace: 'Espace disque',
-                    ssl: 'SSL',
-                    mail: 'Email',
-                    livenessState: 'Liveness state',
-                    readinessState: 'Readiness state',
-                    ping: 'Application',
-                    db: 'Base de données',
-                  }[componentHealth.key] || componentHealth.key
-                }}
-              </td>
-              <td class="text-center">
-                <span
-                  class="badge"
-                  [class]="getBadgeClass(componentHealth.value!.status)"
-                  [jhiTranslate]="'health.status.' + (componentHealth.value?.status ?? 'UNKNOWN')"
-                >
+  <!-- Health Check Table Card -->
+  <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+    <div class="overflow-x-auto">
+      <table id="healthCheck" class="w-full" aria-describedby="health-page-heading">
+        <thead class="bg-neutral-50 border-b border-neutral-200">
+          <tr>
+            <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-neutral-700" jhiTranslate="health.table.service">
+              Nom du service
+            </th>
+            <th scope="col" class="px-6 py-4 text-center text-sm font-semibold text-neutral-700" jhiTranslate="health.table.status">
+              État
+            </th>
+            <th scope="col" class="px-6 py-4 text-center text-sm font-semibold text-neutral-700" jhiTranslate="health.details.details">
+              Détails
+            </th>
+          </tr>
+        </thead>
+        @if (health(); as health) {
+          <tbody class="divide-y divide-neutral-100">
+            @for (componentHealth of health.components | keyvalue; track componentHealth.key) {
+              <tr class="hover:bg-neutral-50 transition-colors duration-150">
+                <td class="px-6 py-4 text-sm text-neutral-900 font-medium" [jhiTranslate]="'health.indicator.' + componentHealth.key">
                   {{
-                    { UNKNOWN: 'INCONNU', UP: 'DISPONIBLE', OUT_OF_SERVICE: 'OUT_OF_SERVICE', DOWN: 'HORS SERVICE' }[
-                      componentHealth.value?.status ?? 'UNKNOWN'
-                    ]
+                    {
+                      diskSpace: 'Espace disque',
+                      ssl: 'SSL',
+                      mail: 'Email',
+                      livenessState: 'Liveness state',
+                      readinessState: 'Readiness state',
+                      ping: 'Application',
+                      db: 'Base de données',
+                    }[componentHealth.key] || componentHealth.key
                   }}
-                </span>
-              </td>
-              <td class="text-center">
-                @if (componentHealth.value!.details) {
-                  <a class="hand" (click)="showHealth({ key: componentHealth.key, value: componentHealth.value! })">
-                    <fa-icon icon="eye" />
-                  </a>
-                }
-              </td>
-            </tr>
-          }
-        </tbody>
-      }
-    </table>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  <span
+                    class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium"
+                    [ngClass]="{
+                      'bg-success-100 text-success-700': componentHealth.value?.status === 'UP',
+                      'bg-danger-100 text-danger-700': componentHealth.value?.status === 'DOWN',
+                      'bg-warning-100 text-warning-700': componentHealth.value?.status === 'OUT_OF_SERVICE',
+                      'bg-neutral-100 text-neutral-700': !componentHealth.value?.status || componentHealth.value?.status === 'UNKNOWN',
+                    }"
+                    [jhiTranslate]="'health.status.' + (componentHealth.value?.status ?? 'UNKNOWN')"
+                  >
+                    {{
+                      { UNKNOWN: 'INCONNU', UP: 'DISPONIBLE', OUT_OF_SERVICE: 'OUT_OF_SERVICE', DOWN: 'HORS SERVICE' }[
+                        componentHealth.value?.status ?? 'UNKNOWN'
+                      ]
+                    }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-center">
+                  @if (componentHealth.value!.details) {
+                    <button
+                      class="inline-flex items-center justify-center w-8 h-8 text-primary-600 bg-primary-50 rounded-full hover:bg-primary-100 transition-colors cursor-pointer focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      (click)="showHealth({ key: componentHealth.key, value: componentHealth.value! })"
+                    >
+                      <fa-icon icon="eye" />
+                    </button>
+                  }
+                </td>
+              </tr>
+            }
+          </tbody>
+        }
+      </table>
+    </div>
   </div>
 </div>

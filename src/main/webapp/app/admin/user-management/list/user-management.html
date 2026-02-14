@@ -1,131 +1,240 @@
-<div>
-  <h2>
-    <span id="user-management-page-heading" data-cy="userManagementPageHeading" jhiTranslate="userManagement.home.title">Utilisateurs</span>
+<div class="p-6">
+  <!-- Header Section -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <h2 class="text-2xl font-semibold text-neutral-800 mb-4 sm:mb-0">
+      <span id="user-management-page-heading" data-cy="userManagementPageHeading" jhiTranslate="userManagement.home.title"
+        >Utilisateurs</span
+      >
+    </h2>
 
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="loadAll()" [disabled]="isLoading()">
-        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+    <div class="flex flex-wrap gap-2">
+      <button
+        class="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 font-medium rounded-lg hover:bg-primary-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+        (click)="loadAll()"
+        [disabled]="isLoading()"
+        [class.opacity-50]="isLoading()"
+        [class.cursor-not-allowed]="isLoading()"
+      >
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" class="mr-2" />
         <span jhiTranslate="userManagement.home.refreshListLabel">Actualiser la liste</span>
       </button>
-      <button class="btn btn-primary jh-create-entity" [routerLink]="['./new']" data-cy="entityCreateButton">
-        <fa-icon icon="plus" /> <span jhiTranslate="userManagement.home.createLabel">Créer un nouvel utilisateur</span>
+      <button
+        class="inline-flex items-center px-4 py-2 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+        [routerLink]="['./new']"
+        data-cy="entityCreateButton"
+      >
+        <fa-icon icon="plus" class="mr-2" />
+        <span jhiTranslate="userManagement.home.createLabel">Créer un nouvel utilisateur</span>
       </button>
     </div>
-  </h2>
+  </div>
 
   <jhi-alert-error />
 
   <jhi-alert />
 
   @if (users()) {
-    <div class="table-responsive">
-      <table class="table table-striped" aria-describedby="user-management-page-heading">
-        <thead>
-          <tr jhiSort [(sortState)]="sortState" (sortChange)="transition($event)">
-            <th scope="col" jhiSortBy="id"><span jhiTranslate="global.field.id">ID</span> <fa-icon icon="sort" /></th>
-            <th scope="col" jhiSortBy="login"><span jhiTranslate="userManagement.login">Login</span> <fa-icon icon="sort" /></th>
-            <th scope="col" jhiSortBy="email"><span jhiTranslate="userManagement.email">Email</span> <fa-icon icon="sort" /></th>
-            <th scope="col"></th>
-            <th scope="col" jhiSortBy="langKey"><span jhiTranslate="userManagement.langKey">Langue</span> <fa-icon icon="sort" /></th>
-            <th scope="col"><span jhiTranslate="userManagement.profiles">Droits</span></th>
-            <th scope="col" jhiSortBy="createdDate">
-              <span jhiTranslate="userManagement.createdDate">Créé le</span> <fa-icon icon="sort" />
-            </th>
-            <th scope="col" jhiSortBy="lastModifiedBy">
-              <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span> <fa-icon icon="sort" />
-            </th>
-            <th scope="col" jhiSortBy="lastModifiedDate">
-              <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span> <fa-icon icon="sort" />
-            </th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (user of users(); track trackIdentity(user)) {
-            <tr>
-              <td>
-                <a [routerLink]="['./', user.login, 'view']">{{ user.id }}</a>
-              </td>
-              <td>{{ user.login }}</td>
-              <td>{{ user.email }}</td>
-              <td>
-                @if (!user.activated) {
-                  <button class="btn btn-danger btn-sm" (click)="setActive(user, true)" jhiTranslate="userManagement.deactivated">
-                    Désactivé
-                  </button>
-                } @else {
-                  <button
-                    class="btn btn-success btn-sm"
-                    (click)="setActive(user, false)"
-                    [disabled]="!currentAccount() || currentAccount()?.login === user.login"
-                    jhiTranslate="userManagement.activated"
-                  >
-                    Activé
-                  </button>
-                }
-              </td>
-              <td>{{ user.langKey }}</td>
-              <td>
-                @for (authority of user.authorities; track $index) {
-                  <div>
-                    <span class="badge bg-info">{{ authority }}</span>
-                  </div>
-                }
-              </td>
-              <td>{{ user.createdDate | date: 'dd/MM/yy HH:mm' }}</td>
-              <td>{{ user.lastModifiedBy }}</td>
-              <td>{{ user.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}</td>
-              <td class="text-end">
-                <div class="btn-group">
-                  <button type="submit" [routerLink]="['./', user.login, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
-                    <fa-icon icon="eye" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Voir</span>
-                  </button>
-
-                  <button
-                    type="submit"
-                    [routerLink]="['./', user.login, 'edit']"
-                    queryParamsHandling="merge"
-                    class="btn btn-primary btn-sm"
-                    data-cy="entityEditButton"
-                  >
-                    <fa-icon icon="pencil-alt" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Editer</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    (click)="deleteUser(user)"
-                    class="btn btn-danger btn-sm"
-                    data-cy="entityDeleteButton"
-                    [disabled]="!currentAccount() || currentAccount()?.login === user.login"
-                  >
-                    <fa-icon icon="times" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Supprimer</span>
-                  </button>
+    <!-- Table Card -->
+    <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+      <div class="overflow-x-auto">
+        <table class="w-full" aria-describedby="user-management-page-heading">
+          <thead class="bg-neutral-50 border-b border-neutral-200">
+            <tr jhiSort [(sortState)]="sortState" (sortChange)="transition($event)">
+              <th
+                scope="col"
+                jhiSortBy="id"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
+              >
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="global.field.id">ID</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
                 </div>
-              </td>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="login"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
+              >
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="userManagement.login">Login</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="email"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
+              >
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="userManagement.email">Email</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+              <th scope="col" class="px-6 py-4 text-center text-sm font-semibold text-neutral-700">
+                <span jhiTranslate="userManagement.activated">Statut</span>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="langKey"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
+              >
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="userManagement.langKey">Langue</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+              <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-neutral-700">
+                <span jhiTranslate="userManagement.profiles">Droits</span>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="createdDate"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="userManagement.createdDate">Créé le</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="lastModifiedBy"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors hidden xl:table-cell"
+              >
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="lastModifiedDate"
+                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors hidden xl:table-cell"
+              >
+                <div class="flex items-center gap-2">
+                  <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
+                  <fa-icon icon="sort" class="text-neutral-400" />
+                </div>
+              </th>
+              <th scope="col" class="px-6 py-4 text-right text-sm font-semibold text-neutral-700">
+                <span class="sr-only">Actions</span>
+              </th>
             </tr>
-          }
-        </tbody>
-      </table>
+          </thead>
+          <tbody class="divide-y divide-neutral-100">
+            @for (user of users(); track trackIdentity(user)) {
+              <tr class="hover:bg-neutral-50 transition-colors duration-150">
+                <td class="px-6 py-4 text-sm">
+                  <a [routerLink]="['./', user.login, 'view']" class="text-primary-600 hover:text-primary-700 hover:underline font-medium">
+                    {{ user.id }}
+                  </a>
+                </td>
+                <td class="px-6 py-4 text-sm text-neutral-900 font-medium">
+                  {{ user.login }}
+                </td>
+                <td class="px-6 py-4 text-sm text-neutral-600">
+                  {{ user.email }}
+                </td>
+                <td class="px-6 py-4 text-center">
+                  @if (!user.activated) {
+                    <button
+                      class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-danger-100 text-danger-700 hover:bg-danger-200 transition-colors cursor-pointer"
+                      (click)="setActive(user, true)"
+                      jhiTranslate="userManagement.deactivated"
+                    >
+                      Désactivé
+                    </button>
+                  } @else {
+                    <button
+                      class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-success-100 text-success-700 hover:bg-success-200 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                      (click)="setActive(user, false)"
+                      [disabled]="!currentAccount() || currentAccount()?.login === user.login"
+                      jhiTranslate="userManagement.activated"
+                    >
+                      Activé
+                    </button>
+                  }
+                </td>
+                <td class="px-6 py-4 text-sm text-neutral-600">
+                  {{ user.langKey }}
+                </td>
+                <td class="px-6 py-4">
+                  <div class="flex flex-wrap gap-1">
+                    @for (authority of user.authorities; track $index) {
+                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-700">
+                        {{ authority }}
+                      </span>
+                    }
+                  </div>
+                </td>
+                <td class="px-6 py-4 text-sm text-neutral-500 hidden lg:table-cell">
+                  {{ user.createdDate | date: 'dd/MM/yy HH:mm' }}
+                </td>
+                <td class="px-6 py-4 text-sm text-neutral-500 hidden xl:table-cell">
+                  {{ user.lastModifiedBy }}
+                </td>
+                <td class="px-6 py-4 text-sm text-neutral-500 hidden xl:table-cell">
+                  {{ user.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}
+                </td>
+                <td class="px-6 py-4 text-right">
+                  <div class="flex items-center justify-end gap-2">
+                    <button
+                      type="submit"
+                      [routerLink]="['./', user.login, 'view']"
+                      class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      data-cy="entityDetailsButton"
+                    >
+                      <fa-icon icon="eye" class="mr-1" />
+                      <span class="hidden md:inline" jhiTranslate="entity.action.view">Voir</span>
+                    </button>
+
+                    <button
+                      type="submit"
+                      [routerLink]="['./', user.login, 'edit']"
+                      queryParamsHandling="merge"
+                      class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      data-cy="entityEditButton"
+                    >
+                      <fa-icon icon="pencil-alt" class="mr-1" />
+                      <span class="hidden md:inline" jhiTranslate="entity.action.edit">Editer</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      (click)="deleteUser(user)"
+                      class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-danger-500 rounded-lg hover:bg-danger-600 transition-colors focus:outline-none focus:ring-2 focus:ring-danger-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      data-cy="entityDeleteButton"
+                      [disabled]="!currentAccount() || currentAccount()?.login === user.login"
+                    >
+                      <fa-icon icon="times" class="mr-1" />
+                      <span class="hidden md:inline" jhiTranslate="entity.action.delete">Supprimer</span>
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
 
-    <div>
-      <div class="d-flex justify-content-center">
-        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
-      </div>
+    <!-- Pagination Section -->
+    <div class="mt-6">
+      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="text-sm text-neutral-600">
+          <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+        </div>
 
-      <div class="d-flex justify-content-center">
-        <ngb-pagination
-          [collectionSize]="totalItems()"
-          [(page)]="page"
-          [pageSize]="itemsPerPage()"
-          [maxSize]="5"
-          [rotate]="true"
-          [boundaryLinks]="true"
-          (pageChange)="transition()"
-        />
+        <div>
+          <jhi-pagination
+            [collectionSize]="totalItems()"
+            [(page)]="page"
+            [pageSize]="itemsPerPage()"
+            [maxSize]="5"
+            [boundaryLinks]="true"
+            (pageChange)="transition()"
+          />
+        </div>
       </div>
     </div>
   }

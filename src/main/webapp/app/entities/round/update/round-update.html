@@ -36,19 +36,7 @@
         @let roundDateRef = editForm.get('roundDate')!;
         <div class="mb-3">
           <label class="form-label" for="field_roundDate" jhiTranslate="deliveryApp.round.roundDate">Round Date</label>
-          <div class="input-group">
-            <input
-              id="field_roundDate"
-              data-cy="roundDate"
-              type="text"
-              class="form-control"
-              name="roundDate"
-              ngbDatepicker
-              #roundDateDp="ngbDatepicker"
-              formControlName="roundDate"
-            />
-            <button type="button" class="btn btn-secondary" (click)="roundDateDp.toggle()"><fa-icon icon="calendar-alt" /></button>
-          </div>
+          <input id="field_roundDate" data-cy="roundDate" type="date" class="form-control" name="roundDate" formControlName="roundDate" />
           @if (roundDateRef.invalid && (roundDateRef.dirty || roundDateRef.touched)) {
             <div>
               @if (editForm.get('roundDate')?.errors?.required) {

@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
 
@@ -16,7 +16,7 @@ import { AlertError } from 'app/shared/alert/alert-error';
 import { FormatMediumDatePipe } from 'app/shared/date';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
-import { ItemCount } from 'app/shared/pagination';
+import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { ProductionDeleteDialog } from '../delete/production-delete-dialog';
 import { IProduction } from '../production.model';
@@ -29,7 +29,6 @@ import { EntityArrayResponseType, ProductionService } from '../service/productio
     RouterLink,
     FormsModule,
     FontAwesomeModule,
-    NgbModule,
     AlertError,
     Alert,
     SortDirective,
@@ -39,6 +38,7 @@ import { EntityArrayResponseType, ProductionService } from '../service/productio
     FormatMediumDatePipe,
     Filter,
     ItemCount,
+    PaginationComponent,
   ],
 })
 export class Production implements OnInit {
@@ -58,7 +58,7 @@ export class Production implements OnInit {
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
   protected dataUtils = inject(DataUtils);
-  protected modalService = inject(NgbModal);
+  protected modalService = inject(ModalService);
 
   trackId = (item: IProduction): number => this.productionService.getProductionIdentifier(item);
 

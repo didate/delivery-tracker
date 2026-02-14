@@ -1,82 +1,182 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
-    @if (customer(); as customerRef) {
-      <div>
-        <h2 data-cy="customerDetailsHeading"><span jhiTranslate="deliveryApp.customer.detail.title">Customer</span></h2>
+<div class="p-6 max-w-4xl mx-auto">
+  @if (customer(); as customerRef) {
+    <!-- Page Header -->
+    <div class="mb-6">
+      <h2 data-cy="customerDetailsHeading" class="text-2xl font-bold text-gray-900">
+        <span jhiTranslate="deliveryApp.customer.detail.title">Customer</span>
+      </h2>
+    </div>
 
-        <hr />
+    <jhi-alert-error />
+    <jhi-alert />
 
-        <jhi-alert-error />
-
-        <jhi-alert />
-
-        <dl class="row-md jh-entity-details">
-          <dt><span jhiTranslate="global.field.id">ID</span></dt>
-          <dd>
-            <span>{{ customerRef.id }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.code">Code</span></dt>
-          <dd>
-            <span>{{ customerRef.code }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.name">Name</span></dt>
-          <dd>
-            <span>{{ customerRef.name }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.phone">Phone</span></dt>
-          <dd>
-            <span>{{ customerRef.phone }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.email">Email</span></dt>
-          <dd>
-            <span>{{ customerRef.email }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.address">Address</span></dt>
-          <dd>
-            <span>{{ customerRef.address }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.latitude">Latitude</span></dt>
-          <dd>
-            <span>{{ customerRef.latitude }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.longitude">Longitude</span></dt>
-          <dd>
-            <span>{{ customerRef.longitude }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.active">Active</span></dt>
-          <dd>
-            <span>{{ customerRef.active }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.notes">Notes</span></dt>
-          <dd>
-            <span>{{ customerRef.notes }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.tenant">Tenant</span></dt>
-          <dd>
-            @if (customer()!.tenant) {
-              <div>
-                <a [routerLink]="['/tenant', customer()!.tenant?.id, 'view']">{{ customerRef.tenant?.id }}</a>
-              </div>
-            }
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.customer.driver">Driver</span></dt>
-          <dd>
-            @if (customer()!.driver) {
-              <div>
-                <a [routerLink]="['/driver', customer()!.driver?.id, 'view']">{{ customerRef.driver?.id }}</a>
-              </div>
-            }
-          </dd>
-        </dl>
-
-        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
-          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
-        </button>
-
-        <button type="button" [routerLink]="['/customer', customerRef.id, 'edit']" class="btn btn-primary">
-          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
-        </button>
+    <!-- Details Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h3 class="text-lg font-medium text-gray-900">Customer Information</h3>
       </div>
-    }
-  </div>
+
+      <div class="px-6 py-4">
+        <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+          <!-- ID -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="global.field.id">ID</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.id }}
+            </dd>
+          </div>
+
+          <!-- Code -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.code">Code</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.code }}
+            </dd>
+          </div>
+
+          <!-- Name -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.name">Name</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900 font-medium">
+              {{ customerRef.name }}
+            </dd>
+          </div>
+
+          <!-- Phone -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.phone">Phone</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.phone }}
+            </dd>
+          </div>
+
+          <!-- Email -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.email">Email</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.email }}
+            </dd>
+          </div>
+
+          <!-- Active Status -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.active">Active</span>
+            </dt>
+            <dd class="mt-1">
+              @if (customerRef.active) {
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                  Active
+                </span>
+              } @else {
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                  Inactive
+                </span>
+              }
+            </dd>
+          </div>
+
+          <!-- Address (full width) -->
+          <div class="border-b border-gray-100 pb-4 md:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.address">Address</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.address }}
+            </dd>
+          </div>
+
+          <!-- Latitude -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.latitude">Latitude</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.latitude }}
+            </dd>
+          </div>
+
+          <!-- Longitude -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.longitude">Longitude</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.longitude }}
+            </dd>
+          </div>
+
+          <!-- Tenant -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.tenant">Tenant</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              @if (customer()!.tenant) {
+                <a [routerLink]="['/tenant', customer()!.tenant?.id, 'view']" class="text-blue-600 hover:text-blue-800">
+                  {{ customerRef.tenant?.id }}
+                </a>
+              }
+            </dd>
+          </div>
+
+          <!-- Driver -->
+          <div class="border-b border-gray-100 pb-4">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.driver">Driver</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              @if (customer()!.driver) {
+                <a [routerLink]="['/driver', customer()!.driver?.id, 'view']" class="text-blue-600 hover:text-blue-800">
+                  {{ customerRef.driver?.id }}
+                </a>
+              }
+            </dd>
+          </div>
+
+          <!-- Notes (full width) -->
+          <div class="pb-4 md:col-span-2">
+            <dt class="text-sm font-medium text-gray-500">
+              <span jhiTranslate="deliveryApp.customer.notes">Notes</span>
+            </dt>
+            <dd class="mt-1 text-sm text-gray-900">
+              {{ customerRef.notes }}
+            </dd>
+          </div>
+        </dl>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex gap-3">
+      <button
+        type="submit"
+        (click)="previousState()"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+        data-cy="entityDetailsBackButton"
+      >
+        <fa-icon icon="arrow-left" />
+        <span jhiTranslate="entity.action.back">Retour</span>
+      </button>
+
+      <button
+        type="button"
+        [routerLink]="['/customer', customerRef.id, 'edit']"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+      >
+        <fa-icon icon="pencil-alt" />
+        <span jhiTranslate="entity.action.edit">Editer</span>
+      </button>
+    </div>
+  }
 </div>

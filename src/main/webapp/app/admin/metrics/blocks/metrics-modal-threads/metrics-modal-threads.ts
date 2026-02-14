@@ -1,11 +1,11 @@
-import { ChangeDetectionStrategy, Component, OnInit, inject } from '@angular/core';
+import { ChangeDetectionStrategy, Component, OnInit } from '@angular/core';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { Thread, ThreadState } from 'app/admin/metrics/metrics.model';
 import { TranslateDirective } from 'app/shared/language';
+import { ModalRef } from 'app/shared/modal';
 
 @Component({
   selector: 'jhi-thread-modal',
@@ -22,8 +22,7 @@ export class MetricsModalThreads implements OnInit {
   threadDumpRunnable = 0;
   threadDumpTimedWaiting = 0;
   threadDumpWaiting = 0;
-
-  private readonly activeModal = inject(NgbActiveModal);
+  activeModal?: ModalRef;
 
   ngOnInit(): void {
     if (this.threads) {
@@ -61,6 +60,6 @@ export class MetricsModalThreads implements OnInit {
   }
 
   dismiss(): void {
-    this.activeModal.dismiss();
+    this.activeModal?.dismiss();
   }
 }

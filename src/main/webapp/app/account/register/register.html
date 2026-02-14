@@ -1,225 +1,358 @@
-<div>
-  <div class="d-flex justify-content-center">
-    <div class="col-md-8">
-      <h1 data-cy="registerTitle" jhiTranslate="register.title">Création de compte utilisateur</h1>
+<div class="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-orange-500 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-lg">
+    <!-- Logo/Icon Section -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
+        <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            stroke-width="2"
+            d="M18 9v3m0 0v3m0-3h3m-3 0h-3m-2-5a4 4 0 11-8 0 4 4 0 018 0zM3 20a6 6 0 0112 0v1H3v-1z"
+          ></path>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-white" data-cy="registerTitle" jhiTranslate="register.title">Create Account</h1>
+      <p class="text-blue-100 mt-2">Join Delivery today</p>
+    </div>
 
+    <!-- Register Card -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8">
+      <!-- Success Message -->
       @if (success()) {
-        <div class="alert alert-success" jhiTranslate="register.messages.success">
-          <strong>Compte enregistré !</strong> Merci de vérifier votre email de confirmation.
+        <div class="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-green-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+            </svg>
+            <span class="text-green-700 text-sm font-medium" jhiTranslate="register.messages.success">
+              Registration successful! Please check your email for confirmation.
+            </span>
+          </div>
         </div>
       }
 
+      <!-- Error Messages -->
       @if (error()) {
-        <div class="alert alert-danger" jhiTranslate="register.messages.error.fail">
-          <strong>Compte non créé !</strong> Merci d&apos;essayer à nouveau plus tard.
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span class="text-red-700 text-sm font-medium" jhiTranslate="register.messages.error.fail">
+              Registration failed! Please try again later.
+            </span>
+          </div>
         </div>
       }
 
       @if (errorUserExists()) {
-        <div class="alert alert-danger" jhiTranslate="register.messages.error.userexists">
-          <strong>Ce compte utilisateur existe déjà !</strong> Veuillez en choisir un autre.
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span class="text-red-700 text-sm font-medium" jhiTranslate="register.messages.error.userexists">
+              Username already exists! Please choose another.
+            </span>
+          </div>
         </div>
       }
 
       @if (errorEmailExists()) {
-        <div class="alert alert-danger" jhiTranslate="register.messages.error.emailexists">
-          <strong>Cet email est déjà utilisé !</strong> Veuillez en choisir un autre.
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span class="text-red-700 text-sm font-medium" jhiTranslate="register.messages.error.emailexists">
+              Email already in use! Please choose another.
+            </span>
+          </div>
         </div>
       }
 
       @if (doNotMatch()) {
-        <div class="alert alert-danger" jhiTranslate="global.messages.error.dontmatch">
-          Le nouveau mot de passe et sa confirmation ne sont pas égaux !
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span class="text-red-700 text-sm font-medium" jhiTranslate="global.messages.error.dontmatch"> Passwords do not match! </span>
+          </div>
         </div>
       }
-    </div>
-  </div>
 
-  <div class="d-flex justify-content-center">
-    <div class="col-md-8">
+      <!-- Registration Form -->
       @if (!success()) {
         <form name="form" (ngSubmit)="register()" [formGroup]="registerForm">
-          <div class="mb-3">
-            <label class="form-label" for="login" jhiTranslate="global.form.username.label">Nom d&apos;utilisateur</label>
-            <input
-              type="text"
-              class="form-control"
-              id="login"
-              name="login"
-              placeholder="{{ 'global.form.username.placeholder' | translate }}"
-              formControlName="login"
-              data-cy="username"
-            />
-
+          <!-- Username Field -->
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="login" jhiTranslate="global.form.username.label">
+              Username
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="text"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                id="login"
+                name="login"
+                #login
+                placeholder="{{ 'global.form.username.placeholder' | translate }}"
+                formControlName="login"
+                data-cy="username"
+              />
+            </div>
             @let loginRef = registerForm.get('login')!;
             @if (loginRef.invalid && (loginRef.dirty || loginRef.touched)) {
-              <div>
+              <div class="mt-2">
                 @if (loginRef?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="register.messages.validate.login.required"
-                    >Votre nom d&apos;utilisateur est obligatoire.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="register.messages.validate.login.required">Username is required.</p>
                 }
-
                 @if (loginRef?.errors?.minlength) {
-                  <small class="form-text text-danger" jhiTranslate="register.messages.validate.login.minlength"
-                    >Votre nom d&apos;utilisateur doit contenir au moins un caractère.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="register.messages.validate.login.minlength">
+                    Username must be at least 1 character.
+                  </p>
                 }
-
                 @if (loginRef?.errors?.maxlength) {
-                  <small class="form-text text-danger" jhiTranslate="register.messages.validate.login.maxlength"
-                    >Votre nom d&apos;utilisateur ne peut pas contenir plus de 50 caractères.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="register.messages.validate.login.maxlength">
+                    Username cannot be longer than 50 characters.
+                  </p>
                 }
-
                 @if (loginRef?.errors?.pattern) {
-                  <small class="form-text text-danger" jhiTranslate="register.messages.validate.login.pattern"
-                    >Votre nom d&apos;utilisateur est invalide.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="register.messages.validate.login.pattern">Username is invalid.</p>
                 }
               </div>
             }
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" for="email" jhiTranslate="global.form.email.label">Email</label>
-            <input
-              type="email"
-              class="form-control"
-              id="email"
-              name="email"
-              placeholder="{{ 'global.form.email.placeholder' | translate }}"
-              formControlName="email"
-              data-cy="email"
-            />
-
+          <!-- Email Field -->
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="email" jhiTranslate="global.form.email.label"> Email </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="email"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                id="email"
+                name="email"
+                placeholder="{{ 'global.form.email.placeholder' | translate }}"
+                formControlName="email"
+                data-cy="email"
+              />
+            </div>
             @let emailRef = registerForm.get('email')!;
             @if (emailRef.invalid && (emailRef.dirty || emailRef.touched)) {
-              <div>
+              <div class="mt-2">
                 @if (emailRef?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.email.required"
-                    >Votre email est requis.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.email.required">Email is required.</p>
                 }
-
                 @if (emailRef?.errors?.invalid) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.email.invalid"
-                    >Votre email n&apos;est pas valide.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.email.invalid">Email is invalid.</p>
                 }
-
                 @if (emailRef?.errors?.minlength) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.email.minlength"
-                    >Votre email doit comporter au moins 5 caractères.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.email.minlength">
+                    Email must be at least 5 characters.
+                  </p>
                 }
-
                 @if (emailRef?.errors?.maxlength) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.email.maxlength"
-                    >Votre email ne doit pas comporter plus de 50 caractères.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.email.maxlength">
+                    Email cannot be longer than 50 characters.
+                  </p>
                 }
               </div>
             }
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" for="password" jhiTranslate="global.form.newpassword.label">Nouveau mot de passe</label>
-            <input
-              type="password"
-              class="form-control"
-              id="password"
-              name="password"
-              placeholder="{{ 'global.form.newpassword.placeholder' | translate }}"
-              formControlName="password"
-              data-cy="firstPassword"
-            />
-
+          <!-- Password Field -->
+          <div class="mb-5">
+            <label class="block text-sm font-medium text-gray-700 mb-2" for="password" jhiTranslate="global.form.newpassword.label">
+              New Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="password"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                id="password"
+                name="password"
+                placeholder="{{ 'global.form.newpassword.placeholder' | translate }}"
+                formControlName="password"
+                data-cy="firstPassword"
+              />
+            </div>
             @let passwordRef = registerForm.get('password')!;
             @if (passwordRef.invalid && (passwordRef.dirty || passwordRef.touched)) {
-              <div>
+              <div class="mt-2">
                 @if (passwordRef?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.newpassword.required"
-                    >Votre mot de passe est requis.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.newpassword.required">Password is required.</p>
                 }
-
                 @if (passwordRef?.errors?.minlength) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.newpassword.minlength"
-                    >Votre mot de passe doit comporter au moins 4 caractères.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.newpassword.minlength">
+                    Password must be at least 4 characters.
+                  </p>
                 }
-
                 @if (passwordRef?.errors?.maxlength) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.newpassword.maxlength"
-                    >Votre mot de passe ne doit pas comporter plus de 50 caractères.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.newpassword.maxlength">
+                    Password cannot be longer than 50 characters.
+                  </p>
                 }
               </div>
             }
-
-            <jhi-password-strength-bar [passwordToCheck]="passwordRef.value" />
+            <div class="mt-2">
+              <jhi-password-strength-bar [passwordToCheck]="passwordRef.value" />
+            </div>
           </div>
 
-          <div class="mb-3">
-            <label class="form-label" for="confirmPassword" jhiTranslate="global.form.confirmpassword.label"
-              >Confirmation du nouveau mot de passe</label
+          <!-- Confirm Password Field -->
+          <div class="mb-6">
+            <label
+              class="block text-sm font-medium text-gray-700 mb-2"
+              for="confirmPassword"
+              jhiTranslate="global.form.confirmpassword.label"
             >
-            <input
-              type="password"
-              class="form-control"
-              id="confirmPassword"
-              name="confirmPassword"
-              placeholder="{{ 'global.form.confirmpassword.placeholder' | translate }}"
-              formControlName="confirmPassword"
-              data-cy="secondPassword"
-            />
-
+              Confirm Password
+            </label>
+            <div class="relative">
+              <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                  ></path>
+                </svg>
+              </div>
+              <input
+                type="password"
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                id="confirmPassword"
+                name="confirmPassword"
+                placeholder="{{ 'global.form.confirmpassword.placeholder' | translate }}"
+                formControlName="confirmPassword"
+                data-cy="secondPassword"
+              />
+            </div>
             @let confirmPasswordRef = registerForm.get('confirmPassword')!;
             @if (confirmPasswordRef.invalid && (confirmPasswordRef.dirty || confirmPasswordRef.touched)) {
-              <div>
+              <div class="mt-2">
                 @if (confirmPasswordRef?.errors?.required) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.confirmpassword.required"
-                    >Votre confirmation du mot de passe est requise.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.confirmpassword.required">
+                    Password confirmation is required.
+                  </p>
                 }
-
                 @if (confirmPasswordRef?.errors?.minlength) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.confirmpassword.minlength"
-                    >Votre confirmation du mot de passe doit comporter au moins 4 caractères.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.confirmpassword.minlength">
+                    Password confirmation must be at least 4 characters.
+                  </p>
                 }
-
                 @if (confirmPasswordRef?.errors?.maxlength) {
-                  <small class="form-text text-danger" jhiTranslate="global.messages.validate.confirmpassword.maxlength"
-                    >Votre confirmation du mot de passe ne doit pas comporter plus de 50 caractères.</small
-                  >
+                  <p class="text-red-500 text-sm" jhiTranslate="global.messages.validate.confirmpassword.maxlength">
+                    Password confirmation cannot be longer than 50 characters.
+                  </p>
                 }
               </div>
             }
           </div>
 
+          <!-- Submit Button -->
           <button
             type="submit"
             [disabled]="registerForm.invalid"
-            class="btn btn-primary"
+            class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
             data-cy="submit"
             jhiTranslate="register.form.button"
           >
-            Enregistrement
+            Register
           </button>
         </form>
       }
 
-      <div class="mt-3 alert alert-warning">
-        <span jhiTranslate="global.messages.info.authenticated.prefix">Si vous voulez vous </span>
-        <a class="alert-link" routerLink="/login" jhiTranslate="global.messages.info.authenticated.link">connecter</a
-        ><span jhiTranslate="global.messages.info.authenticated.suffix"
-          >, vous pouvez utiliser les comptes par défaut : <br />
-          - Administrateur (nom d&apos;utilisateur=&quot;admin&quot; et mot de passe =&quot;admin&quot;) <br />
-          - Utilisateur (nom d&apos;utilisateur=&quot;user&quot; et mot de passe =&quot;user&quot;).</span
-        >
+      <!-- Divider -->
+      <div class="my-6 flex items-center">
+        <div class="flex-1 border-t border-gray-200"></div>
+        <span class="px-4 text-sm text-gray-500">or</span>
+        <div class="flex-1 border-t border-gray-200"></div>
       </div>
+
+      <!-- Login Link -->
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          <span jhiTranslate="global.messages.info.authenticated.prefix">Already have an account?</span>
+          <a
+            class="ml-1 text-orange-500 hover:text-orange-600 font-semibold transition-colors"
+            routerLink="/login"
+            jhiTranslate="global.messages.info.authenticated.link"
+          >
+            Sign in
+          </a>
+        </p>
+      </div>
+
+      <!-- Default Account Info -->
+      <div class="mt-4 p-4 bg-blue-50 border border-blue-100 rounded-lg">
+        <p class="text-sm text-gray-600">
+          <span jhiTranslate="global.messages.info.authenticated.suffix">
+            Default accounts:<br />
+            - Admin (username="admin", password="admin")<br />
+            - User (username="user", password="user")
+          </span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-blue-100">Delivery Management System</p>
     </div>
   </div>
 </div>

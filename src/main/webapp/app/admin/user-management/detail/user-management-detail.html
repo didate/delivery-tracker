@@ -1,62 +1,142 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
+<div class="flex justify-center p-6">
+  <div class="w-full max-w-3xl">
     @if (user(); as userRef) {
-      <div>
-        <h2 data-cy="userManagementDetailsHeading">
-          <span jhiTranslate="userManagement.detail.title">Utilisateur</span> [<strong>{{ userRef.login }}</strong
-          >]
-        </h2>
+      <!-- User Detail Card -->
+      <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+        <!-- Card Header -->
+        <div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+          <h2 class="text-xl font-semibold text-neutral-800" data-cy="userManagementDetailsHeading">
+            <span jhiTranslate="userManagement.detail.title">Utilisateur</span>
+            <span class="text-primary-600">[{{ userRef.login }}]</span>
+          </h2>
+        </div>
 
-        <dl class="row-md jh-entity-details">
-          <dt><span jhiTranslate="userManagement.login">Login</span></dt>
-          <dd>
-            <span>{{ userRef.login }}</span>
-            @if (userRef.activated) {
-              <span class="badge bg-success" jhiTranslate="userManagement.activated">Activé</span>
-            } @else {
-              <span class="badge bg-danger" jhiTranslate="userManagement.deactivated">Désactivé</span>
-            }
-          </dd>
+        <!-- Card Body -->
+        <div class="p-6">
+          <dl class="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4">
+            <!-- Login -->
+            <div class="border-b border-neutral-100 pb-4 md:col-span-2">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.login">Login</span>
+              </dt>
+              <dd class="flex items-center gap-2">
+                <span class="text-neutral-900 font-medium">{{ userRef.login }}</span>
+                @if (userRef.activated) {
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-success-100 text-success-700"
+                    jhiTranslate="userManagement.activated"
+                  >
+                    Activé
+                  </span>
+                } @else {
+                  <span
+                    class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-danger-100 text-danger-700"
+                    jhiTranslate="userManagement.deactivated"
+                  >
+                    Désactivé
+                  </span>
+                }
+              </dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.firstName">Prénom</span></dt>
-          <dd>{{ userRef.firstName }}</dd>
+            <!-- First Name -->
+            <div class="border-b border-neutral-100 pb-4">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.firstName">Prénom</span>
+              </dt>
+              <dd class="text-neutral-900">{{ userRef.firstName || '-' }}</dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.lastName">Nom</span></dt>
-          <dd>{{ userRef.lastName }}</dd>
+            <!-- Last Name -->
+            <div class="border-b border-neutral-100 pb-4">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.lastName">Nom</span>
+              </dt>
+              <dd class="text-neutral-900">{{ userRef.lastName || '-' }}</dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.email">Email</span></dt>
-          <dd>{{ userRef.email }}</dd>
+            <!-- Email -->
+            <div class="border-b border-neutral-100 pb-4 md:col-span-2">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.email">Email</span>
+              </dt>
+              <dd class="text-neutral-900">
+                <a href="mailto:{{ userRef.email }}" class="text-primary-600 hover:text-primary-700 hover:underline">
+                  {{ userRef.email }}
+                </a>
+              </dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.langKey">Langue</span></dt>
-          <dd>{{ userRef.langKey }}</dd>
+            <!-- Language -->
+            <div class="border-b border-neutral-100 pb-4">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.langKey">Langue</span>
+              </dt>
+              <dd class="text-neutral-900">{{ userRef.langKey }}</dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.createdBy">Créé par</span></dt>
-          <dd>{{ userRef.createdBy }}</dd>
+            <!-- Created By -->
+            <div class="border-b border-neutral-100 pb-4">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.createdBy">Créé par</span>
+              </dt>
+              <dd class="text-neutral-900">{{ userRef.createdBy || '-' }}</dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.createdDate">Créé le</span></dt>
-          <dd>{{ userRef.createdDate | date: 'dd/MM/yy HH:mm' }}</dd>
+            <!-- Created Date -->
+            <div class="border-b border-neutral-100 pb-4">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.createdDate">Créé le</span>
+              </dt>
+              <dd class="text-neutral-900">{{ userRef.createdDate | date: 'dd/MM/yy HH:mm' }}</dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span></dt>
-          <dd>{{ userRef.lastModifiedBy }}</dd>
+            <!-- Last Modified By -->
+            <div class="border-b border-neutral-100 pb-4">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
+              </dt>
+              <dd class="text-neutral-900">{{ userRef.lastModifiedBy || '-' }}</dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span></dt>
-          <dd>{{ userRef.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}</dd>
+            <!-- Last Modified Date -->
+            <div class="border-b border-neutral-100 pb-4">
+              <dt class="text-sm font-medium text-neutral-500 mb-1">
+                <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
+              </dt>
+              <dd class="text-neutral-900">{{ userRef.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}</dd>
+            </div>
 
-          <dt><span jhiTranslate="userManagement.profiles">Droits</span></dt>
-          <dd>
-            <ul class="list-unstyled">
-              @for (authority of userRef.authorities; track $index) {
-                <li>
-                  <span class="badge bg-info">{{ authority }}</span>
-                </li>
-              }
-            </ul>
-          </dd>
-        </dl>
+            <!-- Authorities / Profiles -->
+            <div class="pb-4 md:col-span-2">
+              <dt class="text-sm font-medium text-neutral-500 mb-2">
+                <span jhiTranslate="userManagement.profiles">Droits</span>
+              </dt>
+              <dd>
+                <div class="flex flex-wrap gap-2">
+                  @for (authority of userRef.authorities; track $index) {
+                    <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-primary-100 text-primary-700">
+                      {{ authority }}
+                    </span>
+                  }
+                </div>
+              </dd>
+            </div>
+          </dl>
+        </div>
 
-        <button type="submit" routerLink="../../" class="btn btn-info" data-cy="entityDetailsBackButton">
-          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
-        </button>
+        <!-- Card Footer -->
+        <div class="px-6 py-4 border-t border-neutral-200 bg-neutral-50">
+          <button
+            type="submit"
+            routerLink="../../"
+            class="inline-flex items-center px-4 py-2 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+            data-cy="entityDetailsBackButton"
+          >
+            <fa-icon icon="arrow-left" class="mr-2" />
+            <span jhiTranslate="entity.action.back">Retour</span>
+          </button>
+        </div>
       </div>
     }
   </div>

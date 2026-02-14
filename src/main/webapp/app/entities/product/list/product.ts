@@ -1,10 +1,11 @@
+import { DecimalPipe } from '@angular/common';
 import { HttpHeaders } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
 
@@ -15,7 +16,7 @@ import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
-import { ItemCount } from 'app/shared/pagination';
+import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { ProductDeleteDialog } from '../delete/product-delete-dialog';
 import { IProduct } from '../product.model';
@@ -28,7 +29,6 @@ import { EntityArrayResponseType, ProductService } from '../service/product.serv
     RouterLink,
     FormsModule,
     FontAwesomeModule,
-    NgbModule,
     AlertError,
     Alert,
     SortDirective,
@@ -37,6 +37,8 @@ import { EntityArrayResponseType, ProductService } from '../service/product.serv
     TranslateModule,
     Filter,
     ItemCount,
+    PaginationComponent,
+    DecimalPipe,
   ],
 })
 export class Product implements OnInit {
@@ -56,7 +58,7 @@ export class Product implements OnInit {
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
   protected dataUtils = inject(DataUtils);
-  protected modalService = inject(NgbModal);
+  protected modalService = inject(ModalService);
 
   trackId = (item: IProduct): number => this.productService.getProductIdentifier(item);
 

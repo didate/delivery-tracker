@@ -1,11 +1,11 @@
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnDestroy, inject, signal } from '@angular/core';
+import { NgClass } from '@angular/common';
 
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateService } from '@ngx-translate/core';
 import { Subscription } from 'rxjs';
 
-import { AlertModel, AlertService } from 'app/core/util/alert.service';
+import { AlertModel, AlertService, AlertType } from 'app/core/util/alert.service';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { getMessageFromHeaders } from 'app/shared/jhipster/headers';
 
@@ -14,7 +14,7 @@ import { AlertErrorModel } from './alert-error.model';
 @Component({
   selector: 'jhi-alert-error',
   templateUrl: './alert-error.html',
-  imports: [NgbModule],
+  imports: [NgClass],
 })
 export class AlertError implements OnDestroy {
   alerts = signal<AlertModel[]>([]);
@@ -37,11 +37,26 @@ export class AlertError implements OnDestroy {
     });
   }
 
-  setClasses(alert: AlertModel): Record<string, boolean> {
-    const classes = { 'jhi-toast': Boolean(alert.toast) };
-    if (alert.position) {
-      return { ...classes, [alert.position]: true };
+  getAlertClasses(alert: AlertModel): Record<string, boolean> {
+    const typeClasses: Record<AlertType, string> = {
+      success: 'bg-green-50 text-green-800 border border-green-200',
+      danger: 'bg-red-50 text-red-800 border border-red-200',
+      warning: 'bg-yellow-50 text-yellow-800 border border-yellow-200',
+      info: 'bg-blue-50 text-blue-800 border border-blue-200',
+    };
+
+    const classes: Record<string, boolean> = {};
+    const typeClass = typeClasses[alert.type];
+    if (typeClass) {
+      typeClass.split(' ').forEach(cls => {
+        classes[cls] = true;
+      });
     }
+
+    if (alert.toast) {
+      classes['shadow-lg'] = true;
+    }
+
     return classes;
   }
 

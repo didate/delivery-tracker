@@ -4,7 +4,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { combineLatest } from 'rxjs';
 
@@ -14,7 +14,7 @@ import { AccountService } from 'app/core/auth/account.service';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { TranslateDirective } from 'app/shared/language';
-import { ItemCount } from 'app/shared/pagination';
+import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, SortState, sortStateSignal } from 'app/shared/sort';
 import UserManagementDeleteDialog from '../delete/user-management-delete-dialog';
 import { UserManagementService } from '../service/user-management.service';
@@ -28,12 +28,12 @@ import { User } from '../user-management.model';
     FontAwesomeModule,
     AlertError,
     Alert,
-    NgbModule,
     TranslateDirective,
     TranslateModule,
     SortDirective,
     SortByDirective,
     ItemCount,
+    PaginationComponent,
     DatePipe,
   ],
 })
@@ -50,7 +50,7 @@ export default class UserManagement implements OnInit {
   private readonly activatedRoute = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly sortService = inject(SortService);
-  private readonly modalService = inject(NgbModal);
+  private readonly modalService = inject(ModalService);
 
   ngOnInit(): void {
     this.handleNavigation();

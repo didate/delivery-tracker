@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
+import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
 
@@ -16,7 +16,7 @@ import { AlertError } from 'app/shared/alert/alert-error';
 import { FormatMediumDatetimePipe } from 'app/shared/date';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
-import { ItemCount } from 'app/shared/pagination';
+import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { RoundCustomerDeleteDialog } from '../delete/round-customer-delete-dialog';
 import { IRoundCustomer } from '../round-customer.model';
@@ -29,7 +29,6 @@ import { EntityArrayResponseType, RoundCustomerService } from '../service/round-
     RouterLink,
     FormsModule,
     FontAwesomeModule,
-    NgbModule,
     AlertError,
     Alert,
     SortDirective,
@@ -39,6 +38,7 @@ import { EntityArrayResponseType, RoundCustomerService } from '../service/round-
     FormatMediumDatetimePipe,
     Filter,
     ItemCount,
+    PaginationComponent,
   ],
 })
 export class RoundCustomer implements OnInit {
@@ -58,7 +58,7 @@ export class RoundCustomer implements OnInit {
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
   protected dataUtils = inject(DataUtils);
-  protected modalService = inject(NgbModal);
+  protected modalService = inject(ModalService);
 
   trackId = (item: IRoundCustomer): number => this.roundCustomerService.getRoundCustomerIdentifier(item);
 

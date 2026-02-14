@@ -22,19 +22,14 @@
         @let returnDateRef = editForm.get('returnDate')!;
         <div class="mb-3">
           <label class="form-label" for="field_returnDate" jhiTranslate="deliveryApp.productReturn.returnDate">Return Date</label>
-          <div class="input-group">
-            <input
-              id="field_returnDate"
-              data-cy="returnDate"
-              type="text"
-              class="form-control"
-              name="returnDate"
-              ngbDatepicker
-              #returnDateDp="ngbDatepicker"
-              formControlName="returnDate"
-            />
-            <button type="button" class="btn btn-secondary" (click)="returnDateDp.toggle()"><fa-icon icon="calendar-alt" /></button>
-          </div>
+          <input
+            id="field_returnDate"
+            data-cy="returnDate"
+            type="date"
+            class="form-control"
+            name="returnDate"
+            formControlName="returnDate"
+          />
           @if (returnDateRef.invalid && (returnDateRef.dirty || returnDateRef.touched)) {
             <div>
               @if (editForm.get('returnDate')?.errors?.required) {

@@ -1,10 +1,10 @@
 import { KeyValuePipe } from '@angular/common';
-import { Component, inject } from '@angular/core';
+import { Component } from '@angular/core';
 
-import { NgbActiveModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateDirective } from 'app/shared/language';
+import { ModalRef } from 'app/shared/modal';
 import { HealthDetails, HealthKey } from '../health.model';
 
 @Component({
@@ -14,8 +14,7 @@ import { HealthDetails, HealthKey } from '../health.model';
 })
 export default class HealthModal {
   health?: { key: HealthKey; value: HealthDetails };
-
-  private readonly activeModal = inject(NgbActiveModal);
+  activeModal?: ModalRef;
 
   readableValue(value: any): string {
     if (this.health?.key === 'diskSpace') {
@@ -34,6 +33,6 @@ export default class HealthModal {
   }
 
   dismiss(): void {
-    this.activeModal.dismiss();
+    this.activeModal?.dismiss();
   }
 }

@@ -1,17 +1,18 @@
 import { DecimalPipe } from '@angular/common';
 import { Component, computed, inject, input } from '@angular/core';
 
-import { NgbModal, NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { Thread, ThreadState } from 'app/admin/metrics/metrics.model';
 import { TranslateDirective } from 'app/shared/language';
+import { ModalService } from 'app/shared/modal';
+import { ProgressBarComponent } from 'app/shared/progress-bar';
 import { MetricsModalThreads } from '../metrics-modal-threads/metrics-modal-threads';
 
 @Component({
   selector: 'jhi-jvm-threads',
   templateUrl: './jvm-threads.html',
-  imports: [NgbModule, DecimalPipe, TranslateDirective, TranslateModule],
+  imports: [DecimalPipe, TranslateDirective, TranslateModule, ProgressBarComponent],
 })
 export class JvmThreads {
   threads = input<Thread[] | undefined>();
@@ -45,7 +46,7 @@ export class JvmThreads {
     return stats;
   });
 
-  private readonly modalService = inject(NgbModal);
+  private readonly modalService = inject(ModalService);
 
   open(): void {
     const modalRef = this.modalService.open(MetricsModalThreads);

@@ -16,15 +16,9 @@
         <tr>
           <td>{{ entry.key }}</td>
           <td>
-            <ngb-progressbar
-              [max]="requestMetricsRef['all'].count"
-              [value]="entry.value.count"
-              [striped]="true"
-              [animated]="false"
-              type="success"
-            >
-              <span>{{ entry.value.count }}</span>
-            </ngb-progressbar>
+            <jhi-progress-bar [max]="requestMetricsRef['all'].count" [value]="entry.value.count" [striped]="true" type="success">
+              <span class="text-xs text-white px-2">{{ entry.value.count }}</span>
+            </jhi-progress-bar>
           </td>
           <td class="text-end">
             {{ filterNaN(entry.value.mean) | number: '1.0-2' }}

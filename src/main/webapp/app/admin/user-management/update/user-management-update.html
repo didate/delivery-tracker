@@ -1,147 +1,245 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
-    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
-      <h2 id="myUserLabel" data-cy="userManagementCreateUpdateHeading" jhiTranslate="userManagement.home.createOrEditLabel">
-        Créer ou éditer un utilisateur
-      </h2>
-
-      <jhi-alert-error />
-
-      <div class="mb-3" [hidden]="!editForm.value.id">
-        <label class="form-label" for="field_id" jhiTranslate="global.field.id">ID</label>
-        <input type="text" id="field_id" class="form-control" name="id" formControlName="id" readonly />
+<div class="flex justify-center p-6">
+  <div class="w-full max-w-2xl">
+    <!-- Form Card -->
+    <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+      <!-- Card Header -->
+      <div class="px-6 py-4 border-b border-neutral-200 bg-neutral-50">
+        <h2
+          id="myUserLabel"
+          class="text-xl font-semibold text-neutral-800"
+          data-cy="userManagementCreateUpdateHeading"
+          jhiTranslate="userManagement.home.createOrEditLabel"
+        >
+          Créer ou éditer un utilisateur
+        </h2>
       </div>
 
-      <div class="mb-3">
-        <label class="form-label" for="field_login" jhiTranslate="userManagement.login">Login</label>
-        <input type="text" id="field_login" class="form-control" name="login" formControlName="login" />
+      <!-- Card Body -->
+      <div class="p-6">
+        <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+          <jhi-alert-error />
 
-        @let loginRef = editForm.get('login')!;
-        @if (loginRef.invalid && (loginRef.dirty || loginRef.touched)) {
-          <div>
-            @if (loginRef?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-            }
+          <!-- ID Field (hidden for new users) -->
+          <div class="mb-6" [hidden]="!editForm.value.id">
+            <label class="block text-sm font-medium text-neutral-700 mb-2" for="field_id" jhiTranslate="global.field.id">ID</label>
+            <input
+              type="text"
+              id="field_id"
+              class="w-full px-4 py-2.5 bg-neutral-100 border border-neutral-300 rounded-lg text-neutral-500 cursor-not-allowed"
+              name="id"
+              formControlName="id"
+              readonly
+            />
+          </div>
 
-            @if (loginRef?.errors?.maxlength) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                >Ce champ doit faire au maximum 50 caractères.</small
-              >
-            }
+          <!-- Login Field -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-neutral-700 mb-2" for="field_login" jhiTranslate="userManagement.login"
+              >Login</label
+            >
+            <input
+              type="text"
+              id="field_login"
+              class="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              name="login"
+              formControlName="login"
+              placeholder="Entrez le login"
+            />
 
-            @if (loginRef?.errors?.pattern) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.patternLogin"
-                >Ce champ ne peut contenir que des lettres, des chiffres ou des adresses e-mail.</small
-              >
+            @let loginRef = editForm.get('login')!;
+            @if (loginRef.invalid && (loginRef.dirty || loginRef.touched)) {
+              <div class="mt-2">
+                @if (loginRef?.errors?.required) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+
+                @if (loginRef?.errors?.maxlength) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }">
+                    Ce champ doit faire au maximum 50 caractères.
+                  </p>
+                }
+
+                @if (loginRef?.errors?.pattern) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.patternLogin">
+                    Ce champ ne peut contenir que des lettres, des chiffres ou des adresses e-mail.
+                  </p>
+                }
+              </div>
             }
           </div>
-        }
-      </div>
 
-      <div class="mb-3">
-        <label class="form-label" for="field_firstName" jhiTranslate="userManagement.firstName">Prénom</label>
-        <input type="text" id="field_firstName" class="form-control" name="firstName" formControlName="firstName" />
+          <!-- First Name Field -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-neutral-700 mb-2" for="field_firstName" jhiTranslate="userManagement.firstName"
+              >Prénom</label
+            >
+            <input
+              type="text"
+              id="field_firstName"
+              class="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              name="firstName"
+              formControlName="firstName"
+              placeholder="Entrez le prénom"
+            />
 
-        @let firstNameRef = editForm.get('firstName')!;
-        @if (firstNameRef.invalid && (firstNameRef.dirty || firstNameRef.touched)) {
-          <div>
-            @if (firstNameRef?.errors?.maxlength) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                >Ce champ doit faire au maximum 50 caractères.</small
-              >
+            @let firstNameRef = editForm.get('firstName')!;
+            @if (firstNameRef.invalid && (firstNameRef.dirty || firstNameRef.touched)) {
+              <div class="mt-2">
+                @if (firstNameRef?.errors?.maxlength) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }">
+                    Ce champ doit faire au maximum 50 caractères.
+                  </p>
+                }
+              </div>
             }
           </div>
-        }
-      </div>
 
-      <div class="mb-3">
-        <label class="form-label" for="field_lastName" jhiTranslate="userManagement.lastName">Nom</label>
-        <input type="text" id="field_lastName" class="form-control" name="lastName" formControlName="lastName" />
+          <!-- Last Name Field -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-neutral-700 mb-2" for="field_lastName" jhiTranslate="userManagement.lastName"
+              >Nom</label
+            >
+            <input
+              type="text"
+              id="field_lastName"
+              class="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              name="lastName"
+              formControlName="lastName"
+              placeholder="Entrez le nom"
+            />
 
-        @let lastNameRef = editForm.get('lastName')!;
-        @if (lastNameRef.invalid && (lastNameRef.dirty || lastNameRef.touched)) {
-          <div>
-            @if (lastNameRef?.errors?.maxlength) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                >Ce champ doit faire au maximum 50 caractères.</small
-              >
+            @let lastNameRef = editForm.get('lastName')!;
+            @if (lastNameRef.invalid && (lastNameRef.dirty || lastNameRef.touched)) {
+              <div class="mt-2">
+                @if (lastNameRef?.errors?.maxlength) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }">
+                    Ce champ doit faire au maximum 50 caractères.
+                  </p>
+                }
+              </div>
             }
           </div>
-        }
-      </div>
 
-      <div class="mb-3">
-        <label class="form-label" for="field_email" jhiTranslate="userManagement.email">Email</label>
-        <input type="email" id="field_email" class="form-control" name="email" formControlName="email" />
+          <!-- Email Field -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-neutral-700 mb-2" for="field_email" jhiTranslate="userManagement.email"
+              >Email</label
+            >
+            <input
+              type="email"
+              id="field_email"
+              class="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              name="email"
+              formControlName="email"
+              placeholder="exemple@domaine.com"
+            />
 
-        @let emailRef = editForm.get('email')!;
-        @if (emailRef.invalid && (emailRef.dirty || emailRef.touched)) {
-          <div>
-            @if (emailRef?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-            }
+            @let emailRef = editForm.get('email')!;
+            @if (emailRef.invalid && (emailRef.dirty || emailRef.touched)) {
+              <div class="mt-2">
+                @if (emailRef?.errors?.required) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
 
-            @if (emailRef?.errors?.maxlength) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }"
-                >Ce champ doit faire au maximum 100 caractères.</small
-              >
-            }
+                @if (emailRef?.errors?.maxlength) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '100' }">
+                    Ce champ doit faire au maximum 100 caractères.
+                  </p>
+                }
 
-            @if (emailRef?.errors?.minlength) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.minlength" [translateValues]="{ min: '5' }"
-                >Ce champ doit faire au moins 5 caractères.</small
-              >
-            }
+                @if (emailRef?.errors?.minlength) {
+                  <p class="text-sm text-danger-600" jhiTranslate="entity.validation.minlength" [translateValues]="{ min: '5' }">
+                    Ce champ doit faire au moins 5 caractères.
+                  </p>
+                }
 
-            @if (emailRef?.errors?.email) {
-              <small class="form-text text-danger" jhiTranslate="global.messages.validate.email.invalid"
-                >Votre email n&apos;est pas valide.</small
-              >
+                @if (emailRef?.errors?.email) {
+                  <p class="text-sm text-danger-600" jhiTranslate="global.messages.validate.email.invalid">
+                    Votre email n&apos;est pas valide.
+                  </p>
+                }
+              </div>
             }
           </div>
-        }
-      </div>
 
-      <div class="form-check">
-        <label class="form-check-label" for="activated">
-          <input
-            class="form-check-input"
-            [attr.disabled]="editForm.value.id === undefined ? 'disabled' : null"
-            type="checkbox"
-            id="activated"
-            name="activated"
-            formControlName="activated"
-          />
-          <span jhiTranslate="userManagement.activated">Activé</span>
-        </label>
-      </div>
+          <!-- Activated Checkbox -->
+          <div class="mb-6">
+            <label class="flex items-center cursor-pointer">
+              <input
+                class="w-5 h-5 rounded border-neutral-300 text-primary-500 focus:ring-primary-500 focus:ring-2 focus:ring-offset-0 transition-colors"
+                [attr.disabled]="editForm.value.id === undefined ? 'disabled' : null"
+                type="checkbox"
+                id="activated"
+                name="activated"
+                formControlName="activated"
+              />
+              <span class="ml-3 text-sm font-medium text-neutral-700" jhiTranslate="userManagement.activated">Activé</span>
+            </label>
+          </div>
 
-      @if (languages && languages.length > 0) {
-        <div class="mb-3">
-          <label class="form-label" for="langKey" jhiTranslate="userManagement.langKey">Langue</label>
-          <select class="form-control" id="langKey" name="langKey" formControlName="langKey">
-            @for (language of languages; track $index) {
-              <option [value]="language">{{ language | findLanguageFromKey }}</option>
-            }
-          </select>
-        </div>
-      }
-
-      <div class="mb-3">
-        <label class="form-label" for="field_authority" jhiTranslate="userManagement.profiles">Droits</label>
-        <select class="form-control" id="field_authority" multiple name="authority" formControlName="authorities">
-          @for (authority of authorities(); track $index) {
-            <option [value]="authority">{{ authority }}</option>
+          <!-- Language Select -->
+          @if (languages && languages.length > 0) {
+            <div class="mb-6">
+              <label class="block text-sm font-medium text-neutral-700 mb-2" for="langKey" jhiTranslate="userManagement.langKey"
+                >Langue</label
+              >
+              <select
+                class="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors appearance-none cursor-pointer"
+                id="langKey"
+                name="langKey"
+                formControlName="langKey"
+              >
+                @for (language of languages; track $index) {
+                  <option [value]="language">{{ language | findLanguageFromKey }}</option>
+                }
+              </select>
+            </div>
           }
-        </select>
-      </div>
-      <button type="button" class="btn btn-secondary" (click)="previousState()" data-cy="entityCreateCancelButton">
-        <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
-      </button>
 
-      <button type="submit" [disabled]="editForm.invalid || isSaving()" class="btn btn-primary" data-cy="entityCreateSaveButton">
-        <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
-      </button>
-    </form>
+          <!-- Authorities Multi-Select -->
+          <div class="mb-6">
+            <label class="block text-sm font-medium text-neutral-700 mb-2" for="field_authority" jhiTranslate="userManagement.profiles"
+              >Droits</label
+            >
+            <select
+              class="w-full px-4 py-2.5 bg-white border border-neutral-300 rounded-lg text-neutral-900 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+              id="field_authority"
+              multiple
+              name="authority"
+              formControlName="authorities"
+              size="4"
+            >
+              @for (authority of authorities(); track $index) {
+                <option [value]="authority">{{ authority }}</option>
+              }
+            </select>
+            <p class="mt-1 text-xs text-neutral-500">Maintenez Ctrl (ou Cmd) pour sélectionner plusieurs droits</p>
+          </div>
+
+          <!-- Form Actions -->
+          <div class="flex items-center justify-end gap-3 pt-4 border-t border-neutral-200">
+            <button
+              type="button"
+              class="inline-flex items-center px-4 py-2.5 bg-neutral-100 text-neutral-700 font-medium rounded-lg hover:bg-neutral-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 focus:ring-offset-2"
+              (click)="previousState()"
+              data-cy="entityCreateCancelButton"
+            >
+              <fa-icon icon="ban" class="mr-2" />
+              <span jhiTranslate="entity.action.cancel">Annuler</span>
+            </button>
+
+            <button
+              type="submit"
+              [disabled]="editForm.invalid || isSaving()"
+              class="inline-flex items-center px-4 py-2.5 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+              data-cy="entityCreateSaveButton"
+            >
+              <fa-icon icon="save" class="mr-2" />
+              <span jhiTranslate="entity.action.save">Sauvegarder</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
   </div>
 </div>

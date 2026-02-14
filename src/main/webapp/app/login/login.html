@@ -1,58 +1,154 @@
-<div>
-  <div class="d-flex justify-content-center">
-    <div class="col-lg-6 col-md-8 col-sm-10">
-      <h1 data-cy="loginTitle" jhiTranslate="login.title">Authentification</h1>
+<div class="min-h-screen bg-gradient-to-br from-blue-500 via-blue-600 to-orange-500 flex items-center justify-center px-4 py-12">
+  <div class="w-full max-w-md">
+    <!-- Logo/Icon Section -->
+    <div class="text-center mb-8">
+      <div class="inline-flex items-center justify-center w-20 h-20 bg-white rounded-full shadow-lg mb-4">
+        <svg class="w-12 h-12 text-blue-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4"></path>
+        </svg>
+      </div>
+      <h1 class="text-3xl font-bold text-white" jhiTranslate="login.title">Delivery</h1>
+      <p class="text-blue-100 mt-2">Sign in to your account</p>
+    </div>
+
+    <!-- Login Card -->
+    <div class="bg-white rounded-2xl shadow-2xl p-8">
       @if (authenticationError()) {
-        <div class="alert alert-danger" data-cy="loginError" jhiTranslate="login.messages.error.authentication">
-          <strong>Erreur d&apos;authentification !</strong> Veuillez vérifier vos identifiants de connexion.
+        <div class="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg" data-cy="loginError">
+          <div class="flex items-center">
+            <svg class="w-5 h-5 text-red-500 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+              ></path>
+            </svg>
+            <span class="text-red-700 text-sm font-medium" jhiTranslate="login.messages.error.authentication">
+              Authentication error! Please check your credentials.
+            </span>
+          </div>
         </div>
       }
-      <form class="form" (ngSubmit)="login()" [formGroup]="loginForm">
-        <div class="mb-3">
-          <label class="username-label" for="username" jhiTranslate="global.form.username.label">Nom d&apos;utilisateur</label>
-          <input
-            type="text"
-            class="form-control"
-            name="username"
-            id="username"
-            placeholder="{{ 'global.form.username.placeholder' | translate }}"
-            formControlName="username"
-            data-cy="username"
-          />
+
+      <form (ngSubmit)="login()" [formGroup]="loginForm">
+        <!-- Username Field -->
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="username" jhiTranslate="global.form.username.label">
+            Username
+          </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+            </div>
+            <input
+              type="text"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              name="username"
+              id="username"
+              #username
+              placeholder="{{ 'global.form.username.placeholder' | translate }}"
+              formControlName="username"
+              data-cy="username"
+            />
+          </div>
         </div>
 
-        <div class="mb-3">
-          <label for="password" jhiTranslate="login.form.password">Mot de passe</label>
-          <input
-            type="password"
-            class="form-control"
-            name="password"
-            id="password"
-            placeholder="{{ 'login.form.password.placeholder' | translate }}"
-            formControlName="password"
-            data-cy="password"
-          />
+        <!-- Password Field -->
+        <div class="mb-5">
+          <label class="block text-sm font-medium text-gray-700 mb-2" for="password" jhiTranslate="login.form.password"> Password </label>
+          <div class="relative">
+            <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+              <svg class="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                ></path>
+              </svg>
+            </div>
+            <input
+              type="password"
+              class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              name="password"
+              id="password"
+              placeholder="{{ 'login.form.password.placeholder' | translate }}"
+              formControlName="password"
+              data-cy="password"
+            />
+          </div>
         </div>
 
-        <div class="form-check">
-          <label class="form-check-label" for="rememberMe">
-            <input class="form-check-input" type="checkbox" name="rememberMe" id="rememberMe" formControlName="rememberMe" />
-            <span jhiTranslate="login.form.rememberme">Garder la session ouverte</span>
+        <!-- Remember Me Checkbox -->
+        <div class="mb-6">
+          <label class="flex items-center cursor-pointer" for="rememberMe">
+            <input
+              class="w-4 h-4 text-blue-500 border-gray-300 rounded focus:ring-blue-500"
+              type="checkbox"
+              name="rememberMe"
+              id="rememberMe"
+              formControlName="rememberMe"
+            />
+            <span class="ml-2 text-sm text-gray-600" jhiTranslate="login.form.rememberme">Remember me</span>
           </label>
         </div>
 
-        <button type="submit" class="btn btn-primary" data-cy="submit" jhiTranslate="login.form.button">Connexion</button>
-      </form>
-      <div class="mt-3 alert alert-warning">
-        <a class="alert-link" routerLink="/account/reset/request" data-cy="forgetYourPasswordSelector" jhiTranslate="login.password.forgot"
-          >Avez-vous oublié votre mot de passe ?</a
+        <!-- Submit Button -->
+        <button
+          type="submit"
+          class="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-lg font-semibold hover:from-blue-600 hover:to-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-all duration-200 shadow-lg"
+          data-cy="submit"
+          jhiTranslate="login.form.button"
         >
+          Sign In
+        </button>
+      </form>
+
+      <!-- Forgot Password Link -->
+      <div class="mt-6 text-center">
+        <a
+          class="text-sm text-blue-500 hover:text-blue-700 font-medium transition-colors"
+          routerLink="/account/reset/request"
+          data-cy="forgetYourPasswordSelector"
+          jhiTranslate="login.password.forgot"
+        >
+          Forgot your password?
+        </a>
       </div>
 
-      <div class="alert alert-warning">
-        <span jhiTranslate="global.messages.info.register.noaccount">Vous n&apos;avez pas encore de compte ?</span>
-        <a class="alert-link" routerLink="/account/register" jhiTranslate="global.messages.info.register.link">Créer un compte</a>
+      <!-- Divider -->
+      <div class="my-6 flex items-center">
+        <div class="flex-1 border-t border-gray-200"></div>
+        <span class="px-4 text-sm text-gray-500">or</span>
+        <div class="flex-1 border-t border-gray-200"></div>
       </div>
+
+      <!-- Register Link -->
+      <div class="text-center">
+        <p class="text-sm text-gray-600">
+          <span jhiTranslate="global.messages.info.register.noaccount">Don't have an account?</span>
+          <a
+            class="ml-1 text-orange-500 hover:text-orange-600 font-semibold transition-colors"
+            routerLink="/account/register"
+            jhiTranslate="global.messages.info.register.link"
+          >
+            Create one
+          </a>
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="mt-8 text-center">
+      <p class="text-sm text-blue-100">Delivery Management System</p>
     </div>
   </div>
 </div>

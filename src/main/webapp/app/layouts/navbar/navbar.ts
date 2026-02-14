@@ -2,7 +2,6 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModule } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { environment } from 'environments/environment';
 
@@ -25,7 +24,6 @@ import ActiveMenuDirective from './active-menu.directive';
     RouterLink,
     RouterLinkActive,
     FontAwesomeModule,
-    NgbModule,
     HasAnyAuthorityDirective,
     ActiveMenuDirective,
     FindLanguageFromKeyPipe,

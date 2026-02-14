@@ -4,27 +4,27 @@
 
 <span><span jhiTranslate="metrics.jvm.threads.runnable">Exécutable</span> {{ stats.threadDumpRunnable }}</span>
 
-<ngb-progressbar [value]="stats.threadDumpRunnable" [max]="stats.threadDumpAll" [striped]="true" [animated]="false" type="success">
-  <span>{{ (stats.threadDumpRunnable * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
-</ngb-progressbar>
+<jhi-progress-bar [value]="stats.threadDumpRunnable" [max]="stats.threadDumpAll" [striped]="true" type="success">
+  <span class="text-xs text-white px-2">{{ (stats.threadDumpRunnable * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
+</jhi-progress-bar>
 
 <span><span jhiTranslate="metrics.jvm.threads.timedwaiting">Temps d&apos;attente</span> ({{ stats.threadDumpTimedWaiting }})</span>
 
-<ngb-progressbar [value]="stats.threadDumpTimedWaiting" [max]="stats.threadDumpAll" [striped]="true" [animated]="false" type="warning">
-  <span>{{ (stats.threadDumpTimedWaiting * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
-</ngb-progressbar>
+<jhi-progress-bar [value]="stats.threadDumpTimedWaiting" [max]="stats.threadDumpAll" [striped]="true" type="warning">
+  <span class="text-xs text-white px-2">{{ (stats.threadDumpTimedWaiting * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
+</jhi-progress-bar>
 
 <span><span jhiTranslate="metrics.jvm.threads.waiting">En attente</span> ({{ stats.threadDumpWaiting }})</span>
 
-<ngb-progressbar [value]="stats.threadDumpWaiting" [max]="stats.threadDumpAll" [striped]="true" [animated]="false" type="warning">
-  <span>{{ (stats.threadDumpWaiting * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
-</ngb-progressbar>
+<jhi-progress-bar [value]="stats.threadDumpWaiting" [max]="stats.threadDumpAll" [striped]="true" type="warning">
+  <span class="text-xs text-white px-2">{{ (stats.threadDumpWaiting * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
+</jhi-progress-bar>
 
 <span><span jhiTranslate="metrics.jvm.threads.blocked">Bloqué</span> ({{ stats.threadDumpBlocked }})</span>
 
-<ngb-progressbar [value]="stats.threadDumpBlocked" [max]="stats.threadDumpAll" [striped]="true" [animated]="false" type="success">
-  <span>{{ (stats.threadDumpBlocked * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
-</ngb-progressbar>
+<jhi-progress-bar [value]="stats.threadDumpBlocked" [max]="stats.threadDumpAll" [striped]="true" type="success">
+  <span class="text-xs text-white px-2">{{ (stats.threadDumpBlocked * 100) / stats.threadDumpAll | number: '1.0-0' }}%</span>
+</jhi-progress-bar>
 
 <div>Total: {{ stats.threadDumpAll }}</div>
 

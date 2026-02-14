@@ -1,26 +1,26 @@
-import { KeyValuePipe } from '@angular/common';
+import { KeyValuePipe, NgClass } from '@angular/common';
 import { HttpErrorResponse } from '@angular/common/http';
 import { Component, OnInit, inject, signal } from '@angular/core';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
-import { NgbModal } from '@ng-bootstrap/ng-bootstrap';
 import { TranslateModule } from '@ngx-translate/core';
 
 import { TranslateDirective } from 'app/shared/language';
+import { ModalService } from 'app/shared/modal';
 
-import { HealthDetails, HealthModel, HealthStatus } from './health.model';
+import { HealthDetails, HealthKey, HealthModel, HealthStatus } from './health.model';
 import { HealthService } from './health.service';
 import HealthModal from './modal/health-modal';
 
 @Component({
   selector: 'jhi-health',
   templateUrl: './health.html',
-  imports: [TranslateDirective, TranslateModule, FontAwesomeModule, KeyValuePipe],
+  imports: [TranslateDirective, TranslateModule, FontAwesomeModule, KeyValuePipe, NgClass],
 })
 export default class Health implements OnInit {
   health = signal<HealthModel | null>(null);
 
-  private readonly modalService = inject(NgbModal);
+  private readonly modalService = inject(ModalService);
   private readonly healthService = inject(HealthService);
 
   ngOnInit(): void {
@@ -47,6 +47,6 @@ export default class Health implements OnInit {
 
   showHealth(health: { key: string; value: HealthDetails }): void {
     const modalRef = this.modalService.open(HealthModal);
-    modalRef.componentInstance.health = health;
+    modalRef.componentInstance.health = { key: health.key as HealthKey, value: health.value };
   }
 }

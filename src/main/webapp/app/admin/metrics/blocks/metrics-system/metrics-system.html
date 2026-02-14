@@ -18,18 +18,18 @@
       <div class="col-md-3 text-end">{{ 100 * systemMetricsRef['process.cpu.usage'] | number: '1.0-2' }} %</div>
     </div>
 
-    <ngb-progressbar [value]="100 * systemMetricsRef['process.cpu.usage']" [striped]="true" [animated]="false" type="success">
-      <span>{{ 100 * systemMetricsRef['process.cpu.usage'] | number: '1.0-2' }} %</span>
-    </ngb-progressbar>
+    <jhi-progress-bar [value]="100 * systemMetricsRef['process.cpu.usage']" [striped]="true" type="success">
+      <span class="text-xs text-white px-2">{{ 100 * systemMetricsRef['process.cpu.usage'] | number: '1.0-2' }} %</span>
+    </jhi-progress-bar>
 
     <div class="row">
       <div class="col-md-9">System CPU usage</div>
       <div class="col-md-3 text-end">{{ 100 * systemMetricsRef['system.cpu.usage'] | number: '1.0-2' }} %</div>
     </div>
 
-    <ngb-progressbar [value]="100 * systemMetricsRef['system.cpu.usage']" [striped]="true" [animated]="false" type="success">
-      <span>{{ 100 * systemMetricsRef['system.cpu.usage'] | number: '1.0-2' }} %</span>
-    </ngb-progressbar>
+    <jhi-progress-bar [value]="100 * systemMetricsRef['system.cpu.usage']" [striped]="true" type="success">
+      <span class="text-xs text-white px-2">{{ 100 * systemMetricsRef['system.cpu.usage'] | number: '1.0-2' }} %</span>
+    </jhi-progress-bar>
 
     <div class="row">
       <div class="col-md-9">System CPU count</div>
