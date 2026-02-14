@@ -292,4 +292,73 @@ Badge styles
   @apply bg-danger-100 text-danger-800;
 }
 
+/* ==========================================================================
+Responsive Table Styles for Small Screens
+========================================================================== */
+@media screen and (max-width: 768px) {
+  /* Remove container styles on mobile - targets parent of responsive-table */
+  div:has(> div > .responsive-table),
+  div:has(> .responsive-table) {
+    @apply border-0 shadow-none bg-transparent overflow-visible;
+  }
+
+  div:has(> .responsive-table) {
+    @apply overflow-visible;
+  }
+
+  .responsive-table {
+    @apply block border-0 w-full;
+    border: none !important;
+  }
+
+  .responsive-table > * + * {
+    border-top: none !important;
+  }
+
+  .responsive-table thead {
+    @apply hidden;
+  }
+
+  .responsive-table tbody {
+    @apply block;
+  }
+
+  .responsive-table tr {
+    @apply block mb-4 rounded-lg shadow-sm bg-white;
+    border: none !important;
+  }
+
+  .responsive-table td {
+    @apply block text-right relative py-2 px-4 border-b border-neutral-200;
+    padding-left: 7rem;
+    white-space: normal;
+    min-height: 50px;
+  }
+
+  .responsive-table td:first-child {
+    @apply border-t border-neutral-200 rounded-t-lg;
+  }
+
+  .responsive-table td:last-child {
+    @apply border-b-0 rounded-b-lg;
+  }
+
+  .responsive-table td::before {
+    content: attr(data-label);
+    @apply absolute left-0 top-0 bottom-0 w-24 text-left font-semibold bg-secondary-500 text-white flex items-center;
+    padding-left: 0.5rem;
+    padding-right: 0.5rem;
+    min-height: 50px;
+    min-width: 100px;
+  }
+
+  .responsive-table td:first-child::before {
+    @apply rounded-tl-lg;
+  }
+
+  .responsive-table td:last-child::before {
+    @apply rounded-bl-lg;
+  }
+}
+
 /* jhipster-needle-scss-add-main JHipster will add new css style */
