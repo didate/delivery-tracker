@@ -10,14 +10,13 @@ import Footer from '../footer/footer';
 import PageRibbon from '../profiles/page-ribbon';
 import SidebarComponent from '../sidebar/sidebar.component';
 import HeaderComponent from '../header/header.component';
-import { TitleStrategy } from '@angular/router';
 
 @Component({
   selector: 'jhi-main',
   standalone: true,
   templateUrl: './main.html',
   imports: [RouterOutlet, Footer, PageRibbon, SidebarComponent, HeaderComponent],
-  providers: [{ provide: TitleStrategy, useClass: AppPageTitleStrategy }],
+  providers: [AppPageTitleStrategy],
 })
 export default class Main implements OnInit {
   private readonly renderer: Renderer2;
