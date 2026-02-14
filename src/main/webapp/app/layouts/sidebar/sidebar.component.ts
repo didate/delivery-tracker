@@ -1,3 +1,4 @@
+import { NgClass } from '@angular/common';
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 
@@ -9,13 +10,14 @@ import { AccountService } from 'app/core/auth/account.service';
 import { ProfileService } from 'app/layouts/profiles/profile.service';
 import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
 import { TranslateDirective } from 'app/shared/language';
+import { SidebarService } from './sidebar.service';
 
 @Component({
   selector: 'jhi-sidebar',
   standalone: true,
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss'],
-  imports: [RouterLink, RouterLinkActive, FontAwesomeModule, HasAnyAuthorityDirective, TranslateDirective, TranslateModule],
+  imports: [RouterLink, RouterLinkActive, FontAwesomeModule, HasAnyAuthorityDirective, TranslateDirective, TranslateModule, NgClass],
 })
 export default class SidebarComponent implements OnInit {
   inProduction = signal(true);
@@ -24,6 +26,7 @@ export default class SidebarComponent implements OnInit {
   readonly version: string;
   account = inject(AccountService).trackCurrentAccount();
 
+  readonly sidebarService = inject(SidebarService);
   private readonly profileService = inject(ProfileService);
   private readonly router = inject(Router);
 

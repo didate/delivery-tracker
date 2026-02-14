@@ -1,17 +1,26 @@
 <jhi-page-ribbon />
 
-<div class="min-h-screen bg-gray-50">
-  <jhi-sidebar />
+@if (account() === null) {
+  <!-- Non-authenticated: Full-width landing page layout -->
+  <router-outlet />
+} @else {
+  <!-- Authenticated: Dashboard layout with sidebar -->
+  <div class="min-h-screen bg-gray-50">
+    <jhi-sidebar />
 
-  <div class="lg:pl-64">
-    <jhi-header />
+    <div
+      class="transition-all duration-300 ease-in-out"
+      [ngClass]="{ 'lg:pl-64': !sidebarService.isCollapsed(), 'lg:pl-0': sidebarService.isCollapsed() }"
+    >
+      <jhi-header />
 
-    <main class="py-10">
-      <div class="px-4 sm:px-6 lg:px-8">
-        <router-outlet />
-      </div>
-    </main>
+      <main class="py-10">
+        <div class="px-4 sm:px-6 lg:px-8">
+          <router-outlet />
+        </div>
+      </main>
+
+      <jhi-footer />
+    </div>
   </div>
-</div>
-
-<jhi-footer />
+}
