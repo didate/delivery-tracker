@@ -55,110 +55,154 @@
       </a>
     </div>
   } @else {
-    <!-- Driver Cards Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6" id="entities">
-      @for (driver of drivers(); track trackId(driver)) {
-        <div
-          data-cy="entityTable"
-          class="bg-white rounded-lg shadow-sm border border-gray-200 hover:shadow-md transition-shadow overflow-hidden"
-        >
-          <!-- Card Header -->
-          <div class="bg-gradient-to-r from-gray-50 to-gray-100 px-4 py-3 border-b border-gray-200">
-            <div class="flex items-center justify-between">
-              <div class="flex items-center gap-3">
-                <div class="w-10 h-10 bg-orange-500 rounded-full flex items-center justify-center">
-                  <span class="text-white font-semibold text-sm">{{ driver.name?.charAt(0)?.toUpperCase() }}</span>
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" id="entities">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200" aria-describedby="page-heading">
+          <thead>
+            <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
+              <th
+                scope="col"
+                jhiSortBy="name"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.driver.name">Name</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
-                <div>
-                  <a
-                    [routerLink]="['/driver', driver.id, 'view']"
-                    class="font-semibold text-gray-900 hover:text-orange-600 transition-colors"
-                  >
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="code"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.driver.code">Code</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="phone"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.driver.phone">Phone</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="email"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.driver.email">Email</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="active"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.driver.active">Active</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="vehicle.id"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-600 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.driver.vehicle">Vehicle</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-600 uppercase tracking-wider">Actions</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (driver of drivers(); track trackId(driver)) {
+              <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <a [routerLink]="['/driver', driver.id, 'view']" class="text-orange-600 hover:text-orange-700 font-medium">
                     {{ driver.name }}
                   </a>
-                  <p class="text-xs text-gray-500">{{ driver.code }}</p>
-                </div>
-              </div>
-              @if (driver.active) {
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                  <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
-                  Active
-                </span>
-              } @else {
-                <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
-                  <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
-                  Inactive
-                </span>
-              }
-            </div>
-          </div>
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
+                  {{ driver.code }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 hidden md:table-cell">
+                  {{ driver.phone || '-' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell">
+                  {{ driver.email || '-' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (driver.active) {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                      Active
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                      <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
+                      Inactive
+                    </span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
+                  @if (driver.vehicle) {
+                    <a [routerLink]="['/vehicle', driver.vehicle.id, 'view']" class="text-orange-600 hover:text-orange-700">
+                      #{{ driver.vehicle.id }}
+                    </a>
+                  } @else {
+                    <span class="text-gray-400">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <a
+                      [routerLink]="['/driver', driver.id, 'view']"
+                      class="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                      data-cy="entityDetailsButton"
+                      title="View"
+                    >
+                      <fa-icon icon="eye" />
+                    </a>
 
-          <!-- Card Body -->
-          <div class="px-4 py-3 space-y-2">
-            @if (driver.phone) {
-              <div class="flex items-center gap-2 text-sm">
-                <fa-icon icon="phone" class="text-gray-400 w-4" />
-                <span class="text-gray-600">{{ driver.phone }}</span>
-              </div>
-            }
-            @if (driver.email) {
-              <div class="flex items-center gap-2 text-sm">
-                <fa-icon icon="envelope" class="text-gray-400 w-4" />
-                <span class="text-gray-600 truncate">{{ driver.email }}</span>
-              </div>
-            }
-            @if (driver.licenseNumber) {
-              <div class="flex items-center gap-2 text-sm">
-                <fa-icon icon="id-card" class="text-gray-400 w-4" />
-                <span class="text-gray-600">{{ driver.licenseNumber }}</span>
-              </div>
-            }
-            @if (driver.vehicle) {
-              <div class="flex items-center gap-2 text-sm">
-                <fa-icon icon="car" class="text-gray-400 w-4" />
-                <a [routerLink]="['/vehicle', driver.vehicle.id, 'view']" class="text-orange-600 hover:text-orange-700">
-                  Vehicle #{{ driver.vehicle.id }}
-                </a>
-              </div>
-            }
-          </div>
+                    <a
+                      [routerLink]="['/driver', driver.id, 'edit']"
+                      class="inline-flex items-center justify-center w-8 h-8 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded transition-colors"
+                      data-cy="entityEditButton"
+                      title="Edit"
+                    >
+                      <fa-icon icon="pencil-alt" />
+                    </a>
 
-          <!-- Card Footer -->
-          <div class="px-4 py-3 bg-gray-50 border-t border-gray-100 flex justify-end gap-2">
-            <a
-              [routerLink]="['/driver', driver.id, 'view']"
-              class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs bg-white border border-gray-300 text-gray-700 rounded hover:bg-gray-50 transition-colors"
-              data-cy="entityDetailsButton"
-            >
-              <fa-icon icon="eye" />
-              <span class="hidden sm:inline" jhiTranslate="entity.action.view">Voir</span>
-            </a>
-
-            <a
-              [routerLink]="['/driver', driver.id, 'edit']"
-              class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs bg-orange-500 text-white rounded hover:bg-orange-600 transition-colors"
-              data-cy="entityEditButton"
-            >
-              <fa-icon icon="pencil-alt" />
-              <span class="hidden sm:inline" jhiTranslate="entity.action.edit">Editer</span>
-            </a>
-
-            <button
-              type="button"
-              (click)="delete(driver)"
-              class="inline-flex items-center gap-1 px-2.5 py-1.5 text-xs bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
-              data-cy="entityDeleteButton"
-            >
-              <fa-icon icon="trash-alt" />
-              <span class="hidden sm:inline" jhiTranslate="entity.action.delete">Supprimer</span>
-            </button>
-          </div>
-        </div>
-      }
+                    <button
+                      type="button"
+                      (click)="delete(driver)"
+                      class="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                      data-cy="entityDeleteButton"
+                      title="Delete"
+                    >
+                      <fa-icon icon="trash-alt" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <!-- Pagination -->
-    <div class="bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+    <div class="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div class="text-sm text-gray-600">
           <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
