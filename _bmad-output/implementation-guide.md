@@ -1,329 +1,442 @@
-# Implementation Guide - Parallel Development Strategy
+# Implementation Guide - JHipster 9 Project
 
-This guide helps organize parallel implementation of modules using Claude Code's multi-agent capabilities.
-
----
-
-## Module Dependencies Graph
-
-```
-                              ┌──────────┐
-                              │  TENANT  │ (Phase 0)
-                              │  SHARED  │
-                              └────┬─────┘
-                                   │
-        ┌──────────────────────────┼──────────────────────────┐
-        │                          │                          │
-        ▼                          ▼                          ▼
-┌───────────────┐         ┌───────────────┐         ┌───────────────┐
-│   IDENTITY    │         │    CATALOG    │         │PRODUCTION_SITE│ (Phase 1)
-│   (Users)     │         │  (Products)   │         │               │
-└───────┬───────┘         └───────┬───────┘         └───────┬───────┘
-        │                         │                         │
-        │    ┌────────────────────┼─────────────────────────┤
-        │    │                    │                         │
-        ▼    ▼                    ▼                         ▼
-┌───────────────┐         ┌───────────────┐         ┌───────────────┐
-│    DRIVER     │         │   CUSTOMER    │         │  PRODUCTION   │ (Phase 2)
-│               │◄────────│  (assignment) │         │               │
-└───────┬───────┘         └───────┬───────┘         └───────────────┘
-        │                         │
-        │    ┌────────────────────┤
-        ▼    ▼                    ▼
-┌───────────────┐         ┌───────────────┐         ┌───────────────┐
-│     ROUND     │         │   DELIVERY    │         │    EXPENSE    │ (Phase 3)
-│               │         │    RETURN     │         │               │
-└───────┬───────┘         └───────┬───────┘         └───────────────┘
-        │                         │
-        │                         ▼
-        │                 ┌───────────────┐
-        │                 │    PAYMENT    │
-        │                 └───────┬───────┘
-        │                         │
-        ▼                         ▼
-┌───────────────┐         ┌───────────────┐         ┌───────────────┐
-│     SYNC      │         │    PAYROLL    │         │    REPORT     │ (Phase 4)
-└───────────────┘         └───────────────┘         └───────────────┘
-```
+Ce guide reflète l'état actuel du projet après migration vers JHipster 9.
 
 ---
 
-## Implementation Phases
+## État Actuel
 
-### Phase 0: Foundation (SEQUENTIAL - Must be first)
+### Stack Technique
+- **Backend**: JHipster 9 + Spring Boot 4 + Java 21
+- **Frontend**: Angular 21 + Tailwind CSS
+- **Base de données**: H2 (dev) / PostgreSQL (prod)
+- **Migrations**: Liquibase
 
-| Module | Priority | Description |
-|--------|----------|-------------|
-| **shared** | P0 | Security, TenantContext, exceptions, utils |
-| **tenant** | P0 | Tenant entity, registration, settings |
+### Entités Implémentées (CRUD Complet)
 
-**Why sequential:** All modules depend on shared infrastructure and tenant isolation.
+| Entité | Package Backend | Frontend |
+|--------|-----------------|:--------:|
+| Tenant | `com.delivery.domain` | ✅ |
+| TenantSettings | `com.delivery.domain` | ✅ |
+| Product | `com.delivery.domain` | ✅ |
+| PriceHistory | `com.delivery.domain` | ✅ |
+| Vehicle | `com.delivery.domain` | ✅ |
+| Driver | `com.delivery.domain` | ✅ |
+| ProductionSite | `com.delivery.domain` | ✅ |
+| Customer | `com.delivery.domain` | ✅ |
+| Production | `com.delivery.domain` | ✅ |
+| Delivery | `com.delivery.domain` | ✅ |
+| DeliveryItem | `com.delivery.domain` | ✅ |
+| Round | `com.delivery.domain` | ✅ |
+| RoundCustomer | `com.delivery.domain` | ✅ |
+| Payment | `com.delivery.domain` | ✅ |
+| ProductReturn | `com.delivery.domain` | ✅ |
+| ReturnItem | `com.delivery.domain` | ✅ |
+| ExpenseCategory | `com.delivery.domain` | ✅ |
+| Expense | `com.delivery.domain` | ✅ |
+
+---
+
+## Prochaines Phases de Développement
+
+### Phase 1: Multi-Tenant (Priorité Haute)
+
+**Objectif**: Isolation des données par tenant
+
+#### 1.1 Backend - Filtrage par tenant_id
+
+```java
+// À créer: TenantContext.java
+@Component
+public class TenantContext {
+    private static final ThreadLocal<Long> currentTenant = new ThreadLocal<>();
+
+    public static Long getCurrentTenant() {
+        return currentTenant.get();
+    }
+
+    public static void setCurrentTenant(Long tenantId) {
+        currentTenant.set(tenantId);
+    }
+
+    public static void clear() {
+        currentTenant.remove();
+    }
+}
+
+// À créer: TenantFilter.java
+@Component
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
+public class TenantFilter extends OncePerRequestFilter {
+
+    @Autowired
+    private TokenProvider tokenProvider;
+
+    @Override
+    protected void doFilterInternal(HttpServletRequest request,
+                                    HttpServletResponse response,
+                                    FilterChain chain) throws ServletException, IOException {
+        String jwt = resolveToken(request);
+        if (jwt != null && tokenProvider.validateToken(jwt)) {
+            Long tenantId = tokenProvider.getTenantId(jwt);
+            TenantContext.setCurrentTenant(tenantId);
+        }
+        try {
+            chain.doFilter(request, response);
+        } finally {
+            TenantContext.clear();
+        }
+    }
+}
+```
+
+#### 1.2 Entités - Hibernate Filters
+
+```java
+// Ajouter sur chaque entité tenant-aware
+@Entity
+@FilterDef(name = "tenantFilter", parameters = @ParamDef(name = "tenantId", type = Long.class))
+@Filter(name = "tenantFilter", condition = "tenant_id = :tenantId")
+public class Product extends AbstractAuditingEntity {
+    // ...
+}
+```
+
+#### 1.3 Services - Activer le filtre
+
+```java
+@Service
+@Transactional
+public class ProductService {
+
+    @PersistenceContext
+    private EntityManager entityManager;
+
+    @PostConstruct
+    public void enableTenantFilter() {
+        entityManager.unwrap(Session.class)
+            .enableFilter("tenantFilter")
+            .setParameter("tenantId", TenantContext.getCurrentTenant());
+    }
+}
+```
+
+---
+
+### Phase 2: Logique Métier (Priorité Haute)
+
+#### 2.1 Calcul des Soldes Clients
+
+```java
+// CustomerService.java - Ajouter méthode
+public BigDecimal calculateBalance(Long customerId) {
+    BigDecimal deliveries = deliveryRepository.sumAmountByCustomerId(customerId);
+    BigDecimal payments = paymentRepository.sumAmountByCustomerId(customerId);
+    BigDecimal returns = returnRepository.sumCreditedAmountByCustomerId(customerId);
+
+    return deliveries.subtract(payments).subtract(returns);
+}
+
+// CustomerRepository.java - Ajouter requête
+@Query("SELECT COALESCE(SUM(d.totalAmount), 0) FROM Delivery d WHERE d.customer.id = :customerId")
+BigDecimal sumAmountByCustomerId(@Param("customerId") Long customerId);
+```
+
+#### 2.2 Calcul Automatique des Totaux Livraison
+
+```java
+// DeliveryService.java - Modifier create
+public Delivery createDelivery(DeliveryDTO dto) {
+    Delivery delivery = deliveryMapper.toEntity(dto);
+
+    // Calcul automatique du total
+    BigDecimal total = delivery.getItems().stream()
+        .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+        .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+    delivery.setTotalAmount(total);
+
+    return deliveryRepository.save(delivery);
+}
+```
+
+---
+
+### Phase 3: Tableaux de Bord (Priorité Moyenne)
+
+#### 3.1 Endpoints Dashboard
+
+```java
+@RestController
+@RequestMapping("/api/dashboard")
+public class DashboardResource {
+
+    @GetMapping("/daily")
+    public DailySituationDTO getDailySituation(@RequestParam LocalDate date) {
+        // Livraisons du jour
+        // Paiements du jour
+        // Retours du jour
+        // Production du jour
+        // Dépenses du jour
+    }
+
+    @GetMapping("/kpis")
+    public KpisDTO getKpis(
+        @RequestParam LocalDate startDate,
+        @RequestParam LocalDate endDate) {
+        // Chiffre d'affaires
+        // Nombre de livraisons
+        // Taux de retour
+        // Clients actifs
+    }
+}
+```
+
+#### 3.2 Frontend Dashboard (Angular)
+
+```typescript
+// dashboard.component.ts
+@Component({
+  selector: 'jhi-dashboard',
+  standalone: true,
+  imports: [CommonModule, ChartComponent],
+  template: `
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div class="bg-white rounded-lg shadow p-6">
+        <h3 class="text-gray-500 text-sm">Chiffre d'affaires</h3>
+        <p class="text-3xl font-bold text-gray-900">{{ stats.revenue | currency }}</p>
+      </div>
+      <!-- Autres KPIs -->
+    </div>
+  `
+})
+export class DashboardComponent {
+  stats = signal<KpisDTO | null>(null);
+}
+```
+
+---
+
+### Phase 4: Application Mobile (Priorité Haute)
+
+#### 4.1 Stack Recommandé
+
+| Option | Avantages | Inconvénients |
+|--------|-----------|---------------|
+| **Flutter** | Cross-platform, performance native | Nouveau langage (Dart) |
+| **React Native** | JavaScript, grande communauté | Performance variable |
+
+**Recommandation**: Flutter pour performance native et offline.
+
+#### 4.2 Structure du Projet Flutter
+
+```
+delivery_mobile/
+├── lib/
+│   ├── main.dart
+│   ├── core/
+│   │   ├── api/
+│   │   │   ├── api_client.dart         # HTTP client (Dio)
+│   │   │   ├── auth_service.dart       # JWT auth
+│   │   │   └── api_interceptor.dart    # Token refresh
+│   │   ├── storage/
+│   │   │   └── secure_storage.dart     # JWT storage
+│   │   └── offline/
+│   │       ├── database.dart           # SQLite
+│   │       └── sync_service.dart       # Sync logic
+│   ├── models/
+│   │   ├── round.dart
+│   │   ├── customer.dart
+│   │   ├── delivery.dart
+│   │   └── product.dart
+│   ├── features/
+│   │   ├── auth/
+│   │   │   ├── login_screen.dart
+│   │   │   └── login_controller.dart
+│   │   ├── round/
+│   │   │   ├── round_screen.dart
+│   │   │   ├── round_controller.dart
+│   │   │   └── customer_card.dart
+│   │   ├── delivery/
+│   │   │   ├── delivery_screen.dart
+│   │   │   ├── delivery_controller.dart
+│   │   │   └── product_selector.dart
+│   │   └── return/
+│   │       ├── return_screen.dart
+│   │       └── return_controller.dart
+│   └── widgets/
+│       ├── loading_indicator.dart
+│       └── error_dialog.dart
+├── pubspec.yaml
+└── android/ios/
+```
+
+#### 4.3 Dépendances Flutter
+
+```yaml
+# pubspec.yaml
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.4.9
+
+  # HTTP
+  dio: ^5.4.0
+
+  # Storage
+  flutter_secure_storage: ^9.0.0
+  sqflite: ^2.3.0  # Pour mode offline
+
+  # Maps & GPS
+  flutter_map: ^6.1.0
+  latlong2: ^0.9.0
+  geolocator: ^10.1.0
+
+  # UI
+  flutter_svg: ^2.0.9
+
+  # Utils
+  intl: ^0.18.1
+  connectivity_plus: ^5.0.2
+```
+
+#### 4.4 Authentification Mobile
+
+```dart
+// auth_service.dart
+class AuthService {
+  final Dio _dio;
+  final FlutterSecureStorage _storage;
+
+  Future<bool> login(String username, String password) async {
+    try {
+      final response = await _dio.post(
+        '/api/authenticate',
+        data: {
+          'username': username,
+          'password': password,
+          'rememberMe': true,
+        },
+      );
+
+      final token = response.data['id_token'];
+      await _storage.write(key: 'jwt_token', value: token);
+
+      return true;
+    } catch (e) {
+      return false;
+    }
+  }
+
+  Future<String?> getToken() async {
+    return await _storage.read(key: 'jwt_token');
+  }
+}
+```
+
+#### 4.5 Écran Tournée du Jour
+
+```dart
+// round_screen.dart
+class RoundScreen extends ConsumerWidget {
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final roundAsync = ref.watch(todayRoundProvider);
+
+    return Scaffold(
+      appBar: AppBar(title: Text('Tournée du jour')),
+      body: roundAsync.when(
+        loading: () => CircularProgressIndicator(),
+        error: (e, _) => Text('Erreur: $e'),
+        data: (round) => ListView.builder(
+          itemCount: round.customers.length,
+          itemBuilder: (ctx, i) => CustomerCard(
+            customer: round.customers[i],
+            onTap: () => _openDelivery(context, round.customers[i]),
+          ),
+        ),
+      ),
+    );
+  }
+}
+```
+
+---
+
+## Commandes Utiles
+
+### Développement
 
 ```bash
-# Implement in order:
-1. shared/config (SecurityConfig, JwtConfig)
-2. shared/tenant (TenantContext, TenantFilter, TenantAwareEntity)
-3. shared/exception
-4. tenant module (entity, service, controller)
+# Backend (Spring Boot)
+./mvnw
+
+# Frontend (Angular)
+npm start
+
+# Build production
+./mvnw -Pprod clean verify
+
+# Tests
+./mvnw verify
+npm test
 ```
 
----
-
-### Phase 1: Core Entities (PARALLEL - No conflicts)
-
-These modules have NO dependencies on each other. **Implement all 3 in parallel.**
-
-| Module | Dependencies | Entities |
-|--------|--------------|----------|
-| **identity** | shared, tenant | User, Role, Auth |
-| **catalog** | shared, tenant | Product, PriceHistory |
-| **production-site** | shared, tenant | ProductionSite |
+### JHipster
 
 ```bash
-# Can run 3 agents in parallel:
-Agent 1: identity module
-Agent 2: catalog module
-Agent 3: production-site (part of driver module)
+# Générer une nouvelle entité
+jhipster entity NewEntity
+
+# Mettre à jour les entités
+jhipster entity ExistingEntity
+
+# Ajouter une langue
+jhipster languages
 ```
 
-**Parallel command example:**
-```
-Implement identity module (User, Role, Auth) with tenant support
----
-Implement catalog module (Product, PriceHistory) with tenant support
----
-Implement ProductionSite entity with tenant support
-```
+### Flutter (Mobile)
 
----
-
-### Phase 2: Secondary Entities (PARTIAL PARALLEL)
-
-| Module | Dependencies | Can Parallel With |
-|--------|--------------|-------------------|
-| **driver** | identity, production-site | expense |
-| **expense** | production-site (optional) | driver, production |
-| **production** | production-site, catalog | expense |
-| **customer** (base) | tenant only | driver, expense, production |
-
-**Parallel Groups:**
-
-**Group 2A** (after Phase 1):
 ```bash
-Agent 1: driver module (needs production-site done)
-Agent 2: expense module (production-site optional)
-Agent 3: production module (needs production-site, product)
-Agent 4: customer module (base entity, without driver assignment)
-```
+# Créer le projet
+flutter create delivery_mobile
 
-**Group 2B** (after driver is done):
-```bash
-# Update customer module to add driver assignment feature
-Agent 1: customer-driver assignment (CLI-009, CLI-010, CLI-011)
-```
+# Lancer en dev
+flutter run
 
----
+# Build Android
+flutter build apk
 
-### Phase 3: Operations (PARTIAL PARALLEL)
-
-| Module | Dependencies | Can Parallel With |
-|--------|--------------|-------------------|
-| **delivery** | customer, driver, catalog | return, payment |
-| **return** | customer, driver, catalog | delivery, payment |
-| **payment** | customer | delivery, return |
-| **round** | driver, customer | - |
-
-**Parallel Groups:**
-
-**Group 3A**:
-```bash
-Agent 1: delivery module
-Agent 2: return module
-Agent 3: payment module
-```
-
-**Group 3B** (after 3A or parallel if careful):
-```bash
-Agent 1: round module (depends on customer, driver)
+# Build iOS
+flutter build ios
 ```
 
 ---
 
-### Phase 4: Advanced Features (PARTIAL PARALLEL)
+## Fichiers Clés
 
-| Module | Dependencies | Can Parallel With |
-|--------|--------------|-------------------|
-| **payroll** | driver, delivery (stats) | report |
-| **report** | all (read-only) | payroll |
-| **sync** | delivery, return, round, customer, catalog | - |
+### Backend
+- `src/main/java/com/delivery/config/SecurityConfiguration.java` - Sécurité
+- `src/main/java/com/delivery/domain/` - Entités JPA
+- `src/main/java/com/delivery/repository/` - Repositories
+- `src/main/java/com/delivery/service/` - Services
+- `src/main/java/com/delivery/web/rest/` - Controllers
 
-**Parallel Groups:**
+### Frontend
+- `src/main/webapp/app/entities/` - Modules CRUD
+- `src/main/webapp/app/layouts/sidebar/sidebar-menu.config.ts` - Menu
+- `src/main/webapp/app/shared/` - Composants partagés
+- `src/main/webapp/i18n/` - Traductions
 
-**Group 4A**:
-```bash
-Agent 1: payroll module
-Agent 2: report module (dashboards, exports)
-```
-
-**Group 4B** (final):
-```bash
-Agent 1: sync module (mobile synchronization)
-```
-
----
-
-## Parallel Implementation Matrix
-
-| Phase | Parallel Agents | Modules | Est. Complexity |
-|-------|-----------------|---------|-----------------|
-| 0 | 1 (sequential) | shared, tenant | High |
-| 1 | 3 | identity, catalog, production-site | Medium |
-| 2A | 4 | driver, expense, production, customer-base | Medium |
-| 2B | 1 | customer-assignment | Low |
-| 3A | 3 | delivery, return, payment | High |
-| 3B | 1 | round | Medium |
-| 4A | 2 | payroll, report | Medium |
-| 4B | 1 | sync | High |
+### Configuration
+- `src/main/resources/config/application.yml` - Config Spring
+- `src/main/resources/config/liquibase/` - Migrations DB
+- `angular.json` - Config Angular
+- `tailwind.config.js` - Config Tailwind
 
 ---
 
-## Conflict Avoidance Rules
-
-### Files That Should NOT Be Modified in Parallel
-
-1. **Shared Module Files:**
-   - `SecurityConfig.java` - Only one agent
-   - `TenantContext.java` - Only one agent
-   - `GlobalExceptionHandler.java` - Coordinate additions
-
-2. **Database Migrations:**
-   - Use sequential version numbers
-   - Agent 1: V1-V10, Agent 2: V11-V20, etc.
-   - Or use timestamps: `V20240206_1_*.sql`, `V20240206_2_*.sql`
-
-3. **Application Configuration:**
-   - `application.yml` - Coordinate changes
-   - `pom.xml` - Add dependencies sequentially
-
-### Safe Parallel Patterns
-
-1. **Each module in its own package:**
-   ```
-   com.delivery.identity/    - Agent 1
-   com.delivery.catalog/     - Agent 2
-   com.delivery.customer/    - Agent 3
-   ```
-
-2. **Each module has own migration files:**
-   ```
-   V2__create_identity_tables.sql   - Agent 1
-   V3__create_catalog_tables.sql    - Agent 2
-   V4__create_customer_tables.sql   - Agent 3
-   ```
-
-3. **Tests are isolated per module:**
-   ```
-   src/test/java/com/delivery/identity/
-   src/test/java/com/delivery/catalog/
-   ```
-
----
-
-## Recommended Claude Code Commands
-
-### Phase 0 (Sequential)
-```
-Implement the shared module with TenantContext, TenantFilter,
-SecurityConfig, JwtConfig, and exception handlers. All entities
-must extend TenantAwareEntity.
-```
-
-```
-Implement the tenant module with Tenant entity, TenantService,
-TenantRegistrationService, and TenantController. Include
-registration, profile update, and settings management.
-```
-
-### Phase 1 (Parallel - 3 agents)
-```
-# Agent 1
-Implement identity module: User entity with tenant_id,
-UserRepository, UserService, AuthService, AuthController,
-UserController. Include JWT authentication with tenant_id in token.
-
-# Agent 2
-Implement catalog module: Product entity with tenant_id,
-PriceHistory entity, ProductRepository, ProductService,
-ProductController. Include price history tracking.
-
-# Agent 3
-Implement ProductionSite entity in driver module:
-ProductionSite with tenant_id, ProductionSiteRepository,
-ProductionSiteService, ProductionSiteController.
-```
-
-### Phase 2A (Parallel - 4 agents)
-```
-# Agent 1
-Implement driver module: Driver entity with tenant_id,
-link to User and ProductionSite, DriverRepository,
-DriverService, DriverController.
-
-# Agent 2
-Implement expense module: Expense entity with tenant_id
-and ExpenseCategory enum, ExpenseRepository, ExpenseService,
-ExpenseController.
-
-# Agent 3
-Implement production module: Production entity with tenant_id,
-link to ProductionSite and Product, ProductionRepository,
-ProductionService, ProductionController.
-
-# Agent 4
-Implement customer module base: Customer entity with tenant_id,
-CustomerRepository, CustomerService, CustomerController.
-Do NOT implement driver assignment yet.
-```
-
----
-
-## Quick Reference: Module → Package Mapping
-
-| Module | Package | Main Entities |
-|--------|---------|---------------|
-| shared | `com.delivery.shared` | TenantContext, Configs |
-| tenant | `com.delivery.tenant` | Tenant, TenantSettings |
-| identity | `com.delivery.identity` | User, Role |
-| catalog | `com.delivery.catalog` | Product, PriceHistory |
-| driver | `com.delivery.driver` | Driver, ProductionSite |
-| customer | `com.delivery.customer` | Customer |
-| delivery | `com.delivery.delivery` | Delivery, DeliveryItem, Return |
-| payment | `com.delivery.payment` | Payment |
-| production | `com.delivery.production` | Production |
-| expense | `com.delivery.expense` | Expense |
-| round | `com.delivery.round` | Round, RoundCustomer |
-| payroll | `com.delivery.payroll` | BonusConfig, SalaryPayment |
-| report | `com.delivery.report` | (Services only) |
-| sync | `com.delivery.sync` | (Services only) |
-
----
-
-## Estimated Implementation Order (Total: 8 parallel waves)
-
-| Wave | Duration | Modules | Agents |
-|------|----------|---------|--------|
-| 1 | - | shared | 1 |
-| 2 | - | tenant | 1 |
-| 3 | - | identity, catalog, production-site | 3 |
-| 4 | - | driver, expense, production, customer-base | 4 |
-| 5 | - | customer-assignment | 1 |
-| 6 | - | delivery, return, payment | 3 |
-| 7 | - | round, payroll, report | 3 |
-| 8 | - | sync | 1 |
-
-**Maximum parallelism: 4 agents simultaneously**
-
----
-
-*Implementation Guide - Version 1.0*
-*Optimized for Claude Code parallel development*
+*Implementation Guide - Version 2.0*
+*JHipster 9 + Spring Boot 4 + Angular 21 + Tailwind CSS*

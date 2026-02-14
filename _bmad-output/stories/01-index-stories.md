@@ -2,259 +2,319 @@
 
 ## Vue d'Ensemble
 
-Ce document liste toutes les user stories organisees par module. Chaque story est identifiee par un code unique suivant le format: `MOD-XXX` ou MOD est le module et XXX le numero.
+Ce document liste toutes les user stories organisées par module avec leur état d'implémentation actuel.
 
-**Architecture**: Multi-Tenant SaaS avec isolation par tenant_id
+**Stack technique**: JHipster 9 + Spring Boot 4 + Angular 21 + Tailwind CSS
+
+### Légende
+- ✅ Implémenté
+- 🔶 Partiel
+- ❌ À faire
+- 🎯 Priorité haute
 
 ---
 
 ## Modules et Stories
 
 ### Module 0: Gestion Multi-Tenant (TEN)
-| ID | Story | Priorite |
-|----|-------|----------|
-| TEN-001 | Inscription d'une nouvelle entreprise | Haute |
-| TEN-002 | Configuration du profil entreprise | Haute |
-| TEN-003 | Inviter un utilisateur | Haute |
-| TEN-004 | Gerer les utilisateurs du tenant | Haute |
-| TEN-005 | Consulter les statistiques du tenant | Moyenne |
-| TEN-006 | Desactiver le compte entreprise | Basse |
-| TEN-007 | Filtrage automatique par tenant | Haute |
-| TEN-008 | Gestion des parametres du tenant | Moyenne |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| TEN-001 | Inscription d'une nouvelle entreprise | 🎯 | 🔶 |
+| TEN-002 | Configuration du profil entreprise | 🎯 | ✅ |
+| TEN-003 | Inviter un utilisateur | 🎯 | ❌ |
+| TEN-004 | Gérer les utilisateurs du tenant | 🎯 | 🔶 |
+| TEN-005 | Consulter les statistiques du tenant | Moyenne | ❌ |
+| TEN-006 | Désactiver le compte entreprise | Basse | ❌ |
+| TEN-007 | Filtrage automatique par tenant | 🎯 | ❌ |
+| TEN-008 | Gestion des paramètres du tenant | Moyenne | ✅ |
 
 ### Module 1: Gestion des Produits (PRD)
-| ID | Story | Priorite |
-|----|-------|----------|
-| PRD-001 | Creer un produit | Haute |
-| PRD-002 | Modifier un produit | Haute |
-| PRD-003 | Desactiver un produit | Moyenne |
-| PRD-004 | Lister les produits | Haute |
-| PRD-005 | Consulter l'historique des prix | Basse |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| PRD-001 | Créer un produit | 🎯 | ✅ |
+| PRD-002 | Modifier un produit | 🎯 | ✅ |
+| PRD-003 | Désactiver un produit | Moyenne | ✅ |
+| PRD-004 | Lister les produits | 🎯 | ✅ |
+| PRD-005 | Consulter l'historique des prix | Basse | ✅ |
 
-### Module 2: Gestion des Customers (CLI)
-| ID | Story | Priorite |
-|----|-------|----------|
-| CLI-001 | Creer un customer | Haute |
-| CLI-002 | Modifier un customer | Haute |
-| CLI-003 | Enregistrer les coordonnees GPS | Haute |
-| CLI-004 | Definir le credit limit | Moyenne |
-| CLI-005 | Lister les customers avec solde | Haute |
-| CLI-006 | Consulter l'historique d'un customer | Moyenne |
-| CLI-007 | Rechercher un customer | Haute |
-| CLI-008 | Desactiver un customer | Basse |
-| CLI-009 | Assigner un customer a un driver | Haute |
-| CLI-010 | Assigner plusieurs customers a un driver | Moyenne |
-| CLI-011 | Voir les customers d'un driver | Moyenne |
+### Module 2: Gestion des Clients (CLI)
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| CLI-001 | Créer un client | 🎯 | ✅ |
+| CLI-002 | Modifier un client | 🎯 | ✅ |
+| CLI-003 | Enregistrer les coordonnées GPS | 🎯 | ✅ |
+| CLI-004 | Définir le plafond de crédit | Moyenne | ❌ |
+| CLI-005 | Lister les clients avec solde | 🎯 | ❌ |
+| CLI-006 | Consulter l'historique d'un client | Moyenne | ❌ |
+| CLI-007 | Rechercher un client | 🎯 | ✅ |
+| CLI-008 | Désactiver un client | Basse | ✅ |
+| CLI-009 | Assigner un client à un chauffeur | 🎯 | 🔶 |
+| CLI-010 | Assigner plusieurs clients à un chauffeur | Moyenne | ❌ |
+| CLI-011 | Voir les clients d'un chauffeur | Moyenne | ❌ |
 
-### Module 3: Gestion des Livreurs (LIV)
-| ID | Story | Priorite |
-|----|-------|----------|
-| LIV-001 | Creer un livreur | Haute |
-| LIV-002 | Modifier un livreur | Haute |
-| LIV-003 | Affecter un livreur a un point de production | Moyenne |
-| LIV-004 | Definir le salaire de base | Moyenne |
-| LIV-005 | Consulter les statistiques d'un livreur | Moyenne |
-| LIV-006 | Lister les livreurs | Haute |
-| LIV-007 | Desactiver un livreur | Basse |
+### Module 3: Gestion des Chauffeurs (LIV)
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| LIV-001 | Créer un chauffeur | 🎯 | ✅ |
+| LIV-002 | Modifier un chauffeur | 🎯 | ✅ |
+| LIV-003 | Affecter un chauffeur à un site | Moyenne | ❌ |
+| LIV-004 | Définir le salaire de base | Moyenne | ❌ |
+| LIV-005 | Consulter les statistiques d'un chauffeur | Moyenne | ❌ |
+| LIV-006 | Lister les chauffeurs | 🎯 | ✅ |
+| LIV-007 | Désactiver un chauffeur | Basse | ✅ |
 
 ### Module 4: Gestion des Livraisons (DEL)
-| ID | Story | Priorite |
-|----|-------|----------|
-| DEL-001 | Enregistrer une livraison | Haute |
-| DEL-002 | Ajouter des produits a une livraison | Haute |
-| DEL-003 | Calculer le montant total | Haute |
-| DEL-004 | Lister les livraisons | Haute |
-| DEL-005 | Filtrer les livraisons | Moyenne |
-| DEL-006 | Consulter le detail d'une livraison | Haute |
-| DEL-007 | Annuler une livraison | Moyenne |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| DEL-001 | Enregistrer une livraison | 🎯 | ✅ |
+| DEL-002 | Ajouter des produits à une livraison | 🎯 | ✅ |
+| DEL-003 | Calculer le montant total | 🎯 | 🔶 |
+| DEL-004 | Lister les livraisons | 🎯 | ✅ |
+| DEL-005 | Filtrer les livraisons | Moyenne | ✅ |
+| DEL-006 | Consulter le détail d'une livraison | 🎯 | ✅ |
+| DEL-007 | Annuler une livraison | Moyenne | ✅ |
 
 ### Module 5: Gestion des Retours (RET)
-| ID | Story | Priorite |
-|----|-------|----------|
-| RET-001 | Enregistrer un retour | Haute |
-| RET-002 | Specifier le motif du retour | Haute |
-| RET-003 | Crediter le compte client | Moyenne |
-| RET-004 | Lister les retours | Moyenne |
-| RET-005 | Statistiques des retours | Basse |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| RET-001 | Enregistrer un retour | 🎯 | ✅ |
+| RET-002 | Spécifier le motif du retour | 🎯 | ✅ |
+| RET-003 | Créditer le compte client | Moyenne | ❌ |
+| RET-004 | Lister les retours | Moyenne | ✅ |
+| RET-005 | Statistiques des retours | Basse | ❌ |
 
 ### Module 6: Gestion des Paiements (PAY)
-| ID | Story | Priorite |
-|----|-------|----------|
-| PAY-001 | Enregistrer un paiement | Haute |
-| PAY-002 | Consulter le solde client | Haute |
-| PAY-003 | Lister les paiements | Haute |
-| PAY-004 | Filtrer les paiements | Moyenne |
-| PAY-005 | Exporter les paiements | Basse |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| PAY-001 | Enregistrer un paiement | 🎯 | ✅ |
+| PAY-002 | Consulter le solde client | 🎯 | ❌ |
+| PAY-003 | Lister les paiements | 🎯 | ✅ |
+| PAY-004 | Filtrer les paiements | Moyenne | ✅ |
+| PAY-005 | Exporter les paiements | Basse | ❌ |
 
-### Module 7: Gestion des Points de Production (PPR)
-| ID | Story | Priorite |
-|----|-------|----------|
-| PPR-001 | Creer un point de production | Haute |
-| PPR-002 | Modifier un point de production | Moyenne |
-| PPR-003 | Associer des livreurs | Moyenne |
-| PPR-004 | Lister les points de production | Haute |
+### Module 7: Gestion des Sites de Production (PPR)
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| PPR-001 | Créer un site de production | 🎯 | ✅ |
+| PPR-002 | Modifier un site de production | Moyenne | ✅ |
+| PPR-003 | Associer des chauffeurs | Moyenne | ❌ |
+| PPR-004 | Lister les sites de production | 🎯 | ✅ |
 
 ### Module 8: Gestion de la Production (PRO)
-| ID | Story | Priorite |
-|----|-------|----------|
-| PRO-001 | Enregistrer la production journaliere | Haute |
-| PRO-002 | Consulter l'historique de production | Moyenne |
-| PRO-003 | Comparer production vs livraisons | Moyenne |
-| PRO-004 | Alerter sur ecarts de stock | Basse |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| PRO-001 | Enregistrer la production journalière | 🎯 | ✅ |
+| PRO-002 | Consulter l'historique de production | Moyenne | ✅ |
+| PRO-003 | Comparer production vs livraisons | Moyenne | ❌ |
+| PRO-004 | Alerter sur écarts de stock | Basse | ❌ |
 
-### Module 9: Gestion des Depenses (DEP)
-| ID | Story | Priorite |
-|----|-------|----------|
-| DEP-001 | Enregistrer une depense | Haute |
-| DEP-002 | Categoriser les depenses | Haute |
-| DEP-003 | Lister les depenses | Haute |
-| DEP-004 | Filtrer les depenses | Moyenne |
-| DEP-005 | Total des depenses par periode | Moyenne |
+### Module 9: Gestion des Dépenses (DEP)
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| DEP-001 | Enregistrer une dépense | 🎯 | ✅ |
+| DEP-002 | Catégoriser les dépenses | 🎯 | ✅ |
+| DEP-003 | Lister les dépenses | 🎯 | ✅ |
+| DEP-004 | Filtrer les dépenses | Moyenne | ✅ |
+| DEP-005 | Total des dépenses par période | Moyenne | ❌ |
 
 ### Module 10: Gestion des Salaires et Primes (SAL)
-| ID | Story | Priorite |
-|----|-------|----------|
-| SAL-001 | Configurer les regles de prime | Haute |
-| SAL-002 | Calculer les primes d'un livreur | Haute |
-| SAL-003 | Generer une fiche de paie | Haute |
-| SAL-004 | Enregistrer un paiement de salaire | Haute |
-| SAL-005 | Historique des salaires | Moyenne |
-| SAL-006 | Consulter le detail des primes | Moyenne |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| SAL-001 | Configurer les règles de prime | 🎯 | ❌ |
+| SAL-002 | Calculer les primes d'un chauffeur | 🎯 | ❌ |
+| SAL-003 | Générer une fiche de paie | 🎯 | ❌ |
+| SAL-004 | Enregistrer un paiement de salaire | 🎯 | ❌ |
+| SAL-005 | Historique des salaires | Moyenne | ❌ |
+| SAL-006 | Consulter le détail des primes | Moyenne | ❌ |
 
-### Module 11: Gestion des Rounds (TRN)
-| ID | Story | Priorite |
-|----|-------|----------|
-| TRN-001 | Generer automatiquement les rounds | Haute |
-| TRN-002 | Exclure un customer d'un round | Moyenne |
-| TRN-003 | Optimiser l'ordre de passage | Moyenne |
-| TRN-004 | Consulter un round | Haute |
-| TRN-005 | Visualiser le round sur carte | Basse |
-| TRN-006 | Suivre l'avancement d'un round | Moyenne |
-| TRN-007 | Marquer une visite comme effectuee | Haute |
-| TRN-008 | Regenerer un round | Basse |
+### Module 11: Gestion des Tournées (TRN)
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| TRN-001 | Générer automatiquement les tournées | 🎯 | ❌ |
+| TRN-002 | Exclure un client d'une tournée | Moyenne | ❌ |
+| TRN-003 | Optimiser l'ordre de passage | Moyenne | ❌ |
+| TRN-004 | Consulter une tournée | 🎯 | ✅ |
+| TRN-005 | Visualiser la tournée sur carte | Basse | ❌ |
+| TRN-006 | Suivre l'avancement d'une tournée | Moyenne | 🔶 |
+| TRN-007 | Marquer une visite comme effectuée | 🎯 | ✅ |
+| TRN-008 | Régénérer une tournée | Basse | ❌ |
 
 ### Module 12: Tableaux de Bord (DSH)
-| ID | Story | Priorite |
-|----|-------|----------|
-| DSH-001 | Situation journaliere globale | Haute |
-| DSH-002 | Situation par livreur | Haute |
-| DSH-003 | Situation par point de production | Moyenne |
-| DSH-004 | Indicateurs cles (KPIs) | Moyenne |
-| DSH-005 | Graphiques visuels | Basse |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| DSH-001 | Situation journalière globale | 🎯 | ❌ |
+| DSH-002 | Situation par chauffeur | 🎯 | ❌ |
+| DSH-003 | Situation par site de production | Moyenne | ❌ |
+| DSH-004 | Indicateurs clés (KPIs) | Moyenne | ❌ |
+| DSH-005 | Graphiques visuels | Basse | ❌ |
 
 ### Module 13: Rapports (RPT)
-| ID | Story | Priorite |
-|----|-------|----------|
-| RPT-001 | Rapport mensuel | Haute |
-| RPT-002 | Rapport annuel | Moyenne |
-| RPT-003 | Rapport par livreur | Haute |
-| RPT-004 | Rapport par point de production | Moyenne |
-| RPT-005 | Export PDF | Haute |
-| RPT-006 | Export Excel | Haute |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| RPT-001 | Rapport mensuel | 🎯 | ❌ |
+| RPT-002 | Rapport annuel | Moyenne | ❌ |
+| RPT-003 | Rapport par chauffeur | 🎯 | ❌ |
+| RPT-004 | Rapport par site de production | Moyenne | ❌ |
+| RPT-005 | Export PDF | 🎯 | ❌ |
+| RPT-006 | Export Excel | 🎯 | ❌ |
 
 ### Module 14: Gestion des Utilisateurs (USR)
-| ID | Story | Priorite |
-|----|-------|----------|
-| USR-001 | Creer un utilisateur | Haute |
-| USR-002 | Modifier un utilisateur | Haute |
-| USR-003 | Attribuer un role | Haute |
-| USR-004 | Authentification | Haute |
-| USR-005 | Reinitialiser mot de passe | Moyenne |
-| USR-006 | Desactiver un utilisateur | Moyenne |
-| USR-007 | Journal d'audit | Basse |
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| USR-001 | Créer un utilisateur | 🎯 | ✅ |
+| USR-002 | Modifier un utilisateur | 🎯 | ✅ |
+| USR-003 | Attribuer un rôle | 🎯 | ✅ |
+| USR-004 | Authentification | 🎯 | ✅ |
+| USR-005 | Réinitialiser mot de passe | Moyenne | ✅ |
+| USR-006 | Désactiver un utilisateur | Moyenne | ✅ |
+| USR-007 | Journal d'audit | Basse | ❌ |
 
-### Module 15: Application Mobile (MOB) - Mode Connecte par Defaut
-| ID | Story | Priorite |
-|----|-------|----------|
-| MOB-001 | Authentification mobile | Haute |
-| MOB-002 | Consulter la tournee du jour | Haute |
-| MOB-003 | Enregistrer livraison (mode connecte) | Haute |
-| MOB-004 | Enregistrer retour (mode connecte) | Haute |
-| MOB-005 | Activer mode hors-ligne (optionnel) | Moyenne |
-| MOB-006 | Navigation GPS | Moyenne |
-| MOB-007 | Consulter ses statistiques | Basse |
-| MOB-008 | Notifications | Basse |
+### Module 15: Application Mobile (MOB) - À développer
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| MOB-001 | Authentification mobile | 🎯 | ❌ |
+| MOB-002 | Consulter la tournée du jour | 🎯 | ❌ |
+| MOB-003 | Enregistrer livraison (mode connecté) | 🎯 | ❌ |
+| MOB-004 | Enregistrer retour (mode connecté) | 🎯 | ❌ |
+| MOB-005 | Activer mode hors-ligne (optionnel) | Moyenne | ❌ |
+| MOB-006 | Navigation GPS | Moyenne | ❌ |
+| MOB-007 | Consulter ses statistiques | Basse | ❌ |
+| MOB-008 | Notifications | Basse | ❌ |
 
-### Module 16: Systeme (SYS)
-| ID | Story | Priorite |
-|----|-------|----------|
-| SYS-001 | Parametres systeme | Moyenne |
-| SYS-002 | Sauvegarde des donnees | Haute |
-| SYS-003 | Restauration des donnees | Haute |
-| SYS-004 | Gestion des conflits de sync | Haute |
-| SYS-005 | Notifications systeme | Moyenne |
+### Module 16: Système (SYS)
+| ID | Story | Priorité | État |
+|----|-------|:--------:|:----:|
+| SYS-001 | Paramètres système | Moyenne | 🔶 |
+| SYS-002 | Sauvegarde des données | 🎯 | ❌ |
+| SYS-003 | Restauration des données | 🎯 | ❌ |
+| SYS-004 | Gestion des conflits de sync | 🎯 | ❌ |
+| SYS-005 | Notifications système | Moyenne | ❌ |
 
 ---
 
 ## Statistiques
 
-| Module | Nombre de Stories | Haute Priorite | Moyenne | Basse |
-|--------|-------------------|----------------|---------|-------|
-| **Tenant (SaaS)** | **8** | **5** | **2** | **1** |
-| Products | 5 | 3 | 1 | 1 |
-| Customers | 11 | 5 | 4 | 2 |
-| Drivers | 7 | 3 | 3 | 1 |
-| Deliveries | 7 | 5 | 2 | 0 |
-| Returns | 5 | 2 | 2 | 1 |
-| Payments | 5 | 3 | 1 | 1 |
-| ProductionSites | 4 | 2 | 2 | 0 |
-| Productions | 4 | 1 | 2 | 1 |
-| Expenses | 5 | 3 | 2 | 0 |
-| Salaries/Bonus | 6 | 4 | 2 | 0 |
-| Rounds | 8 | 3 | 3 | 2 |
-| Dashboard | 5 | 2 | 2 | 1 |
-| Reports | 6 | 4 | 2 | 0 |
-| Users | 7 | 4 | 2 | 1 |
-| Mobile | 8 | 4 | 2 | 2 |
-| System | 5 | 3 | 2 | 0 |
-| **TOTAL** | **106** | **56** | **36** | **14** |
+| Module | Total | ✅ | 🔶 | ❌ | Progression |
+|--------|:-----:|:--:|:--:|:--:|:-----------:|
+| Tenant (SaaS) | 8 | 2 | 2 | 4 | 25% |
+| Produits | 5 | 5 | 0 | 0 | 100% |
+| Clients | 11 | 5 | 1 | 5 | 45% |
+| Chauffeurs | 7 | 4 | 0 | 3 | 57% |
+| Livraisons | 7 | 6 | 1 | 0 | 86% |
+| Retours | 5 | 3 | 0 | 2 | 60% |
+| Paiements | 5 | 3 | 0 | 2 | 60% |
+| Sites Production | 4 | 3 | 0 | 1 | 75% |
+| Production | 4 | 2 | 0 | 2 | 50% |
+| Dépenses | 5 | 4 | 0 | 1 | 80% |
+| Salaires/Primes | 6 | 0 | 0 | 6 | 0% |
+| Tournées | 8 | 2 | 1 | 5 | 25% |
+| Tableaux de bord | 5 | 0 | 0 | 5 | 0% |
+| Rapports | 6 | 0 | 0 | 6 | 0% |
+| Utilisateurs | 7 | 6 | 0 | 1 | 86% |
+| **Mobile** | **8** | **0** | **0** | **8** | **0%** |
+| Système | 5 | 0 | 1 | 4 | 10% |
+| **TOTAL** | **106** | **45** | **6** | **55** | **42%** |
 
 ---
 
-## Ordre de Developpement Suggere (Sprints)
+## Plan de Développement
 
-### Sprint 0 - Infrastructure Multi-Tenant
-- TEN-001 (Inscription entreprise)
-- TEN-002 (Configuration profil)
-- TEN-003 (Invitation utilisateurs)
-- TEN-007 (Filtrage automatique par tenant)
-- TEN-008 (Parametres tenant)
+### Phase 1 - Compléter le Backend (Priorité: Haute)
+**Objectif**: Logique métier complète
 
-### Sprint 1 - Fondations
-- TEN-004 (Gestion utilisateurs tenant)
-- USR-001 a USR-004 (Authentification et utilisateurs)
-- PRD-001 a PRD-004 (Produits de base)
-- CLI-001 a CLI-003, CLI-007 (Clients de base)
+1. **Sprint 1.1 - Multi-Tenant**
+   - TEN-007: Filtrage automatique par tenant_id
+   - TEN-003: Invitation utilisateurs
+   - TEN-004: Gestion utilisateurs tenant
 
-### Sprint 2 - Operations Core
-- LIV-001 a LIV-004, LIV-006 (Livreurs)
-- DEL-001 a DEL-004, DEL-006 (Livraisons)
-- PAY-001 a PAY-003 (Paiements)
+2. **Sprint 1.2 - Soldes Clients**
+   - CLI-005: Liste clients avec solde
+   - PAY-002: Consulter solde client
+   - DEL-003: Calcul automatique montant
 
-### Sprint 3 - Operations Avancees
-- RET-001 a RET-004 (Retours)
-- PPR-001 a PPR-004 (Points de production)
-- PRO-001 a PRO-002 (Production)
-- DEP-001 a DEP-003 (Depenses)
+3. **Sprint 1.3 - Statistiques**
+   - LIV-005: Stats chauffeur
+   - RET-005: Stats retours
+   - DEP-005: Totaux dépenses
 
-### Sprint 4 - Mobile
-- MOB-001 a MOB-005 (Application mobile core)
-- SYS-004 (Synchronisation)
+### Phase 2 - Tableaux de Bord et Rapports (Priorité: Moyenne)
+**Objectif**: Visibilité business
 
-### Sprint 5 - Tournees et Salaires
-- TRN-001 a TRN-004 (Tournees)
-- SAL-001 a SAL-004 (Salaires et primes)
+1. **Sprint 2.1 - Dashboard**
+   - DSH-001 à DSH-004
 
-### Sprint 6 - Reporting
-- DSH-001 a DSH-004 (Tableaux de bord)
-- RPT-001, RPT-003, RPT-005, RPT-006 (Rapports essentiels)
+2. **Sprint 2.2 - Rapports**
+   - RPT-001, RPT-003, RPT-005, RPT-006
 
-### Sprint 7 - Finitions
-- Stories restantes de priorite moyenne et basse
-- MOB-006 a MOB-008 (Mobile avance)
-- Optimisations et ameliorations
+### Phase 3 - Salaires et Primes (Priorité: Moyenne)
+**Objectif**: Gestion RH
+
+- SAL-001 à SAL-006
+
+### Phase 4 - Application Mobile (Priorité: Haute)
+**Objectif**: Digitalisation terrain
+
+**Stack recommandé**: Flutter ou React Native
+
+1. **Sprint 4.1 - Core Mobile**
+   - MOB-001: Authentification
+   - MOB-002: Tournée du jour
+   - MOB-003: Enregistrement livraison
+   - MOB-004: Enregistrement retour
+
+2. **Sprint 4.2 - Fonctionnalités Avancées**
+   - MOB-006: Navigation GPS
+   - MOB-007: Statistiques
+   - MOB-005: Mode hors-ligne
+
+3. **Sprint 4.3 - Sync & Notifications**
+   - SYS-004: Gestion conflits sync
+   - MOB-008: Notifications
+
+---
+
+## Notes Techniques pour l'Application Mobile
+
+### Architecture Recommandée
+```
+delivery_mobile/
+├── lib/
+│   ├── main.dart
+│   ├── app/
+│   │   ├── app.dart
+│   │   └── routes.dart
+│   ├── core/
+│   │   ├── api/
+│   │   │   ├── api_client.dart        # Connexion API JHipster
+│   │   │   └── auth_service.dart      # JWT auth
+│   │   ├── storage/
+│   │   │   └── secure_storage.dart
+│   │   └── offline/                   # Si mode offline activé
+│   │       ├── database.dart
+│   │       └── sync_manager.dart
+│   ├── features/
+│   │   ├── auth/
+│   │   │   └── login_screen.dart
+│   │   ├── round/
+│   │   │   ├── round_screen.dart
+│   │   │   └── customer_list.dart
+│   │   ├── delivery/
+│   │   │   ├── delivery_screen.dart
+│   │   │   └── product_selector.dart
+│   │   ├── return/
+│   │   │   └── return_screen.dart
+│   │   └── stats/
+│   │       └── stats_screen.dart
+│   └── widgets/
+└── pubspec.yaml
+```
+
+### Intégration API JHipster
+- Endpoint: `/api/authenticate` pour JWT
+- Headers: `Authorization: Bearer <token>`
+- Endpoints REST standards JHipster
 
 ---
 
 *Document BMAD - Index des Stories*
-*Version 2.0 - Architecture SaaS Multi-Tenant*
+*Version 3.0 - JHipster 9 + Tailwind CSS*
