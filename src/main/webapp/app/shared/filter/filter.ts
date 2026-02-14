@@ -35,6 +35,12 @@ export default class Filter {
     }
   }
 
+  applyAllFilters(): void {
+    for (const field of this.filterFields()) {
+      this.applyFilter(field);
+    }
+  }
+
   clearAllFilters(): void {
     this.filters().clear();
   }

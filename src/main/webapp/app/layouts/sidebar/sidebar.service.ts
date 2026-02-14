@@ -25,7 +25,12 @@ export class SidebarService {
     if (typeof localStorage === 'undefined') {
       return false;
     }
-    return localStorage.getItem(this.STORAGE_KEY) === 'true';
+    const storedState = localStorage.getItem(this.STORAGE_KEY);
+    if (storedState !== null) {
+      return storedState === 'true';
+    }
+    // Default to collapsed on mobile (< 1024px) if no state is stored
+    return window.innerWidth < 1024;
   }
 
   private saveState(): void {

@@ -12,10 +12,18 @@
         />
       </div>
     }
-    <div class="flex items-end">
+    <div class="flex items-end gap-2">
       <button
         type="button"
-        class="w-full px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+        class="flex-1 px-4 py-2 text-sm bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+        (click)="applyAllFilters()"
+      >
+        <fa-icon icon="search" class="mr-1" />
+        <span jhiTranslate="entity.filters.search">Search</span>
+      </button>
+      <button
+        type="button"
+        class="flex-1 px-4 py-2 text-sm bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
         (click)="clearAllFilters()"
         [disabled]="!filters().hasAnyFilterSet()"
       >

@@ -142,7 +142,8 @@
     "filters": {
       "set": "Following filters are set",
       "clear": "Clear filter",
-      "clearAll": "Clear all filters"
+      "clearAll": "Clear",
+      "search": "Search"
     }
   },
   "error": {

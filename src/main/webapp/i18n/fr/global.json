@@ -142,7 +142,8 @@
     "filters": {
       "set": "Les filtres suivants sont définis",
       "clear": "Effacer le filtre",
-      "clearAll": "Effacer tous les filtres"
+      "clearAll": "Effacer",
+      "search": "Rechercher"
     }
   },
   "error": {
