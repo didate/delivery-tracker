@@ -11,298 +11,98 @@
   }
 
   <aside
-    class="fixed top-0 left-0 z-40 w-64 h-screen bg-gray-800 transition-transform duration-300 ease-in-out flex flex-col"
+    class="fixed top-0 left-0 z-40 w-64 h-screen bg-white border-r border-gray-200 transition-transform duration-300 ease-in-out flex flex-col"
     [ngClass]="{
       'translate-x-0': !sidebarService.isCollapsed(),
       '-translate-x-full': sidebarService.isCollapsed(),
     }"
   >
     <!-- Logo/Brand Section -->
-    <div class="p-6 border-b border-slate-700 flex-shrink-0 flex items-center justify-between">
+    <div class="p-6 border-b border-gray-100 flex-shrink-0 flex items-center justify-between">
       <a routerLink="/" (click)="collapseNavbar()" class="flex items-center gap-3 group">
         <div
-          class="w-12 h-12 bg-gradient-to-br from-orange-400 to-orange-600 rounded-xl flex items-center justify-center shadow-lg group-hover:scale-105 transition-transform duration-200"
+          class="w-12 h-12 bg-gradient-to-br from-orange-500 to-orange-600 rounded-xl flex items-center justify-center shadow-md group-hover:shadow-lg group-hover:scale-105 transition-all duration-200"
         >
           <fa-icon icon="truck" class="text-white text-xl" />
         </div>
         <div class="flex flex-col">
-          <span class="text-white font-bold text-xl" jhiTranslate="global.title">Delivery</span>
-          <span class="text-slate-400 text-xs">{{ version }}</span>
+          <span class="text-gray-900 font-bold text-xl tracking-tight" jhiTranslate="global.title">Delivery</span>
+          <span class="text-gray-500 text-xs font-medium">{{ version }}</span>
         </div>
       </a>
 
       <!-- Close Sidebar Button (Mobile) -->
-      <button type="button" class="lg:hidden text-slate-400 hover:text-white transition-colors" (click)="collapseNavbar()">
+      <button type="button" class="lg:hidden text-gray-400 hover:text-gray-600 transition-colors" (click)="collapseNavbar()">
         <fa-icon icon="times" class="text-xl" />
       </button>
     </div>
 
     <!-- Navigation Links - Scrollable -->
-    <nav class="flex-1 overflow-y-auto py-4 px-3">
-      <!-- Home -->
-      <a
-        routerLink="/"
-        routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-        [routerLinkActiveOptions]="{ exact: true }"
-        (click)="collapseNavbar()"
-        class="flex items-center gap-3 px-4 py-3 mb-1 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-      >
-        <fa-icon icon="home" [fixedWidth]="true" class="text-lg" />
-        <span jhiTranslate="global.menu.home">Accueil</span>
-      </a>
-
-      <!-- Entities Section - Collapsible -->
-      <div class="mt-4">
-        <button
-          (click)="toggleEntities()"
-          class="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider hover:text-slate-300 transition-colors"
-        >
-          <span jhiTranslate="global.menu.entities.main">Entites</span>
-          <fa-icon [icon]="isEntitiesOpen() ? 'chevron-down' : 'chevron-right'" class="text-xs" />
-        </button>
-
-        @if (isEntitiesOpen()) {
-          <div class="mt-1 space-y-1">
+    <nav class="flex-1 overflow-y-auto py-6 px-4 space-y-1">
+      @for (item of menuItems; track item.name) {
+        @if (hasAuthority(item)) {
+          <!-- Direct Link (not a dropdown) -->
+          @if (!item.isDropdown && item.route) {
             <a
-              routerLink="/tenant"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
+              [routerLink]="item.route"
+              routerLinkActive="bg-orange-50 text-orange-600 font-medium"
+              [routerLinkActiveOptions]="{ exact: item.route === '/' }"
               (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+              class="flex items-center gap-3 px-4 py-3 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
             >
-              <fa-icon icon="building" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.tenant">Tenant</span>
+              <fa-icon [icon]="item.icon" [fixedWidth]="true" class="text-lg opacity-75" />
+              <span [jhiTranslate]="item.translationKey">{{ item.name }}</span>
             </a>
+          }
 
-            <a
-              routerLink="/product"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="box" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.product">Product</span>
-            </a>
-
-            <a
-              routerLink="/price-history"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="chart-line" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.priceHistory">Price History</span>
-            </a>
-
-            <a
-              routerLink="/vehicle"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="car" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.vehicle">Vehicle</span>
-            </a>
-
-            <a
-              routerLink="/driver"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="id-card" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.driver">Driver</span>
-            </a>
-
-            <a
-              routerLink="/production-site"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="industry" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.productionSite">Production Site</span>
-            </a>
-
-            <a
-              routerLink="/customer"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="users" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.customer">Customer</span>
-            </a>
-
-            <a
-              routerLink="/production"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="cogs" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.production">Production</span>
-            </a>
-
-            <a
-              routerLink="/delivery"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="truck" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.delivery">Delivery</span>
-            </a>
-
-            <a
-              routerLink="/round"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="route" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.round">Round</span>
-            </a>
-
-            <a
-              routerLink="/payment"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="credit-card" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.payment">Payment</span>
-            </a>
-
-            <a
-              routerLink="/product-return"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="undo" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.productReturn">Product Return</span>
-            </a>
-
-            <a
-              routerLink="/expense"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="receipt" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.entities.expense">Expense</span>
-            </a>
-          </div>
-        }
-      </div>
-
-      <!-- Admin Section - Collapsible -->
-      <div *jhiHasAnyAuthority="'ROLE_ADMIN'" class="mt-4">
-        <button
-          (click)="toggleAdmin()"
-          class="w-full flex items-center justify-between px-4 py-2 text-xs font-semibold text-slate-500 uppercase tracking-wider hover:text-slate-300 transition-colors"
-        >
-          <span jhiTranslate="global.menu.admin.main">Administration</span>
-          <fa-icon [icon]="isAdminOpen() ? 'chevron-down' : 'chevron-right'" class="text-xs" />
-        </button>
-
-        @if (isAdminOpen()) {
-          <div class="mt-1 space-y-1">
-            <a
-              routerLink="/admin/user-management"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="users-cog" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.admin.userManagement">Gestion des utilisateurs</span>
-            </a>
-
-            <a
-              routerLink="/admin/metrics"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="tachometer-alt" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.admin.metrics">Metriques</span>
-            </a>
-
-            <a
-              routerLink="/admin/health"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="heart" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.admin.health">Diagnostics</span>
-            </a>
-
-            <a
-              routerLink="/admin/configuration"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="cogs" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.admin.configuration">Configuration</span>
-            </a>
-
-            <a
-              routerLink="/admin/logs"
-              routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-              [routerLinkActiveOptions]="{ exact: true }"
-              (click)="collapseNavbar()"
-              class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-            >
-              <fa-icon icon="tasks" [fixedWidth]="true" class="text-base" />
-              <span jhiTranslate="global.menu.admin.logs">Logs</span>
-            </a>
-
-            @if (openAPIEnabled()) {
-              <a
-                routerLink="/admin/docs"
-                routerLinkActive="bg-orange-500/20 text-orange-400 border-r-4 border-orange-500"
-                [routerLinkActiveOptions]="{ exact: true }"
-                (click)="collapseNavbar()"
-                class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
+          <!-- Dropdown Menu -->
+          @if (item.isDropdown && item.dropdownId && hasVisibleChildren(item)) {
+            <div class="pt-4">
+              <button
+                (click)="toggleDropdown(item.dropdownId)"
+                class="w-full flex items-center justify-between px-4 py-2 text-xs font-bold text-gray-400 uppercase tracking-wider hover:text-gray-600 transition-colors"
               >
-                <fa-icon icon="book" [fixedWidth]="true" class="text-base" />
-                <span jhiTranslate="global.menu.admin.apidocs">API</span>
-              </a>
-            }
+                <span [jhiTranslate]="item.translationKey">{{ item.name }}</span>
+                <fa-icon [icon]="isDropdownOpen(item.dropdownId) ? 'chevron-down' : 'chevron-right'" class="text-xs" />
+              </button>
 
-            @if (!inProduction()) {
-              <a
-                href="./h2-console/"
-                target="_tab"
-                (click)="collapseNavbar()"
-                class="flex items-center gap-3 px-4 py-2.5 text-slate-300 rounded-lg hover:bg-slate-700/50 hover:text-white transition-all duration-200"
-              >
-                <fa-icon icon="database" [fixedWidth]="true" class="text-base" />
-                <span jhiTranslate="global.menu.admin.database">Base de donnees</span>
-              </a>
-            }
-          </div>
+              @if (isDropdownOpen(item.dropdownId)) {
+                <div class="mt-2 space-y-1">
+                  @for (child of item.children; track child.name) {
+                    @if (hasAuthority(child) && shouldShowAdminItem(child)) {
+                      @if (child.route) {
+                        <a
+                          [routerLink]="child.route"
+                          routerLinkActive="bg-orange-50 text-orange-600 font-medium"
+                          [routerLinkActiveOptions]="{ exact: true }"
+                          (click)="collapseNavbar()"
+                          class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
+                        >
+                          <fa-icon [icon]="child.icon" [fixedWidth]="true" class="text-base opacity-75" />
+                          <span [jhiTranslate]="child.translationKey">{{ child.name }}</span>
+                        </a>
+                      }
+                    }
+                  }
+
+                  <!-- Special case for H2 Console (only in dev mode) -->
+                  @if (item.dropdownId === 'admin' && !inProduction()) {
+                    <a
+                      href="./h2-console/"
+                      target="_tab"
+                      (click)="collapseNavbar()"
+                      class="flex items-center gap-3 px-4 py-2.5 text-gray-600 rounded-lg hover:bg-gray-50 hover:text-gray-900 transition-all duration-200"
+                    >
+                      <fa-icon icon="database" [fixedWidth]="true" class="text-base opacity-75" />
+                      <span jhiTranslate="global.menu.admin.database">Base de donnees</span>
+                    </a>
+                  }
+                </div>
+              }
+            </div>
+          }
         }
-      </div>
+      }
     </nav>
   </aside>
 }

@@ -11,6 +11,8 @@ import { ProfileService } from 'app/layouts/profiles/profile.service';
 import HasAnyAuthorityDirective from 'app/shared/auth/has-any-authority.directive';
 import { TranslateDirective } from 'app/shared/language';
 import { SidebarService } from './sidebar.service';
+import { SidebarItem, SidebarChildItem } from './sidebar-item.model';
+import { SidebarMenuItems } from './sidebar-menu.config';
 
 @Component({
   selector: 'jhi-sidebar',
@@ -23,12 +25,17 @@ export default class SidebarComponent implements OnInit {
   inProduction = signal(true);
   isNavbarCollapsed = signal(true);
   openAPIEnabled = signal(false);
-  isEntitiesOpen = signal(true);
-  isAdminOpen = signal(true);
   readonly version: string;
   account = inject(AccountService).trackCurrentAccount();
 
+  // Menu items from configuration
+  readonly menuItems: SidebarItem[] = SidebarMenuItems;
+
+  // Track open/closed state of dropdowns
+  dropdownState: Record<string, boolean> = {};
+
   readonly sidebarService = inject(SidebarService);
+  private readonly accountService = inject(AccountService);
   private readonly profileService = inject(ProfileService);
   private readonly router = inject(Router);
 
@@ -38,6 +45,13 @@ export default class SidebarComponent implements OnInit {
       this.version = VERSION.toLowerCase().startsWith('v') ? VERSION : `v${VERSION}`;
     } else {
       this.version = '';
+    }
+
+    // Initialize all dropdowns as open
+    for (const item of this.menuItems) {
+      if (item.isDropdown && item.dropdownId) {
+        this.dropdownState[item.dropdownId] = true;
+      }
     }
   }
 
@@ -61,11 +75,34 @@ export default class SidebarComponent implements OnInit {
     this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
   }
 
-  toggleEntities(): void {
-    this.isEntitiesOpen.update(v => !v);
+  toggleDropdown(dropdownId: string): void {
+    this.dropdownState[dropdownId] = !this.dropdownState[dropdownId];
   }
 
-  toggleAdmin(): void {
-    this.isAdminOpen.update(v => !v);
+  isDropdownOpen(dropdownId: string): boolean {
+    return this.dropdownState[dropdownId] ?? false;
+  }
+
+  hasAuthority(item: SidebarItem | SidebarChildItem): boolean {
+    if (!item.authorities || item.authorities.length === 0) {
+      return true;
+    }
+    return this.accountService.hasAnyAuthority(item.authorities);
+  }
+
+  // Check if any children are visible for a dropdown
+  hasVisibleChildren(item: SidebarItem): boolean {
+    if (!item.children) {
+      return false;
+    }
+    return item.children.some(child => this.hasAuthority(child));
+  }
+
+  // Special checks for admin menu items
+  shouldShowAdminItem(item: SidebarChildItem): boolean {
+    if (item.name === 'API') {
+      return this.openAPIEnabled();
+    }
+    return true;
   }
 }
