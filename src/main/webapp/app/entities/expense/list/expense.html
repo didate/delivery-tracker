@@ -1,166 +1,204 @@
-<div>
-  <h2 id="page-heading" data-cy="ExpenseHeading">
-    <span jhiTranslate="deliveryApp.expense.home.title">Expenses</span>
+<div class="p-6">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div>
+      <h2 id="page-heading" data-cy="ExpenseHeading" class="text-2xl font-bold text-gray-900">
+        <span jhiTranslate="deliveryApp.expense.home.title">Expenses</span>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500">Track and manage expenses</p>
+    </div>
 
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading()">
+    <div class="flex gap-2 mt-4 sm:mt-0">
+      <button
+        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+        (click)="load()"
+        [disabled]="isLoading()"
+      >
         <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
-        <span jhiTranslate="deliveryApp.expense.home.refreshListLabel">Actualiser la liste</span>
+        <span class="hidden sm:inline" jhiTranslate="deliveryApp.expense.home.refreshListLabel">Actualiser</span>
       </button>
 
-      <button
+      <a
         id="jh-create-entity"
         data-cy="entityCreateButton"
-        class="btn btn-primary jh-create-entity create-expense"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-sm"
         [routerLink]="['/expense/new']"
       >
         <fa-icon icon="plus" />
-        <span jhiTranslate="deliveryApp.expense.home.createLabel">Créer un nouveau Expense</span>
-      </button>
+        <span jhiTranslate="deliveryApp.expense.home.createLabel">Nouveau</span>
+      </a>
     </div>
-  </h2>
+  </div>
 
   <jhi-alert-error />
-
   <jhi-alert />
 
-  <jhi-filter [filters]="filters" />
+  <!-- Filter Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <jhi-filter [filters]="filters" />
+  </div>
 
+  <!-- Empty State -->
   @if (expenses().length === 0) {
-    <div class="alert alert-warning" id="no-result">
-      <span jhiTranslate="deliveryApp.expense.home.notFound">Aucun Expense trouvé</span>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center" id="no-result">
+      <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <fa-icon icon="receipt" class="text-orange-500 text-2xl" />
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No expenses found</h3>
+      <p class="text-gray-500 mb-6" jhiTranslate="deliveryApp.expense.home.notFound">Aucun Expense trouve</p>
+      <a
+        [routerLink]="['/expense/new']"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+      >
+        <fa-icon icon="plus" />
+        <span>Add your first expense</span>
+      </a>
     </div>
   } @else {
-    <div class="table-responsive table-entities" id="entities">
-      <table class="table table-striped" aria-describedby="page-heading">
-        <thead>
-          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
-            <th scope="col" jhiSortBy="id">
-              <div class="d-flex">
-                <span jhiTranslate="global.field.id">ID</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="expenseDate">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.expense.expenseDate">Expense Date</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="amount">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.expense.amount">Amount</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="description">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.expense.description">Description</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="receiptUrl">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.expense.receiptUrl">Receipt Url</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="tenant.id">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.expense.tenant">Tenant</span>
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="category.id">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.expense.category">Category</span>
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="driver.id">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.expense.driver">Driver</span>
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (expense of expenses(); track trackId(expense)) {
-            <tr data-cy="entityTable">
-              <td>
-                <a [routerLink]="['/expense', expense.id, 'view']">{{ expense.id }}</a>
-              </td>
-              <td>{{ expense.expenseDate | formatMediumDate }}</td>
-              <td>{{ expense.amount }}</td>
-              <td>{{ expense.description }}</td>
-              <td>{{ expense.receiptUrl }}</td>
-              <td>
-                @if (expense.tenant) {
-                  <div>
-                    <a [routerLink]="['/tenant', expense.tenant.id, 'view']">{{ expense.tenant.id }}</a>
-                  </div>
-                }
-              </td>
-              <td>
-                @if (expense.category) {
-                  <div>
-                    <a [routerLink]="['/expense-category', expense.category.id, 'view']">{{ expense.category.id }}</a>
-                  </div>
-                }
-              </td>
-              <td>
-                @if (expense.driver) {
-                  <div>
-                    <a [routerLink]="['/driver', expense.driver.id, 'view']">{{ expense.driver.id }}</a>
-                  </div>
-                }
-              </td>
-              <td class="text-end">
-                <div class="btn-group">
-                  <a [routerLink]="['/expense', expense.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
-                    <fa-icon icon="eye" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Voir</span>
-                  </a>
-
-                  <a [routerLink]="['/expense', expense.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
-                    <fa-icon icon="pencil-alt" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Editer</span>
-                  </a>
-
-                  <button type="submit" (click)="delete(expense)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
-                    <fa-icon icon="times" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Supprimer</span>
-                  </button>
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" id="entities">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200" aria-describedby="page-heading" jhiResponsiveTable>
+          <thead>
+            <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
+              <th
+                scope="col"
+                jhiSortBy="expenseDate"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.expense.expenseDate">Expense Date</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
-              </td>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="amount"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.expense.amount">Amount</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="description"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.expense.description">Description</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="category.id"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.expense.category">Category</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="driver.id"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.expense.driver">Driver</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
-  @if (expenses().length > 0) {
-    <div>
-      <div class="d-flex justify-content-center">
-        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
-      </div>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (expense of expenses(); track trackId(expense)) {
+              <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  {{ expense.expenseDate | formatMediumDate }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">
+                  {{ expense.amount | number: '1.2-2' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
+                  {{ expense.description || '-' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
+                  @if (expense.category) {
+                    <a [routerLink]="['/expense-category', expense.category.id, 'view']" class="text-orange-600 hover:text-orange-700">
+                      #{{ expense.category.id }}
+                    </a>
+                  } @else {
+                    <span class="text-gray-400">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
+                  @if (expense.driver) {
+                    <a [routerLink]="['/driver', expense.driver.id, 'view']" class="text-orange-600 hover:text-orange-700">
+                      #{{ expense.driver.id }}
+                    </a>
+                  } @else {
+                    <span class="text-gray-400">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <a
+                      [routerLink]="['/expense', expense.id, 'view']"
+                      class="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                      data-cy="entityDetailsButton"
+                      title="View"
+                    >
+                      <fa-icon icon="eye" />
+                    </a>
 
-      <div class="d-flex justify-content-center">
-        <jhi-pagination
-          [collectionSize]="totalItems()"
-          [page]="page()"
-          [pageSize]="itemsPerPage()"
-          [maxSize]="5"
-          [boundaryLinks]="true"
-          (pageChange)="navigateToPage($event)"
-        />
+                    <a
+                      [routerLink]="['/expense', expense.id, 'edit']"
+                      class="inline-flex items-center justify-center w-8 h-8 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded transition-colors"
+                      data-cy="entityEditButton"
+                      title="Edit"
+                    >
+                      <fa-icon icon="pencil-alt" />
+                    </a>
+
+                    <button
+                      type="button"
+                      (click)="delete(expense)"
+                      class="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                      data-cy="entityDeleteButton"
+                      title="Delete"
+                    >
+                      <fa-icon icon="trash-alt" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="text-sm text-gray-900">
+          <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+        </div>
+
+        <div>
+          <jhi-pagination
+            [collectionSize]="totalItems()"
+            [page]="page()"
+            [pageSize]="itemsPerPage()"
+            [maxSize]="5"
+            [boundaryLinks]="true"
+            (pageChange)="navigateToPage($event)"
+          />
+        </div>
       </div>
     </div>
   }

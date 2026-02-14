@@ -1,153 +1,227 @@
-<div>
-  <h2 id="page-heading" data-cy="RoundCustomerHeading">
-    <span jhiTranslate="deliveryApp.roundCustomer.home.title">RoundCustomers</span>
+<div class="p-6">
+  <!-- Page Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
+    <div>
+      <h2 id="page-heading" data-cy="RoundCustomerHeading" class="text-2xl font-bold text-gray-900">
+        <span jhiTranslate="deliveryApp.roundCustomer.home.title">RoundCustomers</span>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500">Manage your round customers</p>
+    </div>
 
-    <div class="d-flex justify-content-end">
-      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading()">
+    <div class="flex gap-2 mt-4 sm:mt-0">
+      <button
+        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+        (click)="load()"
+        [disabled]="isLoading()"
+      >
         <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
-        <span jhiTranslate="deliveryApp.roundCustomer.home.refreshListLabel">Actualiser la liste</span>
+        <span class="hidden sm:inline" jhiTranslate="deliveryApp.roundCustomer.home.refreshListLabel">Actualiser</span>
       </button>
 
-      <button
+      <a
         id="jh-create-entity"
         data-cy="entityCreateButton"
-        class="btn btn-primary jh-create-entity create-round-customer"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-sm"
         [routerLink]="['/round-customer/new']"
       >
         <fa-icon icon="plus" />
-        <span jhiTranslate="deliveryApp.roundCustomer.home.createLabel">Créer un nouveau Round Customer</span>
-      </button>
+        <span jhiTranslate="deliveryApp.roundCustomer.home.createLabel">Nouveau</span>
+      </a>
     </div>
-  </h2>
+  </div>
 
   <jhi-alert-error />
-
   <jhi-alert />
 
-  <jhi-filter [filters]="filters" />
+  <!-- Filter Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <jhi-filter [filters]="filters" />
+  </div>
 
+  <!-- Empty State -->
   @if (roundCustomers().length === 0) {
-    <div class="alert alert-warning" id="no-result">
-      <span jhiTranslate="deliveryApp.roundCustomer.home.notFound">Aucun Round Customer trouvé</span>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center" id="no-result">
+      <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <fa-icon icon="route" class="text-orange-500 text-2xl" />
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No round customers found</h3>
+      <p class="text-gray-500 mb-6" jhiTranslate="deliveryApp.roundCustomer.home.notFound">Aucun Round Customer trouvé</p>
+      <a
+        [routerLink]="['/round-customer/new']"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+      >
+        <fa-icon icon="plus" />
+        <span>Add your first round customer</span>
+      </a>
     </div>
   } @else {
-    <div class="table-responsive table-entities" id="entities">
-      <table class="table table-striped" aria-describedby="page-heading">
-        <thead>
-          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
-            <th scope="col" jhiSortBy="id">
-              <div class="d-flex">
-                <span jhiTranslate="global.field.id">ID</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="sequenceOrder">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.roundCustomer.sequenceOrder">Sequence Order</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="visited">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.roundCustomer.visited">Visited</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="visitTime">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.roundCustomer.visitTime">Visit Time</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="notes">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.roundCustomer.notes">Notes</span>
-
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="round.id">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.roundCustomer.round">Round</span>
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col" jhiSortBy="customer.id">
-              <div class="d-flex">
-                <span jhiTranslate="deliveryApp.roundCustomer.customer">Customer</span>
-                <fa-icon class="p-1" icon="sort" />
-              </div>
-            </th>
-            <th scope="col"></th>
-          </tr>
-        </thead>
-        <tbody>
-          @for (roundCustomer of roundCustomers(); track trackId(roundCustomer)) {
-            <tr data-cy="entityTable">
-              <td>
-                <a [routerLink]="['/round-customer', roundCustomer.id, 'view']">{{ roundCustomer.id }}</a>
-              </td>
-              <td>{{ roundCustomer.sequenceOrder }}</td>
-              <td>{{ roundCustomer.visited }}</td>
-              <td>{{ roundCustomer.visitTime | formatMediumDatetime }}</td>
-              <td>{{ roundCustomer.notes }}</td>
-              <td>
-                @if (roundCustomer.round) {
-                  <div>
-                    <a [routerLink]="['/round', roundCustomer.round.id, 'view']">{{ roundCustomer.round.id }}</a>
-                  </div>
-                }
-              </td>
-              <td>
-                @if (roundCustomer.customer) {
-                  <div>
-                    <a [routerLink]="['/customer', roundCustomer.customer.id, 'view']">{{ roundCustomer.customer.id }}</a>
-                  </div>
-                }
-              </td>
-              <td class="text-end">
-                <div class="btn-group">
-                  <a [routerLink]="['/round-customer', roundCustomer.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
-                    <fa-icon icon="eye" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Voir</span>
-                  </a>
-
-                  <a [routerLink]="['/round-customer', roundCustomer.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
-                    <fa-icon icon="pencil-alt" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Editer</span>
-                  </a>
-
-                  <button type="submit" (click)="delete(roundCustomer)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
-                    <fa-icon icon="times" />
-                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Supprimer</span>
-                  </button>
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" id="entities">
+      <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200" aria-describedby="page-heading" jhiResponsiveTable>
+          <thead>
+            <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
+              <th
+                scope="col"
+                jhiSortBy="sequenceOrder"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.roundCustomer.sequenceOrder">Sequence Order</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
-              </td>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="visited"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.roundCustomer.visited">Visited</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="visitTime"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.roundCustomer.visitTime">Visit Time</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="notes"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.roundCustomer.notes">Notes</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="round.id"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.roundCustomer.round">Round</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
+                jhiSortBy="customer.id"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.roundCustomer.customer">Customer</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
             </tr>
-          }
-        </tbody>
-      </table>
-    </div>
-  }
-  @if (roundCustomers().length > 0) {
-    <div>
-      <div class="d-flex justify-content-center">
-        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
-      </div>
+          </thead>
+          <tbody class="divide-y divide-gray-100">
+            @for (roundCustomer of roundCustomers(); track trackId(roundCustomer)) {
+              <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                  {{ roundCustomer.sequenceOrder }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (roundCustomer.visited) {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                      Visited
+                    </span>
+                  } @else {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-900">
+                      <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
+                      Not Visited
+                    </span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
+                  {{ roundCustomer.visitTime | formatMediumDatetime }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
+                  {{ roundCustomer.notes || '-' }}
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
+                  @if (roundCustomer.round) {
+                    <a [routerLink]="['/round', roundCustomer.round.id, 'view']" class="text-orange-600 hover:text-orange-700">
+                      #{{ roundCustomer.round.id }}
+                    </a>
+                  } @else {
+                    <span class="text-gray-400">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
+                  @if (roundCustomer.customer) {
+                    <a [routerLink]="['/customer', roundCustomer.customer.id, 'view']" class="text-orange-600 hover:text-orange-700">
+                      #{{ roundCustomer.customer.id }}
+                    </a>
+                  } @else {
+                    <span class="text-gray-400">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <a
+                      [routerLink]="['/round-customer', roundCustomer.id, 'view']"
+                      class="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
+                      data-cy="entityDetailsButton"
+                      title="View"
+                    >
+                      <fa-icon icon="eye" />
+                    </a>
 
-      <div class="d-flex justify-content-center">
-        <jhi-pagination
-          [collectionSize]="totalItems()"
-          [page]="page()"
-          [pageSize]="itemsPerPage()"
-          [maxSize]="5"
-          [boundaryLinks]="true"
-          (pageChange)="navigateToPage($event)"
-        />
+                    <a
+                      [routerLink]="['/round-customer', roundCustomer.id, 'edit']"
+                      class="inline-flex items-center justify-center w-8 h-8 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded transition-colors"
+                      data-cy="entityEditButton"
+                      title="Edit"
+                    >
+                      <fa-icon icon="pencil-alt" />
+                    </a>
+
+                    <button
+                      type="button"
+                      (click)="delete(roundCustomer)"
+                      class="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
+                      data-cy="entityDeleteButton"
+                      title="Delete"
+                    >
+                      <fa-icon icon="trash-alt" />
+                    </button>
+                  </div>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="text-sm text-gray-900">
+          <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+        </div>
+
+        <div>
+          <jhi-pagination
+            [collectionSize]="totalItems()"
+            [page]="page()"
+            [pageSize]="itemsPerPage()"
+            [maxSize]="5"
+            [boundaryLinks]="true"
+            (pageChange)="navigateToPage($event)"
+          />
+        </div>
       </div>
     </div>
   }

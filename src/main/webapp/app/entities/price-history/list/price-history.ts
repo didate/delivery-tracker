@@ -13,6 +13,7 @@ import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/co
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { FormatMediumDatePipe } from 'app/shared/date';
+import { ResponsiveTableDirective } from 'app/shared/directives';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
@@ -38,6 +39,7 @@ import { EntityArrayResponseType, PriceHistoryService } from '../service/price-h
     Filter,
     ItemCount,
     PaginationComponent,
+    ResponsiveTableDirective,
   ],
 })
 export class PriceHistory implements OnInit {

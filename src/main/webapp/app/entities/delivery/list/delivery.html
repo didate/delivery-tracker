@@ -1,213 +1,221 @@
 <div class="p-6">
   <!-- Page Header -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-    <h2 id="page-heading" data-cy="DeliveryHeading" class="text-2xl font-bold text-gray-900">
-      <span jhiTranslate="deliveryApp.delivery.home.title">Deliveries</span>
-    </h2>
+    <div>
+      <h2 id="page-heading" data-cy="DeliveryHeading" class="text-2xl font-bold text-gray-900">
+        <span jhiTranslate="deliveryApp.delivery.home.title">Deliveries</span>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500">Manage your deliveries</p>
+    </div>
 
     <div class="flex gap-2 mt-4 sm:mt-0">
       <button
-        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors disabled:opacity-50"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
         (click)="load()"
         [disabled]="isLoading()"
       >
         <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
-        <span jhiTranslate="deliveryApp.delivery.home.refreshListLabel">Actualiser la liste</span>
+        <span class="hidden sm:inline" jhiTranslate="deliveryApp.delivery.home.refreshListLabel">Actualiser</span>
       </button>
 
-      <button
+      <a
         id="jh-create-entity"
         data-cy="entityCreateButton"
-        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-sm"
         [routerLink]="['/delivery/new']"
       >
         <fa-icon icon="plus" />
-        <span jhiTranslate="deliveryApp.delivery.home.createLabel">Créer un nouveau Delivery</span>
-      </button>
+        <span jhiTranslate="deliveryApp.delivery.home.createLabel">Nouveau</span>
+      </a>
     </div>
   </div>
 
   <jhi-alert-error />
   <jhi-alert />
 
-  <!-- Filter -->
-  <div class="mb-6">
-    <jhi-filter [filters]="filters" />
+  <!-- Filter Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <jhi-filter [filters]="filters" [filterFields]="filterFields" />
   </div>
 
   <!-- Empty State -->
   @if (deliveries().length === 0) {
-    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4 text-yellow-800" id="no-result">
-      <span jhiTranslate="deliveryApp.delivery.home.notFound">Aucun Delivery trouvé</span>
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center" id="no-result">
+      <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <fa-icon icon="truck" class="text-orange-500 text-2xl" />
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No deliveries found</h3>
+      <p class="text-gray-500 mb-6" jhiTranslate="deliveryApp.delivery.home.notFound">Aucun Delivery trouvé</p>
+      <a
+        [routerLink]="['/delivery/new']"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+      >
+        <fa-icon icon="plus" />
+        <span>Add your first delivery</span>
+      </a>
     </div>
   } @else {
     <!-- Table -->
-    <div class="bg-white rounded-lg shadow overflow-hidden" id="entities">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" id="entities">
       <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200" aria-describedby="page-heading">
-          <thead class="bg-gray-50">
-            <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
-              <th
-                scope="col"
-                jhiSortBy="id"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="global.field.id">ID</span>
-                  <fa-icon class="text-gray-400" icon="sort" />
-                </div>
-              </th>
+        <table class="min-w-full divide-y divide-gray-200" aria-describedby="page-heading" jhiResponsiveTable>
+          <thead>
+            <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
               <th
                 scope="col"
                 jhiSortBy="deliveryDate"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 <div class="flex items-center gap-1">
                   <span jhiTranslate="deliveryApp.delivery.deliveryDate">Delivery Date</span>
-                  <fa-icon class="text-gray-400" icon="sort" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
                 jhiSortBy="status"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 <div class="flex items-center gap-1">
                   <span jhiTranslate="deliveryApp.delivery.status">Status</span>
-                  <fa-icon class="text-gray-400" icon="sort" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
                 jhiSortBy="totalAmount"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
               >
                 <div class="flex items-center gap-1">
                   <span jhiTranslate="deliveryApp.delivery.totalAmount">Total Amount</span>
-                  <fa-icon class="text-gray-400" icon="sort" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
                 jhiSortBy="paidAmount"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
               >
                 <div class="flex items-center gap-1">
                   <span jhiTranslate="deliveryApp.delivery.paidAmount">Paid Amount</span>
-                  <fa-icon class="text-gray-400" icon="sort" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
                 jhiSortBy="customer.id"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
               >
                 <div class="flex items-center gap-1">
                   <span jhiTranslate="deliveryApp.delivery.customer">Customer</span>
-                  <fa-icon class="text-gray-400" icon="sort" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
                 jhiSortBy="driver.id"
-                class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
               >
                 <div class="flex items-center gap-1">
                   <span jhiTranslate="deliveryApp.delivery.driver">Driver</span>
-                  <fa-icon class="text-gray-400" icon="sort" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
-              <th scope="col" class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody class="bg-white divide-y divide-gray-200">
+          <tbody class="divide-y divide-gray-100">
             @for (delivery of deliveries(); track trackId(delivery)) {
               <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
-                <td class="px-6 py-4 whitespace-nowrap">
-                  <a [routerLink]="['/delivery', delivery.id, 'view']" class="text-blue-600 hover:text-blue-800 font-medium">
-                    {{ delivery.id }}
-                  </a>
-                </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {{ delivery.deliveryDate | formatMediumDate }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap">
+                <td class="px-4 py-3 whitespace-nowrap">
                   @switch (delivery.status) {
                     @case ('PENDING') {
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+                        <span class="w-1.5 h-1.5 bg-yellow-500 rounded-full mr-1.5"></span>
                         <span [jhiTranslate]="'deliveryApp.DeliveryStatus.' + delivery.status">PENDING</span>
                       </span>
                     }
                     @case ('IN_PROGRESS') {
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>
                         <span [jhiTranslate]="'deliveryApp.DeliveryStatus.' + delivery.status">IN_PROGRESS</span>
                       </span>
                     }
                     @case ('DELIVERED') {
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
                         <span [jhiTranslate]="'deliveryApp.DeliveryStatus.' + delivery.status">DELIVERED</span>
                       </span>
                     }
                     @case ('CANCELLED') {
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                        <span class="w-1.5 h-1.5 bg-red-500 rounded-full mr-1.5"></span>
                         <span [jhiTranslate]="'deliveryApp.DeliveryStatus.' + delivery.status">CANCELLED</span>
                       </span>
                     }
                     @default {
-                      <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-900">
+                        <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
                         {{ delivery.status }}
                       </span>
                     }
                   }
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 font-medium">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 font-medium hidden md:table-cell">
                   {{ delivery.totalAmount | number: '1.2-2' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
                   {{ delivery.paidAmount | number: '1.2-2' }}
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
                   @if (delivery.customer) {
-                    <a [routerLink]="['/customer', delivery.customer.id, 'view']" class="text-blue-600 hover:text-blue-800">
-                      {{ delivery.customer.id }}
+                    <a [routerLink]="['/customer', delivery.customer.id, 'view']" class="text-orange-600 hover:text-orange-700">
+                      #{{ delivery.customer.id }}
                     </a>
+                  } @else {
+                    <span class="text-gray-400">-</span>
                   }
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
                   @if (delivery.driver) {
-                    <a [routerLink]="['/driver', delivery.driver.id, 'view']" class="text-blue-600 hover:text-blue-800">
-                      {{ delivery.driver.id }}
+                    <a [routerLink]="['/driver', delivery.driver.id, 'view']" class="text-orange-600 hover:text-orange-700">
+                      #{{ delivery.driver.id }}
                     </a>
+                  } @else {
+                    <span class="text-gray-400">-</span>
                   }
                 </td>
-                <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
-                  <div class="flex items-center justify-end gap-2">
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
                     <a
                       [routerLink]="['/delivery', delivery.id, 'view']"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 bg-gray-100 text-gray-700 rounded hover:bg-gray-200 transition-colors"
+                      class="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
                       data-cy="entityDetailsButton"
+                      title="View"
                     >
                       <fa-icon icon="eye" />
-                      <span class="hidden md:inline" jhiTranslate="entity.action.view">Voir</span>
                     </a>
 
                     <a
                       [routerLink]="['/delivery', delivery.id, 'edit']"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 bg-blue-500 text-white rounded hover:bg-blue-600 transition-colors"
+                      class="inline-flex items-center justify-center w-8 h-8 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded transition-colors"
                       data-cy="entityEditButton"
+                      title="Edit"
                     >
                       <fa-icon icon="pencil-alt" />
-                      <span class="hidden md:inline" jhiTranslate="entity.action.edit">Editer</span>
                     </a>
 
                     <button
-                      type="submit"
+                      type="button"
                       (click)="delete(delivery)"
-                      class="inline-flex items-center gap-1 px-3 py-1.5 bg-red-500 text-white rounded hover:bg-red-600 transition-colors"
+                      class="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                       data-cy="entityDeleteButton"
+                      title="Delete"
                     >
-                      <fa-icon icon="times" />
-                      <span class="hidden md:inline" jhiTranslate="entity.action.delete">Supprimer</span>
+                      <fa-icon icon="trash-alt" />
                     </button>
                   </div>
                 </td>
@@ -217,24 +225,24 @@
         </table>
       </div>
     </div>
-  }
 
-  <!-- Pagination -->
-  @if (deliveries().length > 0) {
-    <div class="mt-6 flex flex-col items-center gap-4">
-      <div class="text-sm text-gray-700">
-        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
-      </div>
+    <!-- Pagination -->
+    <div class="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="text-sm text-gray-900">
+          <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+        </div>
 
-      <div>
-        <jhi-pagination
-          [collectionSize]="totalItems()"
-          [page]="page()"
-          [pageSize]="itemsPerPage()"
-          [maxSize]="5"
-          [boundaryLinks]="true"
-          (pageChange)="navigateToPage($event)"
-        />
+        <div>
+          <jhi-pagination
+            [collectionSize]="totalItems()"
+            [page]="page()"
+            [pageSize]="itemsPerPage()"
+            [maxSize]="5"
+            [boundaryLinks]="true"
+            (pageChange)="navigateToPage($event)"
+          />
+        </div>
       </div>
     </div>
   }

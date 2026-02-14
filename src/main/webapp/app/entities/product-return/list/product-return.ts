@@ -14,6 +14,7 @@ import { DataUtils } from 'app/core/util/data-util.service';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { FormatMediumDatePipe } from 'app/shared/date';
+import { ResponsiveTableDirective } from 'app/shared/directives';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
@@ -39,6 +40,7 @@ import { EntityArrayResponseType, ProductReturnService } from '../service/produc
     Filter,
     ItemCount,
     PaginationComponent,
+    ResponsiveTableDirective,
   ],
 })
 export class ProductReturn implements OnInit {

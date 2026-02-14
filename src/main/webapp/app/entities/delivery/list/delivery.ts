@@ -14,8 +14,9 @@ import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/co
 import { DataUtils } from 'app/core/util/data-util.service';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
+import { ResponsiveTableDirective } from 'app/shared/directives';
 import { FormatMediumDatePipe } from 'app/shared/date';
-import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
+import { Filter, FilterField, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
@@ -41,6 +42,7 @@ import { DeliveryService, EntityArrayResponseType } from '../service/delivery.se
     ItemCount,
     PaginationComponent,
     DecimalPipe,
+    ResponsiveTableDirective,
   ],
 })
 export class Delivery implements OnInit {
@@ -50,6 +52,7 @@ export class Delivery implements OnInit {
 
   sortState = sortStateSignal({});
   filters: IFilterOptions = new FilterOptions();
+  filterFields: FilterField[] = [{ name: 'status', label: 'Status', type: 'equals', placeholder: 'Filter by status...' }];
 
   itemsPerPage = signal(ITEMS_PER_PAGE);
   totalItems = signal(0);

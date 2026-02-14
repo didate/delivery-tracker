@@ -13,7 +13,8 @@ import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/co
 import { DataUtils } from 'app/core/util/data-util.service';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
-import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
+import { ResponsiveTableDirective } from 'app/shared/directives';
+import { Filter, FilterField, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
@@ -37,6 +38,7 @@ import { CustomerService, EntityArrayResponseType } from '../service/customer.se
     Filter,
     ItemCount,
     PaginationComponent,
+    ResponsiveTableDirective,
   ],
 })
 export class Customer implements OnInit {
@@ -46,6 +48,11 @@ export class Customer implements OnInit {
 
   sortState = sortStateSignal({});
   filters: IFilterOptions = new FilterOptions();
+  filterFields: FilterField[] = [
+    { name: 'name', label: 'Name', type: 'contains', placeholder: 'Search by name...' },
+    { name: 'code', label: 'Code', type: 'contains', placeholder: 'Search by code...' },
+    { name: 'phone', label: 'Phone', type: 'contains', placeholder: 'Search by phone...' },
+  ];
 
   itemsPerPage = signal(ITEMS_PER_PAGE);
   totalItems = signal(0);

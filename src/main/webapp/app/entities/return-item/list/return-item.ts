@@ -12,6 +12,7 @@ import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigati
 import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
+import { ResponsiveTableDirective } from 'app/shared/directives';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
@@ -36,6 +37,7 @@ import { EntityArrayResponseType, ReturnItemService } from '../service/return-it
     Filter,
     ItemCount,
     PaginationComponent,
+    ResponsiveTableDirective,
   ],
 })
 export class ReturnItem implements OnInit {

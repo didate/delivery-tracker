@@ -13,6 +13,7 @@ import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/co
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
+import { ResponsiveTableDirective } from 'app/shared/directives';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
@@ -36,6 +37,7 @@ import { ITenantSettings } from '../tenant-settings.model';
     Filter,
     ItemCount,
     PaginationComponent,
+    ResponsiveTableDirective,
   ],
 })
 export class TenantSettings implements OnInit {

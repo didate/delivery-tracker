@@ -13,6 +13,7 @@ import { DataUtils } from 'app/core/util/data-util.service';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
+import { ResponsiveTableDirective } from 'app/shared/directives';
 import { TranslateDirective } from 'app/shared/language';
 import { ModalService } from 'app/shared/modal';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
@@ -37,6 +38,7 @@ import { ITenant } from '../tenant.model';
     Filter,
     ItemCount,
     PaginationComponent,
+    ResponsiveTableDirective,
   ],
 })
 export class Tenant implements OnInit {
