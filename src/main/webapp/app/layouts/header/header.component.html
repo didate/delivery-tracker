@@ -31,6 +31,42 @@
             <fa-icon [icon]="isNavbarCollapsed() ? 'ellipsis-v' : 'times'" class="text-lg" />
           </button>
 
+          <!-- Language Switcher -->
+          <div class="relative mr-4">
+            <button
+              type="button"
+              class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors"
+              (click)="toggleLanguageMenu()"
+              [attr.aria-expanded]="isLanguageMenuOpen()"
+              aria-haspopup="true"
+            >
+              <fa-icon icon="globe" class="text-base" />
+              <span class="hidden sm:inline">{{ currentLanguage | findLanguageFromKey }}</span>
+            </button>
+
+            @if (isLanguageMenuOpen()) {
+              <div class="fixed inset-0 z-10" (click)="closeLanguageMenu()"></div>
+              <div
+                class="absolute right-0 z-20 mt-2 w-40 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+                role="menu"
+              >
+                @for (language of languages; track language) {
+                  <button
+                    type="button"
+                    class="block w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                    [class.text-orange-600]="language === currentLanguage"
+                    [class.font-medium]="language === currentLanguage"
+                    [class.text-gray-700]="language !== currentLanguage"
+                    role="menuitem"
+                    (click)="changeLanguage(language)"
+                  >
+                    {{ language | findLanguageFromKey }}
+                  </button>
+                }
+              </div>
+            }
+          </div>
+
           <!-- User Profile Section -->
           <div class="hidden sm:ml-6 sm:flex sm:items-center">
             @let accountRef = account();

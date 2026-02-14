@@ -23,6 +23,8 @@ export default class SidebarComponent implements OnInit {
   inProduction = signal(true);
   isNavbarCollapsed = signal(true);
   openAPIEnabled = signal(false);
+  isEntitiesOpen = signal(true);
+  isAdminOpen = signal(true);
   readonly version: string;
   account = inject(AccountService).trackCurrentAccount();
 
@@ -52,5 +54,13 @@ export default class SidebarComponent implements OnInit {
 
   toggleNavbar(): void {
     this.isNavbarCollapsed.update(isNavbarCollapsed => !isNavbarCollapsed);
+  }
+
+  toggleEntities(): void {
+    this.isEntitiesOpen.update(v => !v);
+  }
+
+  toggleAdmin(): void {
+    this.isAdminOpen.update(v => !v);
   }
 }
