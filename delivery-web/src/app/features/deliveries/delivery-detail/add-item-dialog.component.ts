@@ -1,11 +1,8 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnChanges, SimpleChanges, input, output, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogRef } from 'primeng/dynamicdialog';
-import { SelectModule } from 'primeng/select';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ButtonModule } from 'primeng/button';
 
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { CreateDeliveryItemDto } from '../models/delivery.model';
 import { Product } from '../../products/models/product.model';
 import { ProductService } from '../../products/services/product.service';
@@ -21,141 +18,109 @@ export interface AddItemDialogResult {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    SelectModule,
-    InputNumberModule,
-    ButtonModule,
+    ModalComponent,
     CurrencyPipe,
   ],
   template: `
-    <div class="dialog-content">
-      <form [formGroup]="itemForm" class="item-form">
-        <div class="field">
-          <label for="product">Product</label>
-          <p-select
+    <app-modal
+      [isOpen]="isOpen()"
+      title="Add Item"
+      maxWidth="450px"
+      (close)="onCancel()">
+
+      <form [formGroup]="itemForm" class="space-y-4">
+        <!-- Product -->
+        <div>
+          <label for="product" class="block text-sm font-medium text-gray-700 mb-1">Product</label>
+          <select
             id="product"
             formControlName="productId"
-            [options]="productOptions()"
-            optionLabel="label"
-            optionValue="value"
-            placeholder="Select a product"
-            [filter]="true"
-            filterPlaceholder="Search products..."
-            styleClass="w-full"
-            (onChange)="onProductChange($event.value)"
-          ></p-select>
+            (change)="onProductChange($any($event.target).value)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+            [class.border-red-500]="itemForm.controls.productId.invalid && itemForm.controls.productId.touched">
+            <option value="">Select a product</option>
+            @for (product of productOptions(); track product.value) {
+              <option [value]="product.value">{{ product.label }}</option>
+            }
+          </select>
           @if (itemForm.controls.productId.hasError('required') && itemForm.controls.productId.touched) {
-            <small class="p-error">Product is required</small>
+            <p class="mt-1 text-sm text-red-600">Product is required</p>
           }
         </div>
 
-        <div class="form-row">
-          <div class="field">
-            <label for="quantity">Quantity</label>
-            <p-inputNumber
+        <!-- Quantity & Unit Price -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="quantity" class="block text-sm font-medium text-gray-700 mb-1">Quantity</label>
+            <input
               id="quantity"
+              type="number"
               formControlName="quantity"
-              [min]="1"
-              [showButtons]="true"
-              buttonLayout="horizontal"
-              styleClass="w-full"
-            ></p-inputNumber>
+              min="1"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="itemForm.controls.quantity.invalid && itemForm.controls.quantity.touched" />
             @if (itemForm.controls.quantity.hasError('required') && itemForm.controls.quantity.touched) {
-              <small class="p-error">Quantity is required</small>
+              <p class="mt-1 text-sm text-red-600">Quantity is required</p>
             }
             @if (itemForm.controls.quantity.hasError('min')) {
-              <small class="p-error">Minimum quantity is 1</small>
+              <p class="mt-1 text-sm text-red-600">Minimum quantity is 1</p>
             }
           </div>
 
-          <div class="field">
-            <label for="unitPrice">Unit Price</label>
-            <p-inputNumber
-              id="unitPrice"
-              formControlName="unitPrice"
-              mode="currency"
-              currency="USD"
-              [min]="0"
-              styleClass="w-full"
-            ></p-inputNumber>
+          <div>
+            <label for="unitPrice" class="block text-sm font-medium text-gray-700 mb-1">Unit Price</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                id="unitPrice"
+                type="number"
+                formControlName="unitPrice"
+                min="0"
+                step="0.01"
+                class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="itemForm.controls.unitPrice.invalid && itemForm.controls.unitPrice.touched" />
+            </div>
             @if (itemForm.controls.unitPrice.hasError('required') && itemForm.controls.unitPrice.touched) {
-              <small class="p-error">Unit price is required</small>
+              <p class="mt-1 text-sm text-red-600">Unit price is required</p>
             }
           </div>
         </div>
 
-        <div class="total-preview">
-          <span>Total:</span>
-          <strong>{{ totalPrice() | currency }}</strong>
+        <!-- Total Preview -->
+        <div class="flex justify-between items-center px-4 py-3 bg-gray-50 rounded-lg">
+          <span class="text-gray-600">Total:</span>
+          <strong class="text-lg text-green-600">{{ totalPrice() | currency }}</strong>
+        </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="onAdd()"
+            [disabled]="itemForm.invalid"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+            <i class="pi pi-plus"></i>
+            Add Item
+          </button>
         </div>
       </form>
-
-      <div class="dialog-actions">
-        <p-button label="Cancel" severity="secondary" (onClick)="onCancel()"></p-button>
-        <p-button label="Add Item" icon="pi pi-plus" (onClick)="onAdd()" [disabled]="itemForm.invalid"></p-button>
-      </div>
-    </div>
+    </app-modal>
   `,
-  styles: [`
-    .dialog-content {
-      min-width: 400px;
-    }
-
-    .item-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1rem;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .field label {
-      font-weight: 500;
-      color: var(--text-color);
-    }
-
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .total-preview {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      padding: 1rem;
-      background-color: var(--surface-100);
-      border-radius: 0.5rem;
-      margin-top: 0.5rem;
-    }
-
-    .total-preview strong {
-      font-size: 1.25rem;
-      color: var(--green-500);
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--surface-border);
-    }
-  `]
 })
-export class AddItemDialogComponent implements OnInit {
+export class AddItemDialogComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
   private readonly productService = inject(ProductService);
+
+  isOpen = input<boolean>(false);
+
+  add = output<AddItemDialogResult>();
+  cancel = output<void>();
 
   readonly products = signal<Product[]>([]);
   readonly productOptions = computed(() =>
@@ -181,6 +146,16 @@ export class AddItemDialogComponent implements OnInit {
     this.loadProducts();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen'] && this.isOpen()) {
+      this.itemForm.reset({
+        productId: '',
+        quantity: 1,
+        unitPrice: 0
+      });
+    }
+  }
+
   private loadProducts(): void {
     this.productService.getProducts({ size: 1000, active: true }).subscribe({
       next: (response) => {
@@ -197,7 +172,7 @@ export class AddItemDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.cancel.emit();
   }
 
   onAdd(): void {
@@ -219,6 +194,6 @@ export class AddItemDialogComponent implements OnInit {
       data: itemData
     };
 
-    this.dialogRef.close(result);
+    this.add.emit(result);
   }
 }

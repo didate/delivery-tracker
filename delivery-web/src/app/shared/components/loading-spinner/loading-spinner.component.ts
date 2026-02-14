@@ -1,31 +1,15 @@
 import { Component, input } from '@angular/core';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
 @Component({
   selector: 'app-loading-spinner',
   standalone: true,
-  imports: [ProgressSpinnerModule],
   template: `
     @if (loading()) {
-      <div class="loading-overlay">
-        <p-progressSpinner [style]="{width: '50px', height: '50px'}"></p-progressSpinner>
+      <div class="absolute inset-0 bg-white/70 flex items-center justify-center z-50">
+        <div class="w-12 h-12 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
       </div>
     }
   `,
-  styles: [`
-    .loading-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.7);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 100;
-    }
-  `]
 })
 export class LoadingSpinnerComponent {
   loading = input<boolean>(false);

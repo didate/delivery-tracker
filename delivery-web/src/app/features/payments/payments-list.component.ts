@@ -1,26 +1,18 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule, TableLazyLoadEvent } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
-import { CardModule } from 'primeng/card';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TooltipModule } from 'primeng/tooltip';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ConfirmationService, MessageService } from 'primeng/api';
-import { ToastModule } from 'primeng/toast';
 
 import {
   Payment,
   PaymentMethod,
+  CreatePaymentDto,
   PAYMENT_METHOD_LABELS
 } from './models/payment.model';
 import { PaymentService } from './services/payment.service';
-import { PaymentDialogComponent } from './payment-dialog/payment-dialog.component';
+import { PaymentDialogComponent, PaymentDialogResult } from './payment-dialog/payment-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ToastComponent } from '../../shared/components/toast/toast.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-payments-list',
@@ -28,276 +20,223 @@ import { PaymentDialogComponent } from './payment-dialog/payment-dialog.componen
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    TagModule,
-    SelectModule,
-    DatePickerModule,
-    CardModule,
-    ProgressSpinnerModule,
-    TooltipModule,
-    ConfirmDialogModule,
-    ToastModule,
+    PaymentDialogComponent,
+    ConfirmDialogComponent,
+    ToastComponent,
     CurrencyPipe,
     DatePipe
   ],
-  providers: [DialogService, ConfirmationService, MessageService],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <h1>Payments</h1>
-        <p-button label="Add Payment" icon="pi pi-plus" (onClick)="openCreateDialog()"></p-button>
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900">Payments</h1>
+        <button
+          (click)="openCreateDialog()"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+          <i class="pi pi-plus"></i>
+          Add Payment
+        </button>
       </div>
 
-      <p-card>
-        <div class="filters">
-          <div class="filter-field">
-            <label for="methodFilter">Payment Method</label>
-            <p-select
-              id="methodFilter"
-              [options]="paymentMethodOptions"
-              [(ngModel)]="methodFilter"
-              (onChange)="onFilterChange()"
-              placeholder="All Methods"
-              [showClear]="true"
-              styleClass="w-full">
-            </p-select>
-          </div>
-
-          <div class="filter-field date-field">
-            <label for="startDate">Start Date</label>
-            <p-datepicker
-              id="startDate"
-              [(ngModel)]="startDate"
-              (onSelect)="onFilterChange()"
-              (onClear)="onFilterChange()"
-              [showIcon]="true"
-              [showClear]="true"
-              dateFormat="mm/dd/yy"
-              placeholder="Select start date">
-            </p-datepicker>
-          </div>
-
-          <div class="filter-field date-field">
-            <label for="endDate">End Date</label>
-            <p-datepicker
-              id="endDate"
-              [(ngModel)]="endDate"
-              (onSelect)="onFilterChange()"
-              (onClear)="onFilterChange()"
-              [showIcon]="true"
-              [showClear]="true"
-              dateFormat="mm/dd/yy"
-              placeholder="Select end date">
-            </p-datepicker>
-          </div>
-
-          @if (methodFilter || startDate || endDate) {
-            <div class="filter-field clear-button">
-              <p-button
-                label="Clear Filters"
-                icon="pi pi-times"
-                [text]="true"
-                (onClick)="clearFilters()">
-              </p-button>
+      <!-- Main Card -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Filters -->
+        <div class="p-4 border-b border-gray-100">
+          <div class="flex flex-wrap items-end gap-4">
+            <!-- Payment Method Filter -->
+            <div class="flex flex-col gap-2">
+              <label for="methodFilter" class="text-sm font-medium text-gray-700">Payment Method</label>
+              <div class="relative">
+                <select
+                  id="methodFilter"
+                  [(ngModel)]="methodFilter"
+                  (ngModelChange)="onFilterChange()"
+                  class="w-44 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white">
+                  <option [ngValue]="null">All Methods</option>
+                  @for (option of paymentMethodOptions; track option.value) {
+                    <option [ngValue]="option.value">{{ option.label }}</option>
+                  }
+                </select>
+                <i class="pi pi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+              </div>
             </div>
-          }
+
+            <!-- Start Date Filter -->
+            <div class="flex flex-col gap-2">
+              <label for="startDate" class="text-sm font-medium text-gray-700">Start Date</label>
+              <input
+                id="startDate"
+                type="date"
+                [(ngModel)]="startDateStr"
+                (ngModelChange)="onDateFilterChange()"
+                class="w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Select start date" />
+            </div>
+
+            <!-- End Date Filter -->
+            <div class="flex flex-col gap-2">
+              <label for="endDate" class="text-sm font-medium text-gray-700">End Date</label>
+              <input
+                id="endDate"
+                type="date"
+                [(ngModel)]="endDateStr"
+                (ngModelChange)="onDateFilterChange()"
+                class="w-40 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                placeholder="Select end date" />
+            </div>
+
+            @if (methodFilter || startDateStr || endDateStr) {
+              <button
+                (click)="clearFilters()"
+                class="px-3 py-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors flex items-center gap-2 text-sm">
+                <i class="pi pi-times"></i>
+                Clear Filters
+              </button>
+            }
+          </div>
         </div>
 
         @if (isLoading()) {
-          <div class="loading-container">
-            <p-progressSpinner [style]="{width: '40px', height: '40px'}"></p-progressSpinner>
-            <p>Loading payments...</p>
+          <div class="flex flex-col items-center justify-center py-16">
+            <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <p class="mt-4 text-gray-500">Loading payments...</p>
           </div>
         } @else if (error()) {
-          <div class="error-container">
-            <i class="pi pi-exclamation-triangle error-icon"></i>
-            <p>{{ error() }}</p>
-            <p-button label="Retry" icon="pi pi-refresh" (onClick)="loadPayments()"></p-button>
+          <div class="flex flex-col items-center justify-center py-16">
+            <i class="pi pi-exclamation-triangle text-5xl text-red-500 mb-4"></i>
+            <p class="text-gray-600 mb-4">{{ error() }}</p>
+            <button
+              (click)="loadPayments()"
+              class="px-4 py-2 text-blue-600 hover:bg-blue-50 font-medium rounded-lg transition-colors flex items-center gap-2">
+              <i class="pi pi-refresh"></i>
+              Retry
+            </button>
           </div>
         } @else if (payments().length === 0) {
-          <div class="empty-state">
-            <i class="pi pi-credit-card empty-icon"></i>
+          <div class="flex flex-col items-center justify-center py-16 text-gray-500">
+            <i class="pi pi-credit-card text-5xl mb-4"></i>
             <p>No payments found</p>
-            @if (methodFilter || startDate || endDate) {
-              <p class="empty-hint">Try adjusting your filters</p>
+            @if (methodFilter || startDateStr || endDateStr) {
+              <p class="text-sm mt-2">Try adjusting your filters</p>
             } @else {
-              <p class="empty-hint">Click "Add Payment" to create one</p>
+              <p class="text-sm mt-2">Click "Add Payment" to create one</p>
             }
           </div>
         } @else {
-          <p-table
-            [value]="payments()"
-            [paginator]="true"
-            [rows]="pageSize()"
-            [totalRecords]="totalItems()"
-            [lazy]="true"
-            (onLazyLoad)="onLazyLoad($event)"
-            [rowsPerPageOptions]="[5, 10, 25, 50]"
-            [showCurrentPageReport]="true"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-            [tableStyle]="{'min-width': '75rem'}">
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Code</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Amount</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Method</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Payment Date</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Reference</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                @for (payment of payments(); track payment.id) {
+                  <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ payment.code }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ payment.customerName }}</td>
+                    <td class="px-4 py-3 text-sm text-green-600 font-semibold">{{ payment.amount | currency }}</td>
+                    <td class="px-4 py-3 text-sm">
+                      <span [class]="getMethodClasses(payment.method)" class="inline-flex items-center gap-1">
+                        <i [class]="getMethodIcon(payment.method)"></i>
+                        {{ getMethodLabel(payment.method) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600">{{ payment.paymentDate | date:'mediumDate' }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-500 max-w-[150px] truncate">{{ payment.reference || '-' }}</td>
+                    <td class="px-4 py-3 text-sm">
+                      <div class="flex items-center gap-1">
+                        <button
+                          (click)="openEditDialog(payment)"
+                          class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="Edit payment">
+                          <i class="pi pi-pencil"></i>
+                        </button>
+                        <button
+                          (click)="confirmDelete(payment)"
+                          class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete payment">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
 
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Code</th>
-                <th>Customer</th>
-                <th>Amount</th>
-                <th>Method</th>
-                <th>Payment Date</th>
-                <th>Reference</th>
-                <th>Actions</th>
-              </tr>
-            </ng-template>
-
-            <ng-template pTemplate="body" let-payment>
-              <tr>
-                <td>{{ payment.code }}</td>
-                <td>{{ payment.customerName }}</td>
-                <td class="amount-cell">{{ payment.amount | currency }}</td>
-                <td>
-                  <p-tag
-                    [value]="getMethodLabel(payment.method)"
-                    [severity]="getMethodSeverity(payment.method)"
-                    [icon]="getMethodPrimeIcon(payment.method)">
-                  </p-tag>
-                </td>
-                <td>{{ payment.paymentDate | date:'mediumDate' }}</td>
-                <td class="reference-cell">{{ payment.reference || '-' }}</td>
-                <td>
-                  <div class="action-buttons">
-                    <p-button
-                      icon="pi pi-pencil"
-                      [rounded]="true"
-                      [text]="true"
-                      severity="info"
-                      pTooltip="Edit"
-                      (onClick)="openEditDialog(payment)">
-                    </p-button>
-                    <p-button
-                      icon="pi pi-trash"
-                      [rounded]="true"
-                      [text]="true"
-                      severity="danger"
-                      pTooltip="Delete"
-                      (onClick)="confirmDelete(payment)">
-                    </p-button>
-                  </div>
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+          <!-- Pagination -->
+          @if (totalItems() > pageSize()) {
+            <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200">
+              <div class="text-sm text-gray-600">
+                Showing {{ (currentPage() * pageSize()) + 1 }} to {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} of {{ totalItems() }} entries
+              </div>
+              <div class="flex items-center gap-2">
+                <button
+                  (click)="goToPage(currentPage() - 1)"
+                  [disabled]="currentPage() === 0"
+                  class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors">
+                  Previous
+                </button>
+                @for (page of getPageNumbers(); track page) {
+                  <button
+                    (click)="goToPage(page)"
+                    class="px-3 py-1 text-sm rounded-lg transition-colors"
+                    [class]="currentPage() === page ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'">
+                    {{ page + 1 }}
+                  </button>
+                }
+                <button
+                  (click)="goToPage(currentPage() + 1)"
+                  [disabled]="currentPage() >= getTotalPages() - 1"
+                  class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors">
+                  Next
+                </button>
+              </div>
+            </div>
+          }
         }
-      </p-card>
+      </div>
     </div>
 
-    <p-confirmDialog></p-confirmDialog>
-    <p-toast></p-toast>
+    <!-- Payment Dialog -->
+    <app-payment-dialog
+      [isOpen]="dialogOpen()"
+      [mode]="dialogMode()"
+      [payment]="selectedPayment()"
+      (save)="onDialogSave($event)"
+      (cancel)="closeDialog()">
+    </app-payment-dialog>
+
+    <!-- Confirm Delete Dialog -->
+    <app-confirm-dialog
+      [isOpen]="confirmDialogOpen()"
+      title="Delete Payment"
+      [message]="'Are you sure you want to delete payment \\'' + (paymentToDelete()?.code || '') + '\\' for ' + (paymentToDelete()?.customerName || '') + '?'"
+      confirmText="Delete"
+      cancelText="Cancel"
+      (confirm)="onDeleteConfirm()"
+      (cancel)="closeConfirmDialog()">
+    </app-confirm-dialog>
+
+    <!-- Toast -->
+    <app-toast></app-toast>
   `,
-  styles: [`
-    .page-container {
-      padding: 24px;
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .page-header h1 {
-      margin: 0;
-    }
-
-    .filters {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-
-    .filter-field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      min-width: 180px;
-    }
-
-    .filter-field label {
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .date-field {
-      min-width: 160px;
-    }
-
-    .clear-button {
-      min-width: auto;
-      align-self: flex-end;
-    }
-
-    .loading-container,
-    .error-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      text-align: center;
-    }
-
-    .error-icon {
-      font-size: 48px;
-      color: #f44336;
-      margin-bottom: 16px;
-    }
-
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      padding: 48px;
-      color: #999;
-    }
-
-    .empty-icon {
-      font-size: 48px;
-      margin-bottom: 16px;
-    }
-
-    .empty-hint {
-      font-size: 14px;
-      margin-top: 8px;
-    }
-
-    .amount-cell {
-      font-weight: 600;
-      color: #2e7d32;
-    }
-
-    .reference-cell {
-      max-width: 150px;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      white-space: nowrap;
-    }
-
-    .action-buttons {
-      display: flex;
-      gap: 4px;
-    }
-  `]
 })
 export class PaymentsListComponent implements OnInit {
   private readonly paymentService = inject(PaymentService);
-  private readonly dialogService = inject(DialogService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly toastService = inject(ToastService);
 
-  private dialogRef: DynamicDialogRef<any> | undefined;
+  readonly Math = Math;
 
   readonly paymentMethods = Object.values(PaymentMethod);
   readonly paymentMethodOptions = this.paymentMethods.map(method => ({
@@ -312,9 +251,16 @@ export class PaymentsListComponent implements OnInit {
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
 
+  readonly dialogOpen = signal(false);
+  readonly dialogMode = signal<'create' | 'edit'>('create');
+  readonly selectedPayment = signal<Payment | null>(null);
+
+  readonly confirmDialogOpen = signal(false);
+  readonly paymentToDelete = signal<Payment | null>(null);
+
   methodFilter: PaymentMethod | null = null;
-  startDate: Date | null = null;
-  endDate: Date | null = null;
+  startDateStr: string = '';
+  endDateStr: string = '';
 
   ngOnInit(): void {
     this.loadPayments();
@@ -332,11 +278,11 @@ export class PaymentsListComponent implements OnInit {
     if (this.methodFilter) {
       params['method'] = this.methodFilter;
     }
-    if (this.startDate) {
-      params['startDate'] = this.formatDate(this.startDate);
+    if (this.startDateStr) {
+      params['startDate'] = this.startDateStr;
     }
-    if (this.endDate) {
-      params['endDate'] = this.formatDate(this.endDate);
+    if (this.endDateStr) {
+      params['endDate'] = this.endDateStr;
     }
 
     this.paymentService.getPayments(params).subscribe({
@@ -357,27 +303,55 @@ export class PaymentsListComponent implements OnInit {
     this.loadPayments();
   }
 
-  clearFilters(): void {
-    this.methodFilter = null;
-    this.startDate = null;
-    this.endDate = null;
+  onDateFilterChange(): void {
     this.currentPage.set(0);
     this.loadPayments();
   }
 
-  onLazyLoad(event: TableLazyLoadEvent): void {
-    const first = event.first ?? 0;
-    const rows = event.rows ?? 10;
-    this.currentPage.set(Math.floor(first / rows));
-    this.pageSize.set(rows);
+  clearFilters(): void {
+    this.methodFilter = null;
+    this.startDateStr = '';
+    this.endDateStr = '';
+    this.currentPage.set(0);
     this.loadPayments();
+  }
+
+  goToPage(page: number): void {
+    this.currentPage.set(page);
+    this.loadPayments();
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalItems() / this.pageSize());
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.getTotalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+
+    let start = Math.max(0, current - 2);
+    let end = Math.min(total - 1, current + 2);
+
+    if (end - start < 4) {
+      if (start === 0) {
+        end = Math.min(total - 1, 4);
+      } else if (end === total - 1) {
+        start = Math.max(0, total - 5);
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
   }
 
   getMethodLabel(method: PaymentMethod): string {
     return PAYMENT_METHOD_LABELS[method] || method;
   }
 
-  getMethodPrimeIcon(method: PaymentMethod): string {
+  getMethodIcon(method: PaymentMethod): string {
     const iconMap: Record<PaymentMethod, string> = {
       [PaymentMethod.CASH]: 'pi pi-money-bill',
       [PaymentMethod.CHECK]: 'pi pi-file',
@@ -387,92 +361,88 @@ export class PaymentsListComponent implements OnInit {
     return iconMap[method] || 'pi pi-credit-card';
   }
 
-  getMethodSeverity(method: PaymentMethod): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
-    const severityMap: Record<PaymentMethod, 'success' | 'info' | 'warn' | 'danger' | 'secondary'> = {
-      [PaymentMethod.CASH]: 'success',
-      [PaymentMethod.CHECK]: 'warn',
-      [PaymentMethod.BANK_TRANSFER]: 'info',
-      [PaymentMethod.MOBILE_MONEY]: 'secondary'
+  getMethodClasses(method: PaymentMethod): string {
+    const baseClasses = 'px-2 py-1 rounded text-xs font-medium';
+    const colorMap: Record<PaymentMethod, string> = {
+      [PaymentMethod.CASH]: 'bg-green-100 text-green-700',
+      [PaymentMethod.CHECK]: 'bg-yellow-100 text-yellow-700',
+      [PaymentMethod.BANK_TRANSFER]: 'bg-blue-100 text-blue-700',
+      [PaymentMethod.MOBILE_MONEY]: 'bg-gray-100 text-gray-700'
     };
-    return severityMap[method] || 'info';
+    return `${baseClasses} ${colorMap[method] || 'bg-gray-100 text-gray-700'}`;
   }
 
   openCreateDialog(): void {
-    this.dialogRef = this.dialogService.open(PaymentDialogComponent, {
-      header: 'Create Payment',
-      width: '550px',
-      modal: true,
-      data: { mode: 'create' }
-    }) ?? undefined;
-
-    this.dialogRef?.onClose.subscribe((result) => {
-      if (result) {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Payment created successfully'
-        });
-        this.loadPayments();
-      }
-    });
+    this.selectedPayment.set(null);
+    this.dialogMode.set('create');
+    this.dialogOpen.set(true);
   }
 
   openEditDialog(payment: Payment): void {
-    this.dialogRef = this.dialogService.open(PaymentDialogComponent, {
-      header: 'Edit Payment',
-      width: '550px',
-      modal: true,
-      data: { mode: 'edit', payment }
-    }) ?? undefined;
+    this.selectedPayment.set(payment);
+    this.dialogMode.set('edit');
+    this.dialogOpen.set(true);
+  }
 
-    this.dialogRef?.onClose.subscribe((result) => {
-      if (result) {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Payment updated successfully'
+  closeDialog(): void {
+    this.dialogOpen.set(false);
+    this.selectedPayment.set(null);
+  }
+
+  onDialogSave(result: PaymentDialogResult): void {
+    if (result.action === 'save') {
+      if (this.dialogMode() === 'create') {
+        this.paymentService.createPayment(result.data as CreatePaymentDto).subscribe({
+          next: () => {
+            this.toastService.success('Success', 'Payment created successfully');
+            this.closeDialog();
+            this.loadPayments();
+          },
+          error: (err) => {
+            this.toastService.error('Error', err.message || 'Failed to create payment');
+          }
         });
-        this.loadPayments();
+      } else {
+        const payment = this.selectedPayment();
+        if (payment) {
+          this.paymentService.updatePayment(payment.id, result.data).subscribe({
+            next: () => {
+              this.toastService.success('Success', 'Payment updated successfully');
+              this.closeDialog();
+              this.loadPayments();
+            },
+            error: (err) => {
+              this.toastService.error('Error', err.message || 'Failed to update payment');
+            }
+          });
+        }
       }
-    });
+    }
   }
 
   confirmDelete(payment: Payment): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to delete payment "${payment.code}" for ${payment.customerName}?`,
-      header: 'Delete Payment',
-      icon: 'pi pi-exclamation-triangle',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.deletePayment(payment);
-      }
-    });
+    this.paymentToDelete.set(payment);
+    this.confirmDialogOpen.set(true);
   }
 
-  private deletePayment(payment: Payment): void {
-    this.paymentService.deletePayment(payment.id).subscribe({
-      next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: 'Payment deleted successfully'
-        });
-        this.loadPayments();
-      },
-      error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err.message || 'Failed to delete payment'
-        });
-      }
-    });
+  closeConfirmDialog(): void {
+    this.confirmDialogOpen.set(false);
+    this.paymentToDelete.set(null);
   }
 
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  onDeleteConfirm(): void {
+    const payment = this.paymentToDelete();
+    if (payment) {
+      this.paymentService.deletePayment(payment.id).subscribe({
+        next: () => {
+          this.toastService.success('Success', 'Payment deleted successfully');
+          this.closeConfirmDialog();
+          this.loadPayments();
+        },
+        error: (err) => {
+          this.toastService.error('Error', err.message || 'Failed to delete payment');
+        }
+      });
+    }
   }
 }

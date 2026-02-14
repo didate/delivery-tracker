@@ -1,12 +1,7 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, input, output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule, CurrencyPipe, DatePipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ButtonModule } from 'primeng/button';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { TableModule } from 'primeng/table';
-import { DividerModule } from 'primeng/divider';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { Product, PriceHistory } from '../models/product.model';
 import { ProductService } from '../services/product.service';
 
@@ -14,184 +9,131 @@ export interface PriceDialogData {
   product: Product;
 }
 
+export interface PriceDialogResult {
+  action: 'save';
+  price: number;
+}
+
 @Component({
   selector: 'app-price-dialog',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputNumberModule,
-    ButtonModule,
-    ProgressSpinnerModule,
-    TableModule,
-    DividerModule,
-    CurrencyPipe,
-    DatePipe
-  ],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent, CurrencyPipe, DatePipe],
   template: `
-    <div class="dialog-content">
-      <div class="current-price">
-        <span class="label">Current Price:</span>
-        <span class="value">{{ data.product.price | currency }}</span>
-      </div>
+    <app-modal
+      [isOpen]="isOpen()"
+      title="Update Price"
+      maxWidth="500px"
+      (close)="onCancel()">
 
-      <form [formGroup]="priceForm" class="price-form">
-        <div class="field">
-          <label for="price">New Price</label>
-          <p-inputNumber
-            id="price"
-            formControlName="price"
-            mode="currency"
-            currency="USD"
-            [min]="0"
-            styleClass="w-full">
-          </p-inputNumber>
-          @if (priceForm.controls.price.hasError('required') && priceForm.controls.price.touched) {
-            <small class="p-error">Price is required</small>
+      <div class="space-y-4">
+        <!-- Current Price -->
+        @if (product()) {
+          <div class="flex items-center gap-2 p-3 bg-gray-50 rounded-lg">
+            <span class="text-sm font-medium text-gray-500">Current Price:</span>
+            <span class="text-lg font-semibold text-blue-600">{{ product()!.price | currency }}</span>
+          </div>
+        }
+
+        <!-- New Price Form -->
+        <form [formGroup]="priceForm" (ngSubmit)="onSubmit()">
+          <div>
+            <label for="price" class="block text-sm font-medium text-gray-700 mb-1">New Price</label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                id="price"
+                type="number"
+                formControlName="price"
+                placeholder="0.00"
+                min="0"
+                step="0.01"
+                class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="priceForm.controls.price.invalid && priceForm.controls.price.touched" />
+            </div>
+            @if (priceForm.controls.price.hasError('required') && priceForm.controls.price.touched) {
+              <p class="mt-1 text-sm text-red-600">Price is required</p>
+            }
+            @if (priceForm.controls.price.hasError('min') && priceForm.controls.price.touched) {
+              <p class="mt-1 text-sm text-red-600">Price must be positive</p>
+            }
+          </div>
+
+          @if (errorMessage()) {
+            <div class="mt-3 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {{ errorMessage() }}
+            </div>
           }
-          @if (priceForm.controls.price.hasError('min')) {
-            <small class="p-error">Price must be positive</small>
+        </form>
+
+        <!-- Divider -->
+        <div class="border-t border-gray-200"></div>
+
+        <!-- Price History -->
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 mb-3">Price History</h3>
+
+          @if (isLoadingHistory()) {
+            <div class="flex justify-center py-6">
+              <div class="w-6 h-6 border-3 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            </div>
+          } @else if (priceHistory().length > 0) {
+            <div class="overflow-hidden border border-gray-200 rounded-lg">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th class="px-3 py-2 text-left font-medium text-gray-600">Price</th>
+                    <th class="px-3 py-2 text-left font-medium text-gray-600">Changed Date</th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  @for (row of priceHistory(); track row.id) {
+                    <tr class="hover:bg-gray-50">
+                      <td class="px-3 py-2 text-gray-900 font-medium">{{ row.price | currency }}</td>
+                      <td class="px-3 py-2 text-gray-600">{{ row.changedDate | date:'medium' }}</td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+          } @else {
+            <p class="text-center text-gray-500 py-4">No price history available</p>
           }
         </div>
 
-        @if (errorMessage()) {
-          <div class="error-message">{{ errorMessage() }}</div>
-        }
-      </form>
-
-      <p-divider></p-divider>
-
-      <div class="price-history-section">
-        <h3>Price History</h3>
-        @if (isLoadingHistory()) {
-          <div class="loading-container">
-            <p-progressSpinner [style]="{width: '30px', height: '30px'}"></p-progressSpinner>
-          </div>
-        } @else if (priceHistory().length > 0) {
-          <p-table [value]="priceHistory()" styleClass="p-datatable-sm">
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Price</th>
-                <th>Changed Date</th>
-              </tr>
-            </ng-template>
-            <ng-template pTemplate="body" let-row>
-              <tr>
-                <td>{{ row.price | currency }}</td>
-                <td>{{ row.changedDate | date:'medium' }}</td>
-              </tr>
-            </ng-template>
-          </p-table>
-        } @else {
-          <p class="no-history">No price history available</p>
-        }
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            (click)="onCancel()"
+            [disabled]="isLoading()"
+            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 font-medium rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="onSubmit()"
+            [disabled]="priceForm.invalid || isLoading()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+            @if (isLoading()) {
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            }
+            <i class="pi pi-check"></i>
+            Update Price
+          </button>
+        </div>
       </div>
-
-      <div class="dialog-actions">
-        <p-button
-          label="Cancel"
-          severity="secondary"
-          (onClick)="onCancel()"
-          [disabled]="isLoading()">
-        </p-button>
-        <p-button
-          label="Update Price"
-          icon="pi pi-check"
-          (onClick)="onSubmit()"
-          [disabled]="isLoading() || priceForm.invalid"
-          [loading]="isLoading()">
-        </p-button>
-      </div>
-    </div>
+    </app-modal>
   `,
-  styles: [`
-    .dialog-content {
-      min-width: 400px;
-    }
-
-    .current-price {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 16px;
-      padding: 12px;
-      background-color: var(--surface-100);
-      border-radius: 4px;
-    }
-
-    .current-price .label {
-      font-weight: 500;
-      color: var(--text-color-secondary);
-    }
-
-    .current-price .value {
-      font-size: 1.25rem;
-      font-weight: 600;
-      color: var(--primary-color);
-    }
-
-    .price-form {
-      display: flex;
-      flex-direction: column;
-      padding-top: 8px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .field label {
-      font-weight: 500;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .error-message {
-      color: var(--red-500);
-      font-size: 12px;
-      margin-top: 8px;
-    }
-
-    .price-history-section h3 {
-      margin: 16px 0 8px 0;
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-color-secondary);
-    }
-
-    .loading-container {
-      display: flex;
-      justify-content: center;
-      padding: 24px;
-    }
-
-    .no-history {
-      text-align: center;
-      color: var(--text-color-secondary);
-      padding: 16px;
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.5rem;
-      margin-top: 1.5rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--surface-border);
-    }
-  `]
 })
-export class PriceDialogComponent implements OnInit {
+export class PriceDialogComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(DynamicDialogRef);
-  private readonly dialogConfig = inject(DynamicDialogConfig);
   private readonly productService = inject(ProductService);
 
-  readonly data: PriceDialogData = this.dialogConfig.data;
+  isOpen = input<boolean>(false);
+  product = input<Product | null>(null);
+
+  save = output<PriceDialogResult>();
+  cancel = output<void>();
 
   readonly isLoading = signal(false);
   readonly isLoadingHistory = signal(false);
@@ -206,9 +148,22 @@ export class PriceDialogComponent implements OnInit {
     this.loadPriceHistory();
   }
 
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['product'] || changes['isOpen']) {
+      if (this.isOpen() && this.product()) {
+        this.priceForm.reset({ price: 0 });
+        this.errorMessage.set(null);
+        this.loadPriceHistory();
+      }
+    }
+  }
+
   private loadPriceHistory(): void {
+    const productData = this.product();
+    if (!productData) return;
+
     this.isLoadingHistory.set(true);
-    this.productService.getPriceHistory(this.data.product.id).subscribe({
+    this.productService.getPriceHistory(productData.id).subscribe({
       next: (history) => {
         this.priceHistory.set(history);
         this.isLoadingHistory.set(false);
@@ -220,7 +175,7 @@ export class PriceDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.cancel.emit();
   }
 
   onSubmit(): void {
@@ -229,20 +184,13 @@ export class PriceDialogComponent implements OnInit {
       return;
     }
 
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-
     const newPrice = this.priceForm.controls.price.value;
 
-    this.productService.updatePrice(this.data.product.id, { price: newPrice }).subscribe({
-      next: (product) => {
-        this.isLoading.set(false);
-        this.dialogRef.close(product);
-      },
-      error: (err) => {
-        this.isLoading.set(false);
-        this.errorMessage.set(err.message || 'Failed to update price');
-      }
-    });
+    const result: PriceDialogResult = {
+      action: 'save',
+      price: newPrice
+    };
+
+    this.save.emit(result);
   }
 }

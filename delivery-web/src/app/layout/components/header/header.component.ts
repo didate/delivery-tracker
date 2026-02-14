@@ -1,131 +1,81 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal, output, OnInit } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { MenubarModule } from 'primeng/menubar';
-import { ButtonModule } from 'primeng/button';
-import { AvatarModule } from 'primeng/avatar';
-import { MenuModule } from 'primeng/menu';
-import { MenuItem } from 'primeng/api';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [
-    CommonModule,
-    RouterLink,
-    MenubarModule,
-    ButtonModule,
-    AvatarModule,
-    MenuModule
-  ],
+  imports: [RouterLink],
   template: `
-    <div class="header-container">
-      <p-menubar [model]="menuItems()">
-        <ng-template #start>
-          <div class="logo" routerLink="/dashboard">
-            <i class="pi pi-truck"></i>
-            <span>Delivery Manager</span>
-          </div>
-        </ng-template>
-        <ng-template #end>
-          <div class="user-section">
-            <span class="user-name">{{ currentUser().name }}</span>
-            <p-avatar
-              [label]="userInitials()"
-              shape="circle"
-              styleClass="cursor-pointer"
-              (click)="userMenu.toggle($event)"
-            ></p-avatar>
-            <p-menu #userMenu [model]="userMenuItems" [popup]="true"></p-menu>
-          </div>
-        </ng-template>
-      </p-menubar>
-    </div>
+    <header class="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 lg:px-6">
+      <!-- Mobile menu button -->
+      <button
+        (click)="toggleSidebar.emit()"
+        class="lg:hidden p-2 rounded-lg text-gray-500 hover:bg-gray-100">
+        <i class="pi pi-bars text-lg"></i>
+      </button>
+
+      <!-- Logo (mobile) -->
+      <a routerLink="/dashboard" class="lg:hidden flex items-center gap-2 text-blue-600 font-bold">
+        <i class="pi pi-truck text-xl"></i>
+        <span>Delivery</span>
+      </a>
+
+      <!-- Spacer -->
+      <div class="flex-1 hidden lg:block"></div>
+
+      <!-- User section -->
+      <div class="flex items-center gap-3">
+        <button class="p-2 rounded-lg text-gray-500 hover:bg-gray-100 relative">
+          <i class="pi pi-bell text-lg"></i>
+          <span class="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full"></span>
+        </button>
+
+        <div class="relative" #userMenuContainer>
+          <button
+            (click)="toggleUserMenu()"
+            class="flex items-center gap-2 p-1 rounded-lg hover:bg-gray-100 transition-colors">
+            <div class="w-8 h-8 rounded-full bg-blue-600 flex items-center justify-center text-white text-sm font-medium">
+              {{ userInitials() }}
+            </div>
+            <span class="hidden md:block text-sm font-medium text-gray-700">{{ currentUser().name }}</span>
+            <i class="pi pi-chevron-down text-xs text-gray-400 hidden md:block"></i>
+          </button>
+
+          @if (userMenuOpen()) {
+            <div class="absolute right-0 top-full mt-2 w-48 bg-white rounded-lg shadow-lg border border-gray-200 py-1 z-50">
+              <a
+                routerLink="/settings"
+                (click)="closeUserMenu()"
+                class="flex items-center gap-3 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
+                <i class="pi pi-cog"></i>
+                Settings
+              </a>
+              <div class="border-t border-gray-100 my-1"></div>
+              <button
+                (click)="onLogout()"
+                class="w-full flex items-center gap-3 px-4 py-2 text-sm text-red-600 hover:bg-red-50">
+                <i class="pi pi-sign-out"></i>
+                Logout
+              </button>
+            </div>
+          }
+        </div>
+      </div>
+    </header>
   `,
-  styles: [`
-    .header-container {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-    }
-
-    :host ::ng-deep .p-menubar {
-      background: white;
-      border-radius: 0;
-      border: none;
-      border-bottom: 1px solid var(--surface-border);
-      padding: 0.5rem 1rem;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      font-size: 1.25rem;
-      font-weight: 700;
-      color: var(--primary-color);
-      cursor: pointer;
-      margin-right: 2rem;
-    }
-
-    .logo i {
-      font-size: 1.5rem;
-    }
-
-    .user-section {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .user-name {
-      font-weight: 500;
-      color: var(--text-color);
-    }
-
-    @media screen and (max-width: 768px) {
-      .user-name {
-        display: none;
-      }
-    }
-  `]
 })
 export class HeaderComponent implements OnInit {
   private readonly router = inject(Router);
   private readonly authService = inject(AuthService);
 
-  readonly menuItems = signal<MenuItem[]>([]);
+  toggleSidebar = output<void>();
 
-  readonly currentUser = signal({
-    name: 'User',
-    email: ''
-  });
-
-  readonly userMenuItems: MenuItem[] = [
-    {
-      label: 'Profile',
-      icon: 'pi pi-user',
-      command: () => this.router.navigate(['/settings/profile'])
-    },
-    {
-      label: 'Settings',
-      icon: 'pi pi-cog',
-      command: () => this.router.navigate(['/settings'])
-    },
-    { separator: true },
-    {
-      label: 'Logout',
-      icon: 'pi pi-sign-out',
-      command: () => this.onLogout()
-    }
-  ];
+  readonly userMenuOpen = signal(false);
+  readonly currentUser = signal({ name: 'User', email: '' });
 
   ngOnInit(): void {
     this.loadUserInfo();
-    this.initMenuItems();
   }
 
   userInitials(): string {
@@ -138,57 +88,22 @@ export class HeaderComponent implements OnInit {
     return name.substring(0, 2).toUpperCase();
   }
 
+  toggleUserMenu(): void {
+    this.userMenuOpen.update(v => !v);
+  }
+
+  closeUserMenu(): void {
+    this.userMenuOpen.set(false);
+  }
+
   private loadUserInfo(): void {
     const user = this.authService.currentUser();
     if (user) {
-      this.currentUser.set({
-        name: user.name,
-        email: user.email
-      });
+      this.currentUser.set({ name: user.name, email: user.email });
     }
   }
 
-  private initMenuItems(): void {
-    this.menuItems.set([
-      {
-        label: 'Dashboard',
-        icon: 'pi pi-home',
-        routerLink: '/dashboard'
-      },
-      {
-        label: 'Customers',
-        icon: 'pi pi-users',
-        routerLink: '/customers'
-      },
-      {
-        label: 'Products',
-        icon: 'pi pi-box',
-        routerLink: '/products'
-      },
-      {
-        label: 'Drivers',
-        icon: 'pi pi-car',
-        routerLink: '/drivers'
-      },
-      {
-        label: 'Deliveries',
-        icon: 'pi pi-truck',
-        routerLink: '/deliveries'
-      },
-      {
-        label: 'Payments',
-        icon: 'pi pi-credit-card',
-        routerLink: '/payments'
-      },
-      {
-        label: 'Returns',
-        icon: 'pi pi-replay',
-        routerLink: '/returns'
-      }
-    ]);
-  }
-
-  private onLogout(): void {
+  onLogout(): void {
     this.authService.logout();
     this.router.navigate(['/auth/login']);
   }

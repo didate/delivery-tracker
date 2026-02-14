@@ -2,28 +2,18 @@ import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule, DatePipe, CurrencyPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
-import { TableModule } from 'primeng/table';
-import { ButtonModule } from 'primeng/button';
-import { TagModule } from 'primeng/tag';
-import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
-import { CardModule } from 'primeng/card';
-import { TooltipModule } from 'primeng/tooltip';
-import { MenuModule } from 'primeng/menu';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { DialogService, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { ConfirmationService, MessageService, MenuItem } from 'primeng/api';
-import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { ToastModule } from 'primeng/toast';
 
 import {
   Delivery,
   DeliveryStatus,
   DELIVERY_STATUS_OPTIONS,
-  DELIVERY_STATUS_COLORS
+  CreateDeliveryDto
 } from './models/delivery.model';
 import { DeliveryService } from './services/delivery.service';
-import { DeliveryDialogComponent } from './delivery-dialog/delivery-dialog.component';
+import { DeliveryDialogComponent, DeliveryDialogResult } from './delivery-dialog/delivery-dialog.component';
+import { ConfirmDialogComponent } from '../../shared/components/confirm-dialog/confirm-dialog.component';
+import { ToastComponent } from '../../shared/components/toast/toast.component';
+import { ToastService } from '../../shared/components/toast/toast.service';
 
 @Component({
   selector: 'app-deliveries-list',
@@ -31,305 +21,250 @@ import { DeliveryDialogComponent } from './delivery-dialog/delivery-dialog.compo
   imports: [
     CommonModule,
     FormsModule,
-    TableModule,
-    ButtonModule,
-    TagModule,
-    SelectModule,
-    DatePickerModule,
-    CardModule,
-    TooltipModule,
-    MenuModule,
-    ProgressSpinnerModule,
-    ConfirmDialogModule,
-    ToastModule,
     DatePipe,
     CurrencyPipe,
+    DeliveryDialogComponent,
+    ConfirmDialogComponent,
+    ToastComponent,
   ],
-  providers: [DialogService, ConfirmationService, MessageService],
   template: `
-    <div class="page-container">
-      <div class="page-header">
-        <h1>Deliveries</h1>
-        <p-button
-          label="New Delivery"
-          icon="pi pi-plus"
-          (onClick)="openCreateDialog()">
-        </p-button>
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="flex items-center justify-between mb-6">
+        <h1 class="text-2xl font-semibold text-gray-900">Deliveries</h1>
+        <button
+          (click)="openCreateDialog()"
+          class="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+          <i class="pi pi-plus"></i>
+          New Delivery
+        </button>
       </div>
 
-      <p-card>
-        <div class="filters-row">
-          <div class="filter-field">
-            <label for="statusFilter">Status</label>
-            <p-select
-              id="statusFilter"
-              [options]="statusFilterOptions"
-              [(ngModel)]="statusFilter"
-              (onChange)="onFilterChange()"
-              placeholder="All Statuses"
-              [showClear]="true"
-              optionLabel="label"
-              optionValue="value"
-              styleClass="w-full">
-            </p-select>
-          </div>
+      <!-- Main Card -->
+      <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
+        <!-- Filters -->
+        <div class="p-4 border-b border-gray-100">
+          <div class="flex flex-wrap gap-4 items-end">
+            <div class="flex flex-col gap-1 w-44">
+              <label for="statusFilter" class="text-xs font-medium text-gray-500">Status</label>
+              <select
+                id="statusFilter"
+                [(ngModel)]="statusFilter"
+                (ngModelChange)="onFilterChange()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option [ngValue]="null">All Statuses</option>
+                @for (status of statusFilterOptions; track status.value) {
+                  <option [ngValue]="status.value">{{ status.label }}</option>
+                }
+              </select>
+            </div>
 
-          <div class="filter-field">
-            <label for="startDate">Start Date</label>
-            <p-datepicker
-              id="startDate"
-              [(ngModel)]="startDateFilter"
-              (onSelect)="onFilterChange()"
-              (onClear)="onFilterChange()"
-              [showClear]="true"
-              dateFormat="mm/dd/yy"
-              placeholder="Select start date"
-              styleClass="w-full">
-            </p-datepicker>
-          </div>
+            <div class="flex flex-col gap-1 w-44">
+              <label for="startDate" class="text-xs font-medium text-gray-500">Start Date</label>
+              <input
+                id="startDate"
+                type="date"
+                [(ngModel)]="startDateFilter"
+                (ngModelChange)="onFilterChange()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
 
-          <div class="filter-field">
-            <label for="endDate">End Date</label>
-            <p-datepicker
-              id="endDate"
-              [(ngModel)]="endDateFilter"
-              (onSelect)="onFilterChange()"
-              (onClear)="onFilterChange()"
-              [showClear]="true"
-              dateFormat="mm/dd/yy"
-              placeholder="Select end date"
-              styleClass="w-full">
-            </p-datepicker>
-          </div>
+            <div class="flex flex-col gap-1 w-44">
+              <label for="endDate" class="text-xs font-medium text-gray-500">End Date</label>
+              <input
+                id="endDate"
+                type="date"
+                [(ngModel)]="endDateFilter"
+                (ngModelChange)="onFilterChange()"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+            </div>
 
-          <div class="clear-filters-container">
-            <p-button
-              label="Clear Filters"
-              icon="pi pi-times"
-              [text]="true"
-              (onClick)="clearFilters()">
-            </p-button>
+            <div class="ml-auto">
+              <button
+                (click)="clearFilters()"
+                class="px-4 py-2 text-gray-600 hover:text-gray-800 hover:bg-gray-100 font-medium rounded-lg transition-colors flex items-center gap-2">
+                <i class="pi pi-times"></i>
+                Clear Filters
+              </button>
+            </div>
           </div>
         </div>
 
         @if (isLoading()) {
-          <div class="loading-container">
-            <p-progressSpinner strokeWidth="4" [style]="{ width: '40px', height: '40px' }"></p-progressSpinner>
-            <p>Loading deliveries...</p>
+          <div class="flex flex-col items-center justify-center py-16">
+            <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+            <p class="mt-4 text-gray-500">Loading deliveries...</p>
           </div>
         } @else if (error()) {
-          <div class="error-container">
-            <i class="pi pi-exclamation-circle error-icon"></i>
-            <p>{{ error() }}</p>
-            <p-button
-              label="Retry"
-              icon="pi pi-refresh"
-              [text]="true"
-              (onClick)="loadDeliveries()">
-            </p-button>
+          <div class="flex flex-col items-center justify-center py-16">
+            <i class="pi pi-exclamation-circle text-5xl text-red-500 mb-4"></i>
+            <p class="text-gray-600 mb-4">{{ error() }}</p>
+            <button
+              (click)="loadDeliveries()"
+              class="px-4 py-2 text-blue-600 hover:bg-blue-50 font-medium rounded-lg transition-colors flex items-center gap-2">
+              <i class="pi pi-refresh"></i>
+              Retry
+            </button>
           </div>
         } @else {
-          <p-table
-            [value]="deliveries()"
-            [paginator]="true"
-            [rows]="pageSize()"
-            [totalRecords]="totalItems()"
-            [lazy]="true"
-            (onLazyLoad)="onLazyLoad($event)"
-            [rowsPerPageOptions]="[5, 10, 25, 50]"
-            [showCurrentPageReport]="true"
-            currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-            [tableStyle]="{ 'min-width': '70rem' }"
-            styleClass="p-datatable-striped"
-            [rowHover]="true">
+          <!-- Table -->
+          <div class="overflow-x-auto">
+            <table class="w-full">
+              <thead class="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Code</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Customer</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Driver</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Delivery Date</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Status</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Total</th>
+                  <th class="px-4 py-3 text-left text-sm font-semibold text-gray-700">Actions</th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-gray-100">
+                @for (delivery of deliveries(); track delivery.id) {
+                  <tr class="hover:bg-gray-50 cursor-pointer" (click)="viewDetails(delivery)">
+                    <td class="px-4 py-3 text-sm text-gray-900">{{ delivery.code }}</td>
+                    <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ delivery.customerName }}</td>
+                    <td class="px-4 py-3 text-sm">
+                      @if (delivery.driverName) {
+                        <span class="px-2 py-1 bg-blue-100 text-blue-700 rounded text-xs font-medium">
+                          {{ delivery.driverName }}
+                        </span>
+                      } @else {
+                        <span class="text-gray-400 italic text-xs">Not assigned</span>
+                      }
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-600">{{ delivery.deliveryDate | date:'mediumDate' }}</td>
+                    <td class="px-4 py-3 text-sm">
+                      <span [class]="getStatusClasses(delivery.status)">
+                        {{ getStatusLabel(delivery.status) }}
+                      </span>
+                    </td>
+                    <td class="px-4 py-3 text-sm text-gray-900 font-medium">{{ delivery.totalAmount | currency }}</td>
+                    <td class="px-4 py-3 text-sm" (click)="$event.stopPropagation()">
+                      <div class="flex items-center gap-1">
+                        <button
+                          (click)="viewDetails(delivery)"
+                          class="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          title="View details">
+                          <i class="pi pi-eye"></i>
+                        </button>
+                        <div class="relative">
+                          <button
+                            (click)="toggleStatusMenu(delivery)"
+                            [disabled]="delivery.status === 'COMPLETED' || delivery.status === 'CANCELLED'"
+                            class="p-2 text-gray-600 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                            title="Change status">
+                            <i class="pi pi-arrows-h"></i>
+                          </button>
+                          @if (statusMenuOpen() && selectedDelivery()?.id === delivery.id) {
+                            <div class="absolute right-0 mt-1 w-40 bg-white border border-gray-200 rounded-lg shadow-lg z-10">
+                              @for (status of getAvailableStatuses(delivery.status); track status.value) {
+                                <button
+                                  (click)="updateStatus(delivery, status.value)"
+                                  class="w-full px-4 py-2 text-left text-sm text-gray-700 hover:bg-gray-100 first:rounded-t-lg last:rounded-b-lg">
+                                  {{ status.label }}
+                                </button>
+                              }
+                            </div>
+                          }
+                        </div>
+                        <button
+                          (click)="confirmDelete(delivery)"
+                          [disabled]="delivery.status !== 'PENDING'"
+                          class="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                          title="Delete delivery">
+                          <i class="pi pi-trash"></i>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                } @empty {
+                  <tr>
+                    <td colspan="7" class="px-4 py-16 text-center text-gray-500">
+                      No deliveries found. Click "New Delivery" to create one.
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
 
-            <ng-template pTemplate="header">
-              <tr>
-                <th>Code</th>
-                <th>Customer</th>
-                <th>Driver</th>
-                <th>Delivery Date</th>
-                <th>Status</th>
-                <th>Total</th>
-                <th>Actions</th>
-              </tr>
-            </ng-template>
-
-            <ng-template pTemplate="body" let-delivery>
-              <tr class="clickable-row" (click)="viewDetails(delivery)">
-                <td>{{ delivery.code }}</td>
-                <td>{{ delivery.customerName }}</td>
-                <td>
-                  @if (delivery.driverName) {
-                    <span class="driver-badge">{{ delivery.driverName }}</span>
-                  } @else {
-                    <span class="no-driver">Not assigned</span>
+          <!-- Pagination -->
+          @if (totalItems() > pageSize()) {
+            <div class="flex items-center justify-between px-4 py-3 border-t border-gray-200">
+              <div class="text-sm text-gray-600">
+                Showing {{ (currentPage() * pageSize()) + 1 }} to {{ Math.min((currentPage() + 1) * pageSize(), totalItems()) }} of {{ totalItems() }} entries
+              </div>
+              <div class="flex items-center gap-2">
+                <select
+                  [(ngModel)]="pageSizeValue"
+                  (ngModelChange)="onPageSizeChange($event)"
+                  class="px-2 py-1 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                  @for (size of [5, 10, 25, 50]; track size) {
+                    <option [ngValue]="size">{{ size }}</option>
                   }
-                </td>
-                <td>{{ delivery.deliveryDate | date:'mediumDate' }}</td>
-                <td>
-                  <p-tag
-                    [value]="getStatusLabel(delivery.status)"
-                    [severity]="getStatusSeverity(delivery.status)">
-                  </p-tag>
-                </td>
-                <td>{{ delivery.totalAmount | currency }}</td>
-                <td (click)="$event.stopPropagation()">
-                  <p-button
-                    icon="pi pi-eye"
-                    [rounded]="true"
-                    [text]="true"
-                    severity="info"
-                    pTooltip="View details"
-                    (onClick)="viewDetails(delivery)">
-                  </p-button>
-                  <p-button
-                    icon="pi pi-arrows-h"
-                    [rounded]="true"
-                    [text]="true"
-                    pTooltip="Change status"
-                    [disabled]="delivery.status === 'COMPLETED' || delivery.status === 'CANCELLED'"
-                    (onClick)="statusMenu.toggle($event); selectedDelivery = delivery">
-                  </p-button>
-                  <p-menu
-                    #statusMenu
-                    [model]="getStatusMenuItems(delivery)"
-                    [popup]="true">
-                  </p-menu>
-                  <p-button
-                    icon="pi pi-trash"
-                    [rounded]="true"
-                    [text]="true"
-                    severity="danger"
-                    pTooltip="Delete delivery"
-                    [disabled]="delivery.status !== 'PENDING'"
-                    (onClick)="confirmDelete(delivery)">
-                  </p-button>
-                </td>
-              </tr>
-            </ng-template>
-
-            <ng-template pTemplate="emptymessage">
-              <tr>
-                <td colspan="7" class="empty-message">
-                  No deliveries found. Click "New Delivery" to create one.
-                </td>
-              </tr>
-            </ng-template>
-          </p-table>
+                </select>
+                <button
+                  (click)="goToPage(currentPage() - 1)"
+                  [disabled]="currentPage() === 0"
+                  class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors">
+                  Previous
+                </button>
+                @for (page of getPageNumbers(); track page) {
+                  <button
+                    (click)="goToPage(page)"
+                    class="px-3 py-1 text-sm rounded-lg transition-colors"
+                    [class]="currentPage() === page ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'">
+                    {{ page + 1 }}
+                  </button>
+                }
+                <button
+                  (click)="goToPage(currentPage() + 1)"
+                  [disabled]="currentPage() >= getTotalPages() - 1"
+                  class="px-3 py-1 text-sm text-gray-600 hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed rounded-lg transition-colors">
+                  Next
+                </button>
+              </div>
+            </div>
+          }
         }
-      </p-card>
+      </div>
     </div>
 
-    <p-confirmDialog></p-confirmDialog>
-    <p-toast></p-toast>
+    <!-- Delivery Dialog -->
+    <app-delivery-dialog
+      [isOpen]="dialogOpen()"
+      mode="create"
+      (save)="onDialogSave($event)"
+      (cancel)="closeDialog()">
+    </app-delivery-dialog>
+
+    <!-- Confirm Delete Dialog -->
+    <app-confirm-dialog
+      [isOpen]="confirmDialogOpen()"
+      title="Delete Delivery"
+      [message]="'Are you sure you want to delete delivery \\'' + (deliveryToDelete()?.code || '') + '\\'?'"
+      confirmText="Delete"
+      cancelText="Cancel"
+      (confirm)="onDeleteConfirm()"
+      (cancel)="closeConfirmDialog()">
+    </app-confirm-dialog>
+
+    <!-- Toast -->
+    <app-toast></app-toast>
   `,
-  styles: [`
-    .page-container {
-      padding: 24px;
-    }
-
-    .page-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 24px;
-    }
-
-    .page-header h1 {
-      margin: 0;
-    }
-
-    .filters-row {
-      display: flex;
-      gap: 16px;
-      margin-bottom: 16px;
-      flex-wrap: wrap;
-      align-items: flex-end;
-    }
-
-    .filter-field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-      width: 180px;
-    }
-
-    .filter-field label {
-      font-size: 12px;
-      font-weight: 500;
-      color: #666;
-    }
-
-    .clear-filters-container {
-      margin-left: auto;
-      display: flex;
-      align-items: flex-end;
-    }
-
-    .loading-container,
-    .error-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 48px;
-      text-align: center;
-    }
-
-    .error-icon {
-      font-size: 48px;
-      color: var(--red-500);
-      margin-bottom: 16px;
-    }
-
-    .clickable-row {
-      cursor: pointer;
-    }
-
-    .driver-badge {
-      background-color: #e3f2fd;
-      color: #1976d2;
-      padding: 4px 8px;
-      border-radius: 4px;
-      font-size: 12px;
-    }
-
-    .no-driver {
-      color: #9e9e9e;
-      font-style: italic;
-      font-size: 12px;
-    }
-
-    .empty-message {
-      text-align: center;
-      padding: 48px;
-      color: #9e9e9e;
-    }
-
-    :host ::ng-deep .p-datatable .p-datatable-tbody > tr:hover {
-      background-color: rgba(0, 0, 0, 0.04);
-    }
-
-    :host ::ng-deep .p-card .p-card-body {
-      padding: 16px;
-    }
-  `]
 })
 export class DeliveriesListComponent implements OnInit {
   private readonly deliveryService = inject(DeliveryService);
-  private readonly dialogService = inject(DialogService);
-  private readonly confirmationService = inject(ConfirmationService);
-  private readonly messageService = inject(MessageService);
+  private readonly toastService = inject(ToastService);
   private readonly router = inject(Router);
 
-  private dialogRef: DynamicDialogRef<any> | undefined;
+  readonly Math = Math;
 
   readonly statusOptions = DELIVERY_STATUS_OPTIONS;
-  readonly statusColors = DELIVERY_STATUS_COLORS;
-  readonly statusFilterOptions = [
-    ...DELIVERY_STATUS_OPTIONS
-  ];
+  readonly statusFilterOptions = [...DELIVERY_STATUS_OPTIONS];
 
   readonly isLoading = signal(false);
   readonly error = signal<string | null>(null);
@@ -338,13 +273,23 @@ export class DeliveriesListComponent implements OnInit {
   readonly currentPage = signal(0);
   readonly pageSize = signal(10);
 
+  readonly dialogOpen = signal(false);
+  readonly confirmDialogOpen = signal(false);
+  readonly deliveryToDelete = signal<Delivery | null>(null);
+  readonly statusMenuOpen = signal(false);
+  readonly selectedDelivery = signal<Delivery | null>(null);
+
   statusFilter: DeliveryStatus | null = null;
-  startDateFilter: Date | null = null;
-  endDateFilter: Date | null = null;
-  selectedDelivery: Delivery | null = null;
+  startDateFilter: string | null = null;
+  endDateFilter: string | null = null;
+  pageSizeValue = 10;
 
   ngOnInit(): void {
     this.loadDeliveries();
+    // Close status menu when clicking outside
+    document.addEventListener('click', () => {
+      this.statusMenuOpen.set(false);
+    });
   }
 
   loadDeliveries(): void {
@@ -360,10 +305,10 @@ export class DeliveriesListComponent implements OnInit {
       params['status'] = this.statusFilter;
     }
     if (this.startDateFilter) {
-      params['startDate'] = this.formatDate(this.startDateFilter);
+      params['startDate'] = this.startDateFilter;
     }
     if (this.endDateFilter) {
-      params['endDate'] = this.formatDate(this.endDateFilter);
+      params['endDate'] = this.endDateFilter;
     }
 
     this.deliveryService.getDeliveries(params as Parameters<typeof this.deliveryService.getDeliveries>[0]).subscribe({
@@ -392,21 +337,57 @@ export class DeliveriesListComponent implements OnInit {
     this.loadDeliveries();
   }
 
-  onLazyLoad(event: any): void {
-    const page = event.first / event.rows;
+  goToPage(page: number): void {
     this.currentPage.set(page);
-    this.pageSize.set(event.rows);
     this.loadDeliveries();
   }
 
-  getStatusSeverity(status: DeliveryStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
-    const severityMap: Record<DeliveryStatus, 'success' | 'info' | 'warn' | 'danger'> = {
-      PENDING: 'warn',
-      IN_PROGRESS: 'info',
-      COMPLETED: 'success',
-      CANCELLED: 'danger',
-    };
-    return severityMap[status];
+  onPageSizeChange(size: number): void {
+    this.pageSize.set(size);
+    this.currentPage.set(0);
+    this.loadDeliveries();
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.totalItems() / this.pageSize());
+  }
+
+  getPageNumbers(): number[] {
+    const total = this.getTotalPages();
+    const current = this.currentPage();
+    const pages: number[] = [];
+
+    let start = Math.max(0, current - 2);
+    let end = Math.min(total - 1, current + 2);
+
+    if (end - start < 4) {
+      if (start === 0) {
+        end = Math.min(total - 1, 4);
+      } else if (end === total - 1) {
+        start = Math.max(0, total - 5);
+      }
+    }
+
+    for (let i = start; i <= end; i++) {
+      pages.push(i);
+    }
+    return pages;
+  }
+
+  getStatusClasses(status: DeliveryStatus): string {
+    const baseClasses = 'px-2 py-1 rounded text-xs font-medium';
+    switch (status) {
+      case 'PENDING':
+        return `${baseClasses} bg-yellow-100 text-yellow-700`;
+      case 'IN_PROGRESS':
+        return `${baseClasses} bg-blue-100 text-blue-700`;
+      case 'COMPLETED':
+        return `${baseClasses} bg-green-100 text-green-700`;
+      case 'CANCELLED':
+        return `${baseClasses} bg-red-100 text-red-700`;
+      default:
+        return `${baseClasses} bg-gray-100 text-gray-700`;
+    }
   }
 
   getStatusLabel(status: DeliveryStatus): string {
@@ -426,11 +407,14 @@ export class DeliveriesListComponent implements OnInit {
     return this.statusOptions.filter(s => available.includes(s.value));
   }
 
-  getStatusMenuItems(delivery: Delivery): MenuItem[] {
-    return this.getAvailableStatuses(delivery.status).map(status => ({
-      label: status.label,
-      command: () => this.updateStatus(delivery, status.value)
-    }));
+  toggleStatusMenu(delivery: Delivery): void {
+    event?.stopPropagation();
+    if (this.selectedDelivery()?.id === delivery.id && this.statusMenuOpen()) {
+      this.statusMenuOpen.set(false);
+    } else {
+      this.selectedDelivery.set(delivery);
+      this.statusMenuOpen.set(true);
+    }
   }
 
   viewDetails(delivery: Delivery): void {
@@ -438,92 +422,64 @@ export class DeliveriesListComponent implements OnInit {
   }
 
   openCreateDialog(): void {
-    this.dialogRef = this.dialogService.open(DeliveryDialogComponent, {
-      header: 'New Delivery',
-      width: '700px',
-      modal: true,
-      data: {
-        mode: 'create'
-      }
-    }) ?? undefined;
+    this.dialogOpen.set(true);
+  }
 
-    this.dialogRef?.onClose.subscribe((result: any) => {
-      if (result?.action === 'save') {
-        this.deliveryService.createDelivery(result.data).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Delivery created successfully'
-            });
-            this.loadDeliveries();
-          },
-          error: (err) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: err.message || 'Failed to create delivery'
-            });
-          }
-        });
-      }
-    });
+  closeDialog(): void {
+    this.dialogOpen.set(false);
+  }
+
+  onDialogSave(result: DeliveryDialogResult): void {
+    if (result.action === 'save') {
+      this.deliveryService.createDelivery(result.data).subscribe({
+        next: () => {
+          this.toastService.success('Success', 'Delivery created successfully');
+          this.closeDialog();
+          this.loadDeliveries();
+        },
+        error: (err) => {
+          this.toastService.error('Error', err.message || 'Failed to create delivery');
+        }
+      });
+    }
   }
 
   updateStatus(delivery: Delivery, newStatus: DeliveryStatus): void {
+    this.statusMenuOpen.set(false);
     this.deliveryService.updateStatus(delivery.id, { status: newStatus }).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `Delivery status updated to ${this.getStatusLabel(newStatus)}`
-        });
+        this.toastService.success('Success', `Delivery status updated to ${this.getStatusLabel(newStatus)}`);
         this.loadDeliveries();
       },
       error: (err) => {
-        this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: err.message || 'Failed to update status'
-        });
+        this.toastService.error('Error', err.message || 'Failed to update status');
       }
     });
   }
 
   confirmDelete(delivery: Delivery): void {
-    this.confirmationService.confirm({
-      message: `Are you sure you want to delete delivery "${delivery.code}"?`,
-      header: 'Delete Delivery',
-      icon: 'pi pi-exclamation-triangle',
-      acceptLabel: 'Delete',
-      rejectLabel: 'Cancel',
-      acceptButtonStyleClass: 'p-button-danger',
-      accept: () => {
-        this.deliveryService.deleteDelivery(delivery.id).subscribe({
-          next: () => {
-            this.messageService.add({
-              severity: 'success',
-              summary: 'Success',
-              detail: 'Delivery deleted successfully'
-            });
-            this.loadDeliveries();
-          },
-          error: (err) => {
-            this.messageService.add({
-              severity: 'error',
-              summary: 'Error',
-              detail: err.message || 'Failed to delete delivery'
-            });
-          }
-        });
-      }
-    });
+    this.deliveryToDelete.set(delivery);
+    this.confirmDialogOpen.set(true);
   }
 
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+  closeConfirmDialog(): void {
+    this.confirmDialogOpen.set(false);
+    this.deliveryToDelete.set(null);
+  }
+
+  onDeleteConfirm(): void {
+    const delivery = this.deliveryToDelete();
+    if (delivery) {
+      this.deliveryService.deleteDelivery(delivery.id).subscribe({
+        next: () => {
+          this.toastService.success('Success', 'Delivery deleted successfully');
+          this.closeConfirmDialog();
+          this.loadDeliveries();
+        },
+        error: (err) => {
+          this.toastService.error('Error', err.message || 'Failed to delete delivery');
+        }
+      });
+    }
   }
 }

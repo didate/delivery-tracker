@@ -128,8 +128,7 @@ public class ProductionController {
                 productionSiteId, startDate, endDate);
 
         List<ProductionSummaryResponse> response = summaries.stream()
-                .map(productionMapper::toSummaryResponse)
-                .collect(Collectors.toList());
+                .map(productionMapper::toSummaryResponse).toList();
 
         return ResponseEntity.ok(response);
     }

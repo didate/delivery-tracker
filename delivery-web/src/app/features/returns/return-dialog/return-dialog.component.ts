@@ -1,18 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, input, output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormArray, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { Textarea } from 'primeng/textarea';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
-import { DividerModule } from 'primeng/divider';
-import { CardModule } from 'primeng/card';
-import { TooltipModule } from 'primeng/tooltip';
 
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { Return, CreateReturnDto, UpdateReturnDto, CreateReturnItemDto } from '../models/return.model';
 import { Customer } from '../../customers/models/customer.model';
 import { Product } from '../../products/models/product.model';
@@ -43,375 +33,227 @@ interface ProductOption {
 @Component({
   selector: 'app-return-dialog',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    Textarea,
-    ButtonModule,
-    SelectModule,
-    DatePickerModule,
-    InputNumberModule,
-    ProgressSpinnerModule,
-    DividerModule,
-    CardModule,
-    TooltipModule,
-  ],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   template: `
-    <form [formGroup]="returnForm" class="return-form">
-      <div class="form-row two-columns">
-        <div class="field">
-          <label for="customerId">Customer *</label>
-          <p-select
-            id="customerId"
-            formControlName="customerId"
-            [options]="customerOptions()"
-            placeholder="Select customer"
-            [filter]="true"
-            filterBy="label"
-            [style]="{width: '100%'}">
-          </p-select>
-          @if (returnForm.controls.customerId.hasError('required') && returnForm.controls.customerId.touched) {
-            <small class="p-error">Customer is required</small>
-          }
-        </div>
+    <app-modal
+      [isOpen]="isOpen()"
+      [title]="mode() === 'edit' ? 'Edit Return' : 'Create Return'"
+      maxWidth="700px"
+      (close)="onCancel()">
 
-        <div class="field">
-          <label for="returnDate">Return Date *</label>
-          <p-datepicker
-            id="returnDate"
-            formControlName="returnDate"
-            [showIcon]="true"
-            [style]="{width: '100%'}"
-            dateFormat="mm/dd/yy">
-          </p-datepicker>
-          @if (returnForm.controls.returnDate.hasError('required') && returnForm.controls.returnDate.touched) {
-            <small class="p-error">Return date is required</small>
-          }
-        </div>
-      </div>
-
-      <div class="field">
-        <label for="notes">Notes</label>
-        <textarea
-          pTextarea
-          id="notes"
-          formControlName="notes"
-          rows="2"
-          placeholder="Enter notes (optional)"
-          class="full-width">
-        </textarea>
-      </div>
-
-      @if (!isEditMode()) {
-        <p-divider></p-divider>
-
-        <div class="items-section">
-          <div class="items-header">
-            <h3>Return Items</h3>
-            <p-button
-              label="Add Item"
-              icon="pi pi-plus"
-              [text]="true"
-              (onClick)="addItem()">
-            </p-button>
-          </div>
-
-          @if (items.length === 0) {
-            <p class="no-items-message">No items added yet. Click "Add Item" to add products to this return.</p>
-          }
-
-          <div formArrayName="items" class="items-list">
-            @for (item of items.controls; track $index; let i = $index) {
-              <p-card class="item-card" [formGroupName]="i">
-                <div class="item-header">
-                  <span class="item-number">Item {{ i + 1 }}</span>
-                  <p-button
-                    icon="pi pi-trash"
-                    [rounded]="true"
-                    [text]="true"
-                    severity="danger"
-                    (onClick)="removeItem(i)"
-                    pTooltip="Remove item">
-                  </p-button>
-                </div>
-
-                <div class="item-form-row">
-                  <div class="field product-field">
-                    <label>Product *</label>
-                    <p-select
-                      formControlName="productId"
-                      [options]="productOptions()"
-                      placeholder="Select product"
-                      [filter]="true"
-                      filterBy="label"
-                      (onChange)="onProductChange(i)"
-                      [style]="{width: '100%'}">
-                    </p-select>
-                    @if (getItemControl(i, 'productId').hasError('required') && getItemControl(i, 'productId').touched) {
-                      <small class="p-error">Product is required</small>
-                    }
-                  </div>
-
-                  <div class="field quantity-field">
-                    <label>Quantity *</label>
-                    <p-inputNumber
-                      formControlName="quantity"
-                      [min]="1"
-                      [showButtons]="true"
-                      (onInput)="calculateItemTotal(i)"
-                      [style]="{width: '100%'}">
-                    </p-inputNumber>
-                    @if (getItemControl(i, 'quantity').hasError('required') && getItemControl(i, 'quantity').touched) {
-                      <small class="p-error">Required</small>
-                    }
-                    @if (getItemControl(i, 'quantity').hasError('min') && getItemControl(i, 'quantity').touched) {
-                      <small class="p-error">Min 1</small>
-                    }
-                  </div>
-
-                  <div class="field price-field">
-                    <label>Unit Value *</label>
-                    <p-inputNumber
-                      formControlName="unitValue"
-                      [min]="0"
-                      mode="currency"
-                      currency="USD"
-                      locale="en-US"
-                      (onInput)="calculateItemTotal(i)"
-                      [style]="{width: '100%'}">
-                    </p-inputNumber>
-                    @if (getItemControl(i, 'unitValue').hasError('required') && getItemControl(i, 'unitValue').touched) {
-                      <small class="p-error">Required</small>
-                    }
-                  </div>
-                </div>
-
-                <div class="item-form-row">
-                  <div class="field reason-field">
-                    <label>Reason *</label>
-                    <input
-                      pInputText
-                      formControlName="reason"
-                      placeholder="Enter reason for return"
-                      class="full-width">
-                    @if (getItemControl(i, 'reason').hasError('required') && getItemControl(i, 'reason').touched) {
-                      <small class="p-error">Reason is required</small>
-                    }
-                  </div>
-
-                  <div class="item-total">
-                    <span class="total-label">Total:</span>
-                    <span class="total-value">\${{ getItemTotal(i) | number:'1.2-2' }}</span>
-                  </div>
-                </div>
-              </p-card>
+      <form [formGroup]="returnForm" (ngSubmit)="onSave()" class="space-y-4">
+        <!-- Customer and Return Date -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="customerId" class="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
+            <div class="relative">
+              <select
+                id="customerId"
+                formControlName="customerId"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                [class.border-red-500]="returnForm.controls.customerId.invalid && returnForm.controls.customerId.touched">
+                <option [ngValue]="null">Select customer</option>
+                @for (option of customerOptions(); track option.value) {
+                  <option [ngValue]="option.value">{{ option.label }}</option>
+                }
+              </select>
+              <i class="pi pi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+            </div>
+            @if (returnForm.controls.customerId.hasError('required') && returnForm.controls.customerId.touched) {
+              <p class="mt-1 text-sm text-red-600">Customer is required</p>
             }
           </div>
 
-          @if (items.length > 0) {
-            <div class="grand-total">
-              <span class="grand-total-label">Grand Total:</span>
-              <span class="grand-total-value">\${{ getGrandTotal() | number:'1.2-2' }}</span>
-            </div>
-          }
+          <div>
+            <label for="returnDate" class="block text-sm font-medium text-gray-700 mb-1">Return Date *</label>
+            <input
+              id="returnDate"
+              type="date"
+              formControlName="returnDate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="returnForm.controls.returnDate.invalid && returnForm.controls.returnDate.touched" />
+            @if (returnForm.controls.returnDate.hasError('required') && returnForm.controls.returnDate.touched) {
+              <p class="mt-1 text-sm text-red-600">Return date is required</p>
+            }
+          </div>
         </div>
-      }
-    </form>
 
-    <div class="dialog-footer">
-      <p-button
-        label="Cancel"
-        [text]="true"
-        (onClick)="onCancel()">
-      </p-button>
-      <p-button
-        [label]="isEditMode() ? 'Update' : 'Create'"
-        (onClick)="onSave()"
-        [disabled]="returnForm.invalid || isSaving() || (!isEditMode() && items.length === 0)">
-        @if (isSaving()) {
-          <p-progressSpinner [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
+        <!-- Notes -->
+        <div>
+          <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            rows="2"
+            placeholder="Enter notes (optional)"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </textarea>
+        </div>
+
+        @if (!isEditMode()) {
+          <!-- Divider -->
+          <div class="border-t border-gray-200 pt-4">
+            <!-- Items Section -->
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="text-sm font-semibold text-gray-900">Return Items</h3>
+              <button
+                type="button"
+                (click)="addItem()"
+                class="px-3 py-1.5 text-blue-600 hover:bg-blue-50 font-medium rounded-lg transition-colors flex items-center gap-1 text-sm">
+                <i class="pi pi-plus"></i>
+                Add Item
+              </button>
+            </div>
+
+            @if (items.length === 0) {
+              <div class="text-center py-6 bg-gray-50 rounded-lg text-gray-500 text-sm italic">
+                No items added yet. Click "Add Item" to add products to this return.
+              </div>
+            }
+
+            <div formArrayName="items" class="space-y-4">
+              @for (item of items.controls; track $index; let i = $index) {
+                <div class="border border-gray-200 rounded-lg p-4" [formGroupName]="i">
+                  <div class="flex items-center justify-between mb-3">
+                    <span class="text-sm font-medium text-gray-600">Item {{ i + 1 }}</span>
+                    <button
+                      type="button"
+                      (click)="removeItem(i)"
+                      class="p-1 text-red-600 hover:bg-red-50 rounded transition-colors"
+                      title="Remove item">
+                      <i class="pi pi-trash text-sm"></i>
+                    </button>
+                  </div>
+
+                  <div class="grid grid-cols-12 gap-3 mb-3">
+                    <!-- Product -->
+                    <div class="col-span-5">
+                      <label class="block text-xs font-medium text-gray-600 mb-1">Product *</label>
+                      <div class="relative">
+                        <select
+                          formControlName="productId"
+                          (change)="onProductChange(i)"
+                          class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                          [class.border-red-500]="getItemControl(i, 'productId').invalid && getItemControl(i, 'productId').touched">
+                          <option [ngValue]="null">Select product</option>
+                          @for (option of productOptions(); track option.value) {
+                            <option [ngValue]="option.value">{{ option.label }}</option>
+                          }
+                        </select>
+                        <i class="pi pi-chevron-down absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs"></i>
+                      </div>
+                      @if (getItemControl(i, 'productId').hasError('required') && getItemControl(i, 'productId').touched) {
+                        <p class="mt-0.5 text-xs text-red-600">Required</p>
+                      }
+                    </div>
+
+                    <!-- Quantity -->
+                    <div class="col-span-2">
+                      <label class="block text-xs font-medium text-gray-600 mb-1">Qty *</label>
+                      <input
+                        type="number"
+                        formControlName="quantity"
+                        min="1"
+                        (input)="calculateItemTotal(i)"
+                        class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        [class.border-red-500]="getItemControl(i, 'quantity').invalid && getItemControl(i, 'quantity').touched" />
+                      @if (getItemControl(i, 'quantity').hasError('required') && getItemControl(i, 'quantity').touched) {
+                        <p class="mt-0.5 text-xs text-red-600">Required</p>
+                      }
+                      @if (getItemControl(i, 'quantity').hasError('min') && getItemControl(i, 'quantity').touched) {
+                        <p class="mt-0.5 text-xs text-red-600">Min 1</p>
+                      }
+                    </div>
+
+                    <!-- Unit Value -->
+                    <div class="col-span-3">
+                      <label class="block text-xs font-medium text-gray-600 mb-1">Unit Value *</label>
+                      <div class="relative">
+                        <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                        <input
+                          type="number"
+                          formControlName="unitValue"
+                          min="0"
+                          step="0.01"
+                          (input)="calculateItemTotal(i)"
+                          class="w-full pl-6 pr-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                          [class.border-red-500]="getItemControl(i, 'unitValue').invalid && getItemControl(i, 'unitValue').touched" />
+                      </div>
+                      @if (getItemControl(i, 'unitValue').hasError('required') && getItemControl(i, 'unitValue').touched) {
+                        <p class="mt-0.5 text-xs text-red-600">Required</p>
+                      }
+                    </div>
+
+                    <!-- Item Total -->
+                    <div class="col-span-2 flex flex-col justify-end">
+                      <div class="bg-blue-50 rounded-lg px-2 py-1.5 text-center">
+                        <span class="text-xs text-gray-500 block">Total</span>
+                        <span class="text-sm font-semibold text-blue-600">\${{ getItemTotal(i) | number:'1.2-2' }}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Reason -->
+                  <div>
+                    <label class="block text-xs font-medium text-gray-600 mb-1">Reason *</label>
+                    <input
+                      type="text"
+                      formControlName="reason"
+                      placeholder="Enter reason for return"
+                      class="w-full px-2 py-1.5 text-sm border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      [class.border-red-500]="getItemControl(i, 'reason').invalid && getItemControl(i, 'reason').touched" />
+                    @if (getItemControl(i, 'reason').hasError('required') && getItemControl(i, 'reason').touched) {
+                      <p class="mt-0.5 text-xs text-red-600">Reason is required</p>
+                    }
+                  </div>
+                </div>
+              }
+            </div>
+
+            @if (items.length > 0) {
+              <div class="flex justify-end mt-4">
+                <div class="bg-green-50 rounded-lg px-4 py-3 flex items-center gap-4">
+                  <span class="text-sm font-medium text-gray-700">Grand Total:</span>
+                  <span class="text-xl font-bold text-green-600">\${{ getGrandTotal() | number:'1.2-2' }}</span>
+                </div>
+              </div>
+            }
+          </div>
         }
-      </p-button>
-    </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-6">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="returnForm.invalid || isSaving() || (!isEditMode() && items.length === 0)"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+            @if (isSaving()) {
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            }
+            {{ isEditMode() ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </app-modal>
   `,
-  styles: [`
-    .return-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 600px;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 16px;
-    }
-
-    .form-row.two-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-    }
-
-    .field label {
-      font-weight: 500;
-      font-size: 14px;
-    }
-
-    .full-width {
-      width: 100%;
-    }
-
-    .p-error {
-      color: var(--red-500);
-    }
-
-    .items-section {
-      margin-top: 8px;
-    }
-
-    .items-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .items-header h3 {
-      margin: 0;
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    .no-items-message {
-      color: #9e9e9e;
-      font-style: italic;
-      text-align: center;
-      padding: 24px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-    }
-
-    .items-list {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .item-card {
-      margin-bottom: 0;
-    }
-
-    :host ::ng-deep .item-card .p-card-body {
-      padding: 16px;
-    }
-
-    .item-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-    }
-
-    .item-number {
-      font-weight: 500;
-      color: #666;
-    }
-
-    .item-form-row {
-      display: flex;
-      gap: 12px;
-      align-items: flex-start;
-      margin-bottom: 12px;
-    }
-
-    .item-form-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .product-field {
-      flex: 2;
-    }
-
-    .quantity-field {
-      flex: 0.7;
-    }
-
-    .price-field {
-      flex: 1;
-    }
-
-    .reason-field {
-      flex: 2;
-    }
-
-    .item-total {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-end;
-      justify-content: center;
-      min-width: 100px;
-      padding: 8px;
-      background-color: #e3f2fd;
-      border-radius: 4px;
-    }
-
-    .total-label {
-      font-size: 12px;
-      color: #666;
-    }
-
-    .total-value {
-      font-size: 16px;
-      font-weight: 600;
-      color: #1976d2;
-    }
-
-    .grand-total {
-      display: flex;
-      justify-content: flex-end;
-      align-items: center;
-      gap: 16px;
-      margin-top: 16px;
-      padding: 16px;
-      background-color: #e8f5e9;
-      border-radius: 4px;
-    }
-
-    .grand-total-label {
-      font-size: 16px;
-      font-weight: 500;
-    }
-
-    .grand-total-value {
-      font-size: 20px;
-      font-weight: 700;
-      color: #2e7d32;
-    }
-
-    .dialog-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid #e0e0e0;
-    }
-  `]
 })
-export class ReturnDialogComponent implements OnInit {
+export class ReturnDialogComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject(DynamicDialogRef<any>);
-  private readonly dialogConfig = inject(DynamicDialogConfig);
   private readonly customerService = inject(CustomerService);
   private readonly productService = inject(ProductService);
+
+  isOpen = input<boolean>(false);
+  mode = input<'create' | 'edit'>('create');
+  returnData = input<Return | null>(null);
+
+  save = output<ReturnDialogResult>();
+  cancel = output<void>();
 
   readonly isSaving = signal(false);
   readonly isEditMode = signal(false);
@@ -422,7 +264,7 @@ export class ReturnDialogComponent implements OnInit {
 
   readonly returnForm = this.fb.nonNullable.group({
     customerId: [null as number | null, [Validators.required]],
-    returnDate: [new Date(), [Validators.required]],
+    returnDate: ['', [Validators.required]],
     notes: [''],
     items: this.fb.array<FormGroup>([]),
   });
@@ -431,21 +273,41 @@ export class ReturnDialogComponent implements OnInit {
     return this.returnForm.controls.items;
   }
 
-  get data(): ReturnDialogData {
-    return this.dialogConfig.data;
-  }
-
   ngOnInit(): void {
-    this.isEditMode.set(this.data.mode === 'edit');
     this.loadCustomers();
     this.loadProducts();
+  }
 
-    if (this.data.returnData) {
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['mode'] || changes['isOpen']) {
+      this.isEditMode.set(this.mode() === 'edit');
+    }
+
+    if (changes['returnData'] || changes['isOpen']) {
+      this.initForm();
+    }
+  }
+
+  private initForm(): void {
+    const data = this.returnData();
+    if (data) {
+      const returnDate = typeof data.returnDate === 'string'
+        ? data.returnDate.split('T')[0]
+        : '';
+
       this.returnForm.patchValue({
-        customerId: this.data.returnData.customerId,
-        returnDate: new Date(this.data.returnData.returnDate),
-        notes: this.data.returnData.notes,
+        customerId: data.customerId,
+        returnDate: returnDate,
+        notes: data.notes || '',
       });
+    } else {
+      const today = new Date().toISOString().split('T')[0];
+      this.returnForm.reset({
+        customerId: null,
+        returnDate: today,
+        notes: '',
+      });
+      this.items.clear();
     }
   }
 
@@ -533,7 +395,7 @@ export class ReturnDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.cancel.emit();
   }
 
   onSave(): void {
@@ -544,14 +406,11 @@ export class ReturnDialogComponent implements OnInit {
 
     const formValue = this.returnForm.getRawValue();
     const returnDate = formValue.returnDate;
-    const formattedDate = returnDate instanceof Date
-      ? returnDate.toISOString().split('T')[0]
-      : returnDate;
 
     if (this.isEditMode()) {
       const updateData: UpdateReturnDto = {
         customerId: formValue.customerId!,
-        returnDate: formattedDate,
+        returnDate: returnDate,
         notes: formValue.notes || undefined,
       };
 
@@ -560,7 +419,7 @@ export class ReturnDialogComponent implements OnInit {
         data: updateData,
       };
 
-      this.dialogRef.close(result);
+      this.save.emit(result);
     } else {
       const items: CreateReturnItemDto[] = formValue.items.map((item: Record<string, unknown>) => ({
         productId: item['productId'] as string,
@@ -571,7 +430,7 @@ export class ReturnDialogComponent implements OnInit {
 
       const createData: CreateReturnDto = {
         customerId: formValue.customerId!,
-        returnDate: formattedDate,
+        returnDate: returnDate,
         notes: formValue.notes || undefined,
         items,
       };
@@ -581,7 +440,7 @@ export class ReturnDialogComponent implements OnInit {
         data: createData,
       };
 
-      this.dialogRef.close(result);
+      this.save.emit(result);
     }
   }
 }

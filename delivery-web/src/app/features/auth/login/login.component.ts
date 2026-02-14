@@ -2,11 +2,6 @@ import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router, RouterLink } from '@angular/router';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { InputTextModule } from 'primeng/inputtext';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
-import { CheckboxModule } from 'primeng/checkbox';
-import { PasswordModule } from 'primeng/password';
 import { AuthService } from '../../../core/services/auth.service';
 
 @Component({
@@ -16,250 +11,122 @@ import { AuthService } from '../../../core/services/auth.service';
     CommonModule,
     ReactiveFormsModule,
     RouterLink,
-    InputTextModule,
-    ButtonModule,
-    CardModule,
-    CheckboxModule,
-    PasswordModule,
   ],
   template: `
-    <div class="login-container">
-      <p-card class="login-card">
-        <div class="login-content">
-          <h1 class="auth-title">Welcome Back</h1>
-          <p class="auth-subtitle">Sign in to your account to continue</p>
+    <div class="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-600 to-purple-700">
+      <div class="w-full max-w-md bg-white rounded-2xl shadow-2xl overflow-hidden">
+        <!-- Header -->
+        <div class="px-8 pt-8 pb-6 text-center">
+          <div class="w-16 h-16 mx-auto mb-4 rounded-xl bg-blue-600 flex items-center justify-center">
+            <i class="pi pi-truck text-white text-2xl"></i>
+          </div>
+          <h1 class="text-2xl font-bold text-gray-900">Welcome Back</h1>
+          <p class="mt-2 text-gray-500">Sign in to your account to continue</p>
+        </div>
 
+        <!-- Form -->
+        <div class="px-8 pb-8">
           @if (errorMessage()) {
-            <div class="error-alert">
-              <i class="pi pi-exclamation-circle"></i>
-              <span>{{ errorMessage() }}</span>
+            <div class="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-center gap-3 text-red-700">
+              <i class="pi pi-exclamation-circle text-xl"></i>
+              <span class="text-sm">{{ errorMessage() }}</span>
             </div>
           }
 
-          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
-            <div class="field">
-              <label for="email">Email</label>
-              <span class="p-input-icon-left w-full">
-                <i class="pi pi-envelope"></i>
+          <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="space-y-5">
+            <!-- Email -->
+            <div>
+              <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="pi pi-envelope text-gray-400"></i>
+                </div>
                 <input
                   id="email"
                   type="email"
-                  pInputText
                   formControlName="email"
                   placeholder="Enter your email"
                   autocomplete="email"
-                  class="w-full"
-                  [class.ng-invalid]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
-                  [class.ng-dirty]="loginForm.controls.email.touched"
+                  class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  [class.border-red-500]="loginForm.controls.email.invalid && loginForm.controls.email.touched"
                 />
-              </span>
-              @if (loginForm.controls.email.invalid && loginForm.controls.email.touched) {
-                <small class="p-error">{{ getEmailErrorMessage() }}</small>
-              }
-            </div>
-
-            <div class="field">
-              <label for="password">Password</label>
-              <p-password
-                id="password"
-                formControlName="password"
-                placeholder="Enter your password"
-                [toggleMask]="true"
-                [feedback]="false"
-                styleClass="w-full"
-                inputStyleClass="w-full"
-                autocomplete="current-password"
-              ></p-password>
-              @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
-                <small class="p-error">{{ getPasswordErrorMessage() }}</small>
-              }
-            </div>
-
-            <div class="form-options">
-              <div class="remember-me-wrapper">
-                <p-checkbox
-                  formControlName="rememberMe"
-                  [binary]="true"
-                  inputId="rememberMe"
-                ></p-checkbox>
-                <label for="rememberMe" class="remember-me-label">Remember me</label>
               </div>
-              <a href="#" class="forgot-link">Forgot password?</a>
+              @if (loginForm.controls.email.invalid && loginForm.controls.email.touched) {
+                <p class="mt-1 text-sm text-red-600">{{ getEmailErrorMessage() }}</p>
+              }
             </div>
 
-            <p-button
+            <!-- Password -->
+            <div>
+              <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+              <div class="relative">
+                <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                  <i class="pi pi-lock text-gray-400"></i>
+                </div>
+                <input
+                  id="password"
+                  [type]="showPassword() ? 'text' : 'password'"
+                  formControlName="password"
+                  placeholder="Enter your password"
+                  autocomplete="current-password"
+                  class="w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  [class.border-red-500]="loginForm.controls.password.invalid && loginForm.controls.password.touched"
+                />
+                <button
+                  type="button"
+                  (click)="togglePassword()"
+                  class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
+                  <i [class]="showPassword() ? 'pi pi-eye-slash' : 'pi pi-eye'"></i>
+                </button>
+              </div>
+              @if (loginForm.controls.password.invalid && loginForm.controls.password.touched) {
+                <p class="mt-1 text-sm text-red-600">{{ getPasswordErrorMessage() }}</p>
+              }
+            </div>
+
+            <!-- Remember & Forgot -->
+            <div class="flex items-center justify-between">
+              <label class="flex items-center gap-2 cursor-pointer">
+                <input
+                  type="checkbox"
+                  formControlName="rememberMe"
+                  class="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                />
+                <span class="text-sm text-gray-600">Remember me</span>
+              </label>
+              <a href="#" class="text-sm text-blue-600 hover:text-blue-700 hover:underline">
+                Forgot password?
+              </a>
+            </div>
+
+            <!-- Submit -->
+            <button
               type="submit"
-              label="Sign In"
-              [loading]="isLoading()"
               [disabled]="isLoading()"
-              styleClass="w-full"
-              icon="pi pi-sign-in"
-            ></p-button>
+              class="w-full py-3 px-4 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center justify-center gap-2">
+              @if (isLoading()) {
+                <i class="pi pi-spinner pi-spin"></i>
+                <span>Signing in...</span>
+              } @else {
+                <i class="pi pi-sign-in"></i>
+                <span>Sign In</span>
+              }
+            </button>
           </form>
 
-          <div class="auth-footer">
-            <p>
+          <!-- Footer -->
+          <div class="mt-6 pt-6 border-t border-gray-200 text-center">
+            <p class="text-gray-600">
               Don't have an account?
-              <a routerLink="/auth/register" class="auth-link">Create one</a>
+              <a routerLink="/auth/register" class="text-blue-600 hover:text-blue-700 font-medium hover:underline">
+                Create one
+              </a>
             </p>
           </div>
         </div>
-      </p-card>
+      </div>
     </div>
   `,
-  styles: [`
-    .login-container {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 1rem;
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-    }
-
-    .login-card {
-      width: 100%;
-      max-width: 420px;
-    }
-
-    .login-content {
-      padding: 1rem;
-    }
-
-    .auth-title {
-      font-size: 1.75rem;
-      font-weight: 600;
-      color: #1e293b;
-      margin: 0 0 0.5rem 0;
-      text-align: center;
-    }
-
-    .auth-subtitle {
-      color: #64748b;
-      text-align: center;
-      margin: 0 0 1.5rem 0;
-    }
-
-    .error-alert {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
-      background-color: #fef2f2;
-      border: 1px solid #fecaca;
-      border-radius: 0.5rem;
-      color: #dc2626;
-      margin-bottom: 1rem;
-    }
-
-    .error-alert i {
-      font-size: 1.25rem;
-    }
-
-    .auth-form {
-      display: flex;
-      flex-direction: column;
-      gap: 1.25rem;
-    }
-
-    .field {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-    }
-
-    .field label {
-      font-weight: 500;
-      color: #374151;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .p-error {
-      color: #dc2626;
-      font-size: 0.875rem;
-    }
-
-    .form-options {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .remember-me-wrapper {
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .remember-me-label {
-      cursor: pointer;
-      color: #374151;
-    }
-
-    .forgot-link {
-      color: #6366f1;
-      text-decoration: none;
-      font-size: 0.875rem;
-    }
-
-    .forgot-link:hover {
-      text-decoration: underline;
-    }
-
-    .auth-footer {
-      text-align: center;
-      margin-top: 1.5rem;
-      padding-top: 1.5rem;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .auth-footer p {
-      color: #64748b;
-      margin: 0;
-    }
-
-    .auth-link {
-      color: #6366f1;
-      text-decoration: none;
-      font-weight: 500;
-    }
-
-    .auth-link:hover {
-      text-decoration: underline;
-    }
-
-    :host ::ng-deep {
-      .p-card {
-        border-radius: 1rem;
-        box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-      }
-
-      .p-card-body {
-        padding: 2rem;
-      }
-
-      .p-inputtext {
-        padding: 0.75rem 0.75rem 0.75rem 2.5rem;
-      }
-
-      .p-password {
-        width: 100%;
-      }
-
-      .p-password-input {
-        width: 100%;
-        padding: 0.75rem;
-      }
-
-      .p-button {
-        padding: 0.75rem 1.5rem;
-        font-weight: 500;
-      }
-    }
-  `],
 })
 export class LoginComponent {
   private readonly fb = inject(FormBuilder);
@@ -268,7 +135,7 @@ export class LoginComponent {
 
   readonly isLoading = signal(false);
   readonly errorMessage = signal<string | null>(null);
-  readonly hidePassword = signal(true);
+  readonly showPassword = signal(false);
 
   readonly loginForm = this.fb.nonNullable.group({
     email: ['', [Validators.required, Validators.email]],
@@ -276,8 +143,8 @@ export class LoginComponent {
     rememberMe: [false],
   });
 
-  togglePasswordVisibility(): void {
-    this.hidePassword.update((value) => !value);
+  togglePassword(): void {
+    this.showPassword.update(v => !v);
   }
 
   onSubmit(): void {

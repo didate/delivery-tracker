@@ -1,19 +1,9 @@
-import { Component, inject, signal, OnInit, computed } from '@angular/core';
+import { Component, inject, signal, OnInit, OnChanges, SimpleChanges, input, output, computed } from '@angular/core';
 import { CommonModule, CurrencyPipe } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators, FormArray, FormGroup } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { TextareaModule } from 'primeng/textarea';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { ButtonModule } from 'primeng/button';
-import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
-import { TableModule } from 'primeng/table';
-import { DividerModule } from 'primeng/divider';
-import { TooltipModule } from 'primeng/tooltip';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
-import { Delivery, CreateDeliveryDto, UpdateDeliveryDto, CreateDeliveryItemDto } from '../models/delivery.model';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
+import { Delivery, CreateDeliveryDto, CreateDeliveryItemDto } from '../models/delivery.model';
 import { Customer } from '../../customers/models/customer.model';
 import { Driver } from '../../drivers/models/driver.model';
 import { Product } from '../../products/models/product.model';
@@ -45,334 +35,209 @@ interface ItemFormGroup {
   imports: [
     CommonModule,
     ReactiveFormsModule,
-    InputTextModule,
-    TextareaModule,
-    InputNumberModule,
-    ButtonModule,
-    SelectModule,
-    DatePickerModule,
-    TableModule,
-    DividerModule,
-    TooltipModule,
-    ProgressSpinnerModule,
+    ModalComponent,
     CurrencyPipe,
   ],
   template: `
-    <div class="delivery-dialog">
-      <form [formGroup]="deliveryForm" class="delivery-form">
-        <div class="form-section">
-          <h3>Delivery Information</h3>
+    <app-modal
+      [isOpen]="isOpen()"
+      [title]="mode() === 'edit' ? 'Edit Delivery' : 'New Delivery'"
+      maxWidth="700px"
+      (close)="onCancel()">
 
-          <div class="form-row two-columns">
-            <div class="form-field">
-              <label for="customerId">Customer *</label>
-              <p-select
+      <form [formGroup]="deliveryForm" class="space-y-6">
+        <!-- Delivery Information -->
+        <div>
+          <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide mb-4">Delivery Information</h3>
+
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Customer -->
+            <div>
+              <label for="customerId" class="block text-sm font-medium text-gray-700 mb-1">Customer *</label>
+              <select
                 id="customerId"
                 formControlName="customerId"
-                [options]="customerOptions()"
-                (onChange)="onCustomerChange($event.value)"
-                placeholder="Select a customer"
-                optionLabel="label"
-                optionValue="value"
-                [filter]="true"
-                filterPlaceholder="Search customers"
-                styleClass="w-full"
-                [class.ng-invalid]="deliveryForm.controls.customerId.invalid && deliveryForm.controls.customerId.touched">
-              </p-select>
+                (change)="onCustomerChange($any($event.target).value)"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+                [class.border-red-500]="deliveryForm.controls.customerId.invalid && deliveryForm.controls.customerId.touched">
+                <option [ngValue]="null">Select a customer</option>
+                @for (option of customerOptions(); track option.value) {
+                  <option [ngValue]="option.value">{{ option.label }}</option>
+                }
+              </select>
               @if (deliveryForm.controls.customerId.hasError('required') && deliveryForm.controls.customerId.touched) {
-                <small class="p-error">Customer is required</small>
+                <p class="mt-1 text-sm text-red-600">Customer is required</p>
               }
             </div>
 
-            <div class="form-field">
-              <label for="driverId">Driver (Optional)</label>
-              <p-select
+            <!-- Driver -->
+            <div>
+              <label for="driverId" class="block text-sm font-medium text-gray-700 mb-1">Driver (Optional)</label>
+              <select
                 id="driverId"
                 formControlName="driverId"
-                [options]="driverOptions()"
-                placeholder="Not assigned"
-                optionLabel="label"
-                optionValue="value"
-                [filter]="true"
-                filterPlaceholder="Search drivers"
-                [showClear]="true"
-                styleClass="w-full">
-              </p-select>
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white">
+                <option [ngValue]="null">Not assigned</option>
+                @for (option of driverOptions(); track option.value) {
+                  <option [ngValue]="option.value">{{ option.label }}</option>
+                }
+              </select>
             </div>
-          </div>
 
-          <div class="form-row two-columns">
-            <div class="form-field">
-              <label for="deliveryDate">Delivery Date *</label>
-              <p-datepicker
+            <!-- Delivery Date -->
+            <div>
+              <label for="deliveryDate" class="block text-sm font-medium text-gray-700 mb-1">Delivery Date *</label>
+              <input
                 id="deliveryDate"
+                type="date"
                 formControlName="deliveryDate"
-                dateFormat="mm/dd/yy"
-                [showIcon]="true"
-                styleClass="w-full"
-                [class.ng-invalid]="deliveryForm.controls.deliveryDate.invalid && deliveryForm.controls.deliveryDate.touched">
-              </p-datepicker>
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="deliveryForm.controls.deliveryDate.invalid && deliveryForm.controls.deliveryDate.touched" />
               @if (deliveryForm.controls.deliveryDate.hasError('required') && deliveryForm.controls.deliveryDate.touched) {
-                <small class="p-error">Delivery date is required</small>
+                <p class="mt-1 text-sm text-red-600">Delivery date is required</p>
               }
             </div>
 
-            <div class="form-field">
-              <label for="notes">Notes (Optional)</label>
+            <!-- Notes -->
+            <div>
+              <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes (Optional)</label>
               <textarea
-                pTextarea
                 id="notes"
                 formControlName="notes"
                 rows="1"
                 placeholder="Add notes..."
-                class="w-full">
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
               </textarea>
             </div>
           </div>
         </div>
 
-        <p-divider></p-divider>
+        <hr class="border-gray-200" />
 
-        <div class="form-section">
-          <div class="section-header">
-            <h3>Items</h3>
-            <p-button
-              label="Add Item"
-              icon="pi pi-plus"
-              [text]="true"
-              (onClick)="addItem()">
-            </p-button>
+        <!-- Items Section -->
+        <div>
+          <div class="flex justify-between items-center mb-4">
+            <h3 class="text-sm font-medium text-gray-500 uppercase tracking-wide">Items</h3>
+            <button
+              type="button"
+              (click)="addItem()"
+              class="px-3 py-1.5 text-blue-600 hover:bg-blue-50 font-medium rounded-lg transition-colors flex items-center gap-1 text-sm">
+              <i class="pi pi-plus"></i>
+              Add Item
+            </button>
           </div>
 
           @if (itemsFormArray.length === 0) {
-            <div class="no-items">
+            <div class="text-center py-8 bg-gray-50 rounded-lg text-gray-500">
               <p>No items added yet. Click "Add Item" to add products to this delivery.</p>
             </div>
           } @else {
-            <p-table [value]="itemsFormArray.controls" styleClass="p-datatable-sm">
-              <ng-template pTemplate="header">
-                <tr>
-                  <th>Product</th>
-                  <th style="width: 100px">Quantity</th>
-                  <th style="width: 130px">Unit Price</th>
-                  <th style="width: 100px">Total</th>
-                  <th style="width: 60px"></th>
-                </tr>
-              </ng-template>
-              <ng-template pTemplate="body" let-item let-i="rowIndex">
-                <tr>
-                  <td>
-                    <p-select
-                      [formControl]="getItemControl(i, 'productId')"
-                      [options]="productOptions()"
-                      (onChange)="onProductChange(i, $event.value)"
-                      placeholder="Select product"
-                      optionLabel="label"
-                      optionValue="value"
-                      [filter]="true"
-                      filterPlaceholder="Search products"
-                      styleClass="w-full compact-dropdown">
-                    </p-select>
-                  </td>
-                  <td>
-                    <p-inputNumber
-                      [formControl]="getItemControl(i, 'quantity')"
-                      (onInput)="updateItemTotal(i)"
-                      [min]="1"
-                      [showButtons]="true"
-                      buttonLayout="horizontal"
-                      spinnerMode="horizontal"
-                      inputStyleClass="compact-input"
-                      styleClass="compact-spinner">
-                    </p-inputNumber>
-                  </td>
-                  <td>
-                    <p-inputNumber
-                      [formControl]="getItemControl(i, 'unitPrice')"
-                      (onInput)="updateItemTotal(i)"
-                      mode="currency"
-                      currency="USD"
-                      [min]="0"
-                      inputStyleClass="compact-input">
-                    </p-inputNumber>
-                  </td>
-                  <td class="total-cell">
-                    {{ getItemValue(i, 'totalPrice') | currency }}
-                  </td>
-                  <td>
-                    <p-button
-                      icon="pi pi-trash"
-                      [rounded]="true"
-                      [text]="true"
-                      severity="danger"
-                      pTooltip="Remove item"
-                      (onClick)="removeItem(i)">
-                    </p-button>
-                  </td>
-                </tr>
-              </ng-template>
-            </p-table>
+            <div class="overflow-x-auto">
+              <table class="w-full text-sm">
+                <thead class="bg-gray-50 border-b border-gray-200">
+                  <tr>
+                    <th class="px-3 py-2 text-left font-semibold text-gray-700">Product</th>
+                    <th class="px-3 py-2 text-left font-semibold text-gray-700 w-24">Quantity</th>
+                    <th class="px-3 py-2 text-left font-semibold text-gray-700 w-32">Unit Price</th>
+                    <th class="px-3 py-2 text-left font-semibold text-gray-700 w-24">Total</th>
+                    <th class="px-3 py-2 w-12"></th>
+                  </tr>
+                </thead>
+                <tbody class="divide-y divide-gray-100">
+                  @for (item of itemsFormArray.controls; track $index; let i = $index) {
+                    <tr>
+                      <td class="px-3 py-2">
+                        <select
+                          [formControl]="getItemControl(i, 'productId')"
+                          (change)="onProductChange(i, $any($event.target).value)"
+                          class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white text-sm">
+                          <option value="">Select product</option>
+                          @for (product of productOptions(); track product.value) {
+                            <option [value]="product.value">{{ product.label }}</option>
+                          }
+                        </select>
+                      </td>
+                      <td class="px-3 py-2">
+                        <input
+                          type="number"
+                          [formControl]="getItemControl(i, 'quantity')"
+                          (input)="updateItemTotal(i)"
+                          min="1"
+                          class="w-full px-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm text-center" />
+                      </td>
+                      <td class="px-3 py-2">
+                        <div class="relative">
+                          <span class="absolute left-2 top-1/2 -translate-y-1/2 text-gray-500 text-sm">$</span>
+                          <input
+                            type="number"
+                            [formControl]="getItemControl(i, 'unitPrice')"
+                            (input)="updateItemTotal(i)"
+                            min="0"
+                            step="0.01"
+                            class="w-full pl-6 pr-2 py-1.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm" />
+                        </div>
+                      </td>
+                      <td class="px-3 py-2 font-medium text-gray-900">
+                        {{ getItemValue(i, 'totalPrice') | currency }}
+                      </td>
+                      <td class="px-3 py-2">
+                        <button
+                          type="button"
+                          (click)="removeItem(i)"
+                          class="p-1.5 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Remove item">
+                          <i class="pi pi-trash text-sm"></i>
+                        </button>
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
 
-            <div class="total-row">
-              <strong>Total Amount: {{ grandTotal() | currency }}</strong>
+            <div class="flex justify-end mt-4 px-4 py-3 bg-gray-50 rounded-lg">
+              <strong class="text-gray-900">Total Amount: {{ grandTotal() | currency }}</strong>
             </div>
           }
         </div>
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button
+            type="button"
+            (click)="onSave()"
+            [disabled]="deliveryForm.invalid || itemsFormArray.length === 0 || isSaving()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+            @if (isSaving()) {
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            }
+            {{ mode() === 'edit' ? 'Update' : 'Create' }}
+          </button>
+        </div>
       </form>
-
-      <div class="dialog-footer">
-        <p-button
-          label="Cancel"
-          [text]="true"
-          (onClick)="onCancel()">
-        </p-button>
-        <p-button
-          [label]="isEditMode() ? 'Update' : 'Create'"
-          (onClick)="onSave()"
-          [disabled]="deliveryForm.invalid || itemsFormArray.length === 0 || isSaving()"
-          [loading]="isSaving()">
-        </p-button>
-      </div>
-    </div>
+    </app-modal>
   `,
-  styles: [`
-    .delivery-dialog {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .delivery-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 600px;
-    }
-
-    .form-section {
-      margin-bottom: 8px;
-    }
-
-    .form-section h3 {
-      margin: 0 0 16px 0;
-      color: #666;
-      font-size: 14px;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-    }
-
-    .section-header h3 {
-      margin: 0;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 16px;
-    }
-
-    .form-row.two-columns {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    .form-field {
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .form-field label {
-      font-size: 12px;
-      font-weight: 500;
-      color: #666;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .no-items {
-      text-align: center;
-      padding: 32px;
-      color: #9e9e9e;
-      background-color: #fafafa;
-      border-radius: 4px;
-    }
-
-    .total-row {
-      display: flex;
-      justify-content: flex-end;
-      padding: 16px;
-      background-color: #f5f5f5;
-      border-radius: 4px;
-      margin-top: 8px;
-    }
-
-    .total-cell {
-      font-weight: 500;
-    }
-
-    .dialog-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      padding-top: 16px;
-      border-top: 1px solid #e0e0e0;
-    }
-
-    .p-error {
-      color: var(--red-500);
-      font-size: 12px;
-    }
-
-    :host ::ng-deep .compact-dropdown .p-select {
-      height: 36px;
-    }
-
-    :host ::ng-deep .compact-input {
-      height: 36px;
-      width: 100%;
-    }
-
-    :host ::ng-deep .compact-spinner {
-      width: 100%;
-    }
-
-    :host ::ng-deep .compact-spinner .p-inputnumber-input {
-      width: 50px;
-      text-align: center;
-    }
-
-    :host ::ng-deep .p-datatable .p-datatable-tbody > tr > td {
-      padding: 8px;
-      vertical-align: middle;
-    }
-
-    :host ::ng-deep .p-datatable .p-datatable-thead > tr > th {
-      padding: 8px;
-    }
-  `]
 })
-export class DeliveryDialogComponent implements OnInit {
+export class DeliveryDialogComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
-
   private readonly customerService = inject(CustomerService);
   private readonly driverService = inject(DriverService);
   private readonly productService = inject(ProductService);
 
+  isOpen = input<boolean>(false);
+  mode = input<'create' | 'edit'>('create');
+  delivery = input<Delivery | null>(null);
+
+  save = output<DeliveryDialogResult>();
+  cancel = output<void>();
+
   readonly isSaving = signal(false);
-  readonly isEditMode = signal(false);
   readonly customers = signal<Customer[]>([]);
   readonly drivers = signal<Driver[]>([]);
   readonly products = signal<Product[]>([]);
@@ -392,17 +257,13 @@ export class DeliveryDialogComponent implements OnInit {
   readonly deliveryForm = this.fb.nonNullable.group({
     customerId: [null as number | null, [Validators.required]],
     driverId: [null as number | null],
-    deliveryDate: [new Date(), [Validators.required]],
+    deliveryDate: ['', [Validators.required]],
     notes: [''],
     items: this.fb.array<FormGroup>([])
   });
 
   get itemsFormArray(): FormArray {
     return this.deliveryForm.get('items') as FormArray;
-  }
-
-  get data(): DeliveryDialogData {
-    return this.config.data;
   }
 
   readonly grandTotal = computed(() => {
@@ -414,13 +275,51 @@ export class DeliveryDialogComponent implements OnInit {
   });
 
   ngOnInit(): void {
-    this.isEditMode.set(this.data?.mode === 'edit');
     this.loadCustomers();
     this.loadDrivers();
     this.loadProducts();
+  }
 
-    if (this.data?.delivery) {
-      this.patchFormWithDelivery(this.data.delivery);
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['isOpen'] || changes['delivery']) {
+      this.initForm();
+    }
+  }
+
+  private initForm(): void {
+    const deliveryData = this.delivery();
+    if (deliveryData) {
+      this.deliveryForm.patchValue({
+        customerId: deliveryData.customerId,
+        driverId: deliveryData.driverId,
+        deliveryDate: this.formatDateForInput(new Date(deliveryData.deliveryDate)),
+        notes: deliveryData.notes || ''
+      });
+
+      // Clear existing items and add delivery items
+      while (this.itemsFormArray.length) {
+        this.itemsFormArray.removeAt(0);
+      }
+
+      deliveryData.items.forEach(item => {
+        this.itemsFormArray.push(this.createItemFormGroup({
+          productId: item.productId,
+          productName: item.productName,
+          quantity: item.quantity,
+          unitPrice: item.unitPrice,
+          totalPrice: item.totalPrice
+        }));
+      });
+    } else {
+      this.deliveryForm.reset({
+        customerId: null,
+        driverId: null,
+        deliveryDate: this.formatDateForInput(new Date()),
+        notes: ''
+      });
+      while (this.itemsFormArray.length) {
+        this.itemsFormArray.removeAt(0);
+      }
     }
   }
 
@@ -445,26 +344,6 @@ export class DeliveryDialogComponent implements OnInit {
       next: (response) => {
         this.products.set(response.data);
       }
-    });
-  }
-
-  private patchFormWithDelivery(delivery: Delivery): void {
-    this.deliveryForm.patchValue({
-      customerId: delivery.customerId,
-      driverId: delivery.driverId,
-      deliveryDate: new Date(delivery.deliveryDate),
-      notes: delivery.notes || ''
-    });
-
-    // Add existing items
-    delivery.items.forEach(item => {
-      this.itemsFormArray.push(this.createItemFormGroup({
-        productId: item.productId,
-        productName: item.productName,
-        quantity: item.quantity,
-        unitPrice: item.unitPrice,
-        totalPrice: item.totalPrice
-      }));
     });
   }
 
@@ -494,8 +373,9 @@ export class DeliveryDialogComponent implements OnInit {
     return this.itemsFormArray.at(index).get(controlName)?.value;
   }
 
-  onCustomerChange(customerId: number): void {
-    const customer = this.customers().find(c => c.id === customerId);
+  onCustomerChange(customerId: string): void {
+    const customerIdNum = Number(customerId);
+    const customer = this.customers().find(c => c.id === customerIdNum);
     if (customer && customer.driverId && !this.deliveryForm.value.driverId) {
       this.deliveryForm.patchValue({ driverId: customer.driverId });
     }
@@ -521,7 +401,7 @@ export class DeliveryDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close();
+    this.cancel.emit();
   }
 
   onSave(): void {
@@ -541,7 +421,7 @@ export class DeliveryDialogComponent implements OnInit {
     const deliveryData: CreateDeliveryDto = {
       customerId: formValue.customerId!,
       driverId: formValue.driverId,
-      deliveryDate: this.formatDate(formValue.deliveryDate),
+      deliveryDate: formValue.deliveryDate,
       notes: formValue.notes || null,
       items
     };
@@ -551,10 +431,10 @@ export class DeliveryDialogComponent implements OnInit {
       data: deliveryData
     };
 
-    this.dialogRef.close(result);
+    this.save.emit(result);
   }
 
-  private formatDate(date: Date): string {
+  private formatDateForInput(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');

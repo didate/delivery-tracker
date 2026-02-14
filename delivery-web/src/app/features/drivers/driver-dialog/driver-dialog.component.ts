@@ -1,14 +1,9 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, input, output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogConfig, DynamicDialogRef } from 'primeng/dynamicdialog';
-import { InputTextModule } from 'primeng/inputtext';
-import { SelectModule } from 'primeng/select';
-import { ButtonModule } from 'primeng/button';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
+import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import { Driver, CreateDriverDto, UpdateDriverDto } from '../models/driver.model';
 import { ProductionSite } from '../models/production-site.model';
-import { DriverService } from '../services/driver.service';
 import { ProductionSiteService } from '../services/production-site.service';
 
 export interface DriverDialogData {
@@ -16,209 +11,224 @@ export interface DriverDialogData {
   mode: 'create' | 'edit';
 }
 
+export interface DriverDialogResult {
+  action: 'save';
+  data: CreateDriverDto | UpdateDriverDto;
+}
+
 @Component({
   selector: 'app-driver-dialog',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    InputTextModule,
-    SelectModule,
-    ButtonModule,
-    ProgressSpinnerModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   template: `
-    <form [formGroup]="form" class="driver-form">
-      <div class="form-row">
-        <div class="field">
-          <label for="code">Code</label>
-          <input id="code" type="text" pInputText formControlName="code" placeholder="Driver code" class="w-full">
-          @if (form.get('code')?.hasError('required') && form.get('code')?.touched) {
-            <small class="p-error">Code is required</small>
+    <app-modal
+      [isOpen]="isOpen()"
+      [title]="mode() === 'edit' ? 'Edit Driver' : 'Add Driver'"
+      maxWidth="700px"
+      (close)="onCancel()">
+
+      <form [formGroup]="driverForm" (ngSubmit)="onSave()" class="space-y-4">
+        <!-- Row 1: Code, First Name, Last Name -->
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label for="code" class="block text-sm font-medium text-gray-700 mb-1">Code</label>
+            <input
+              id="code"
+              type="text"
+              formControlName="code"
+              placeholder="Driver code"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.code.invalid && driverForm.controls.code.touched" />
+            @if (driverForm.controls.code.hasError('required') && driverForm.controls.code.touched) {
+              <p class="mt-1 text-sm text-red-600">Code is required</p>
+            }
+          </div>
+
+          <div>
+            <label for="firstName" class="block text-sm font-medium text-gray-700 mb-1">First Name</label>
+            <input
+              id="firstName"
+              type="text"
+              formControlName="firstName"
+              placeholder="First name"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.firstName.invalid && driverForm.controls.firstName.touched" />
+            @if (driverForm.controls.firstName.hasError('required') && driverForm.controls.firstName.touched) {
+              <p class="mt-1 text-sm text-red-600">First name is required</p>
+            }
+          </div>
+
+          <div>
+            <label for="lastName" class="block text-sm font-medium text-gray-700 mb-1">Last Name</label>
+            <input
+              id="lastName"
+              type="text"
+              formControlName="lastName"
+              placeholder="Last name"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.lastName.invalid && driverForm.controls.lastName.touched" />
+            @if (driverForm.controls.lastName.hasError('required') && driverForm.controls.lastName.touched) {
+              <p class="mt-1 text-sm text-red-600">Last name is required</p>
+            }
+          </div>
+        </div>
+
+        <!-- Row 2: Phone, Email -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="phone" class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <input
+              id="phone"
+              type="text"
+              formControlName="phone"
+              placeholder="Phone number"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.phone.invalid && driverForm.controls.phone.touched" />
+            @if (driverForm.controls.phone.hasError('required') && driverForm.controls.phone.touched) {
+              <p class="mt-1 text-sm text-red-600">Phone is required</p>
+            }
+          </div>
+
+          <div>
+            <label for="email" class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+            <input
+              id="email"
+              type="email"
+              formControlName="email"
+              placeholder="Email address"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.email.invalid && driverForm.controls.email.touched" />
+            @if (driverForm.controls.email.hasError('required') && driverForm.controls.email.touched) {
+              <p class="mt-1 text-sm text-red-600">Email is required</p>
+            }
+            @if (driverForm.controls.email.hasError('email') && driverForm.controls.email.touched) {
+              <p class="mt-1 text-sm text-red-600">Please enter a valid email</p>
+            }
+          </div>
+        </div>
+
+        <!-- Row 3: License Number, Vehicle Type, Vehicle Plate -->
+        <div class="grid grid-cols-3 gap-4">
+          <div>
+            <label for="licenseNumber" class="block text-sm font-medium text-gray-700 mb-1">License Number</label>
+            <input
+              id="licenseNumber"
+              type="text"
+              formControlName="licenseNumber"
+              placeholder="License number"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.licenseNumber.invalid && driverForm.controls.licenseNumber.touched" />
+            @if (driverForm.controls.licenseNumber.hasError('required') && driverForm.controls.licenseNumber.touched) {
+              <p class="mt-1 text-sm text-red-600">License number is required</p>
+            }
+          </div>
+
+          <div>
+            <label for="vehicleType" class="block text-sm font-medium text-gray-700 mb-1">Vehicle Type</label>
+            <input
+              id="vehicleType"
+              type="text"
+              formControlName="vehicleType"
+              placeholder="Vehicle type"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.vehicleType.invalid && driverForm.controls.vehicleType.touched" />
+            @if (driverForm.controls.vehicleType.hasError('required') && driverForm.controls.vehicleType.touched) {
+              <p class="mt-1 text-sm text-red-600">Vehicle type is required</p>
+            }
+          </div>
+
+          <div>
+            <label for="vehiclePlate" class="block text-sm font-medium text-gray-700 mb-1">Vehicle Plate</label>
+            <input
+              id="vehiclePlate"
+              type="text"
+              formControlName="vehiclePlate"
+              placeholder="Vehicle plate"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              [class.border-red-500]="driverForm.controls.vehiclePlate.invalid && driverForm.controls.vehiclePlate.touched" />
+            @if (driverForm.controls.vehiclePlate.hasError('required') && driverForm.controls.vehiclePlate.touched) {
+              <p class="mt-1 text-sm text-red-600">Vehicle plate is required</p>
+            }
+          </div>
+        </div>
+
+        <!-- Row 4: Production Site -->
+        <div>
+          <label for="productionSiteId" class="block text-sm font-medium text-gray-700 mb-1">Production Site</label>
+          <div class="relative">
+            <select
+              id="productionSiteId"
+              formControlName="productionSiteId"
+              class="w-full appearance-none px-3 py-2 pr-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white"
+              [class.border-red-500]="driverForm.controls.productionSiteId.invalid && driverForm.controls.productionSiteId.touched">
+              <option [ngValue]="null">Select a production site</option>
+              @for (site of productionSites(); track site.id) {
+                <option [ngValue]="site.id">{{ site.name }}</option>
+              }
+            </select>
+            <i class="pi pi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+          </div>
+          @if (driverForm.controls.productionSiteId.hasError('required') && driverForm.controls.productionSiteId.touched) {
+            <p class="mt-1 text-sm text-red-600">Production site is required</p>
           }
         </div>
 
-        <div class="field">
-          <label for="firstName">First Name</label>
-          <input id="firstName" type="text" pInputText formControlName="firstName" placeholder="First name" class="w-full">
-          @if (form.get('firstName')?.hasError('required') && form.get('firstName')?.touched) {
-            <small class="p-error">First name is required</small>
-          }
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-6">
+          <button
+            type="button"
+            (click)="onCancel()"
+            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 font-medium rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="driverForm.invalid || isSaving()"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+            @if (isSaving()) {
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            }
+            {{ mode() === 'edit' ? 'Update' : 'Create' }}
+          </button>
         </div>
-
-        <div class="field">
-          <label for="lastName">Last Name</label>
-          <input id="lastName" type="text" pInputText formControlName="lastName" placeholder="Last name" class="w-full">
-          @if (form.get('lastName')?.hasError('required') && form.get('lastName')?.touched) {
-            <small class="p-error">Last name is required</small>
-          }
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="field">
-          <label for="phone">Phone</label>
-          <input id="phone" type="text" pInputText formControlName="phone" placeholder="Phone number" class="w-full">
-          @if (form.get('phone')?.hasError('required') && form.get('phone')?.touched) {
-            <small class="p-error">Phone is required</small>
-          }
-        </div>
-
-        <div class="field">
-          <label for="email">Email</label>
-          <input id="email" type="email" pInputText formControlName="email" placeholder="Email address" class="w-full">
-          @if (form.get('email')?.hasError('required') && form.get('email')?.touched) {
-            <small class="p-error">Email is required</small>
-          }
-          @if (form.get('email')?.hasError('email') && form.get('email')?.touched) {
-            <small class="p-error">Invalid email format</small>
-          }
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="field">
-          <label for="licenseNumber">License Number</label>
-          <input id="licenseNumber" type="text" pInputText formControlName="licenseNumber" placeholder="License number" class="w-full">
-          @if (form.get('licenseNumber')?.hasError('required') && form.get('licenseNumber')?.touched) {
-            <small class="p-error">License number is required</small>
-          }
-        </div>
-
-        <div class="field">
-          <label for="vehicleType">Vehicle Type</label>
-          <input id="vehicleType" type="text" pInputText formControlName="vehicleType" placeholder="Vehicle type" class="w-full">
-          @if (form.get('vehicleType')?.hasError('required') && form.get('vehicleType')?.touched) {
-            <small class="p-error">Vehicle type is required</small>
-          }
-        </div>
-
-        <div class="field">
-          <label for="vehiclePlate">Vehicle Plate</label>
-          <input id="vehiclePlate" type="text" pInputText formControlName="vehiclePlate" placeholder="Vehicle plate" class="w-full">
-          @if (form.get('vehiclePlate')?.hasError('required') && form.get('vehiclePlate')?.touched) {
-            <small class="p-error">Vehicle plate is required</small>
-          }
-        </div>
-      </div>
-
-      <div class="form-row">
-        <div class="field full-width">
-          <label for="productionSiteId">Production Site</label>
-          <p-select
-            id="productionSiteId"
-            formControlName="productionSiteId"
-            [options]="productionSites()"
-            optionLabel="name"
-            optionValue="id"
-            placeholder="Select a production site"
-            [style]="{'width': '100%'}">
-          </p-select>
-          @if (form.get('productionSiteId')?.hasError('required') && form.get('productionSiteId')?.touched) {
-            <small class="p-error">Production site is required</small>
-          }
-        </div>
-      </div>
-    </form>
-
-    <div class="dialog-actions">
-      <p-button label="Cancel" [text]="true" (onClick)="onCancel()"></p-button>
-      <p-button
-        [label]="data.mode === 'create' ? 'Create' : 'Save'"
-        (onClick)="onSubmit()"
-        [disabled]="form.invalid || saving()">
-        @if (saving()) {
-          <p-progressSpinner [style]="{width: '20px', height: '20px'}"></p-progressSpinner>
-        }
-      </p-button>
-    </div>
+      </form>
+    </app-modal>
   `,
-  styles: [`
-    .driver-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-      min-width: 500px;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 16px;
-    }
-
-    .field {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .field label {
-      font-weight: 500;
-      margin-bottom: 4px;
-    }
-
-    .full-width {
-      width: 100%;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .p-error {
-      color: #f44336;
-      font-size: 12px;
-    }
-
-    .dialog-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      margin-top: 24px;
-      padding-top: 16px;
-      border-top: 1px solid #e0e0e0;
-    }
-  `]
 })
-export class DriverDialogComponent implements OnInit {
+export class DriverDialogComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
-  private readonly config = inject(DynamicDialogConfig);
-  private readonly driverService = inject(DriverService);
   private readonly productionSiteService = inject(ProductionSiteService);
 
-  readonly data: DriverDialogData = this.config.data;
-  readonly productionSites = signal<ProductionSite[]>([]);
-  readonly saving = signal(false);
+  isOpen = input<boolean>(false);
+  mode = input<'create' | 'edit'>('create');
+  driver = input<Driver | null>(null);
 
-  form: FormGroup = this.fb.group({
-    code: ['', Validators.required],
-    firstName: ['', Validators.required],
-    lastName: ['', Validators.required],
-    phone: ['', Validators.required],
+  save = output<DriverDialogResult>();
+  cancel = output<void>();
+
+  readonly productionSites = signal<ProductionSite[]>([]);
+  readonly isSaving = signal(false);
+
+  readonly driverForm = this.fb.nonNullable.group({
+    code: ['', [Validators.required]],
+    firstName: ['', [Validators.required]],
+    lastName: ['', [Validators.required]],
+    phone: ['', [Validators.required]],
     email: ['', [Validators.required, Validators.email]],
-    licenseNumber: ['', Validators.required],
-    vehicleType: ['', Validators.required],
-    vehiclePlate: ['', Validators.required],
-    productionSiteId: [null, Validators.required]
+    licenseNumber: ['', [Validators.required]],
+    vehicleType: ['', [Validators.required]],
+    vehiclePlate: ['', [Validators.required]],
+    productionSiteId: [null as number | null, [Validators.required]],
   });
 
   ngOnInit(): void {
     this.loadProductionSites();
+    this.initForm();
+  }
 
-    if (this.data.mode === 'edit' && this.data.driver) {
-      this.form.patchValue({
-        code: this.data.driver.code,
-        firstName: this.data.driver.firstName,
-        lastName: this.data.driver.lastName,
-        phone: this.data.driver.phone,
-        email: this.data.driver.email,
-        licenseNumber: this.data.driver.licenseNumber,
-        vehicleType: this.data.driver.vehicleType,
-        vehiclePlate: this.data.driver.vehiclePlate,
-        productionSiteId: this.data.driver.productionSiteId
-      });
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['driver'] || changes['isOpen']) {
+      this.initForm();
     }
   }
 
@@ -229,44 +239,54 @@ export class DriverDialogComponent implements OnInit {
     });
   }
 
-  onCancel(): void {
-    this.dialogRef.close();
+  private initForm(): void {
+    const driverData = this.driver();
+    if (driverData) {
+      this.driverForm.patchValue({
+        code: driverData.code,
+        firstName: driverData.firstName,
+        lastName: driverData.lastName,
+        phone: driverData.phone,
+        email: driverData.email,
+        licenseNumber: driverData.licenseNumber,
+        vehicleType: driverData.vehicleType,
+        vehiclePlate: driverData.vehiclePlate,
+        productionSiteId: driverData.productionSiteId,
+      });
+    } else {
+      this.driverForm.reset();
+    }
   }
 
-  onSubmit(): void {
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
+  onCancel(): void {
+    this.cancel.emit();
+  }
+
+  onSave(): void {
+    if (this.driverForm.invalid) {
+      this.driverForm.markAllAsTouched();
       return;
     }
 
-    this.saving.set(true);
+    const formValue = this.driverForm.getRawValue();
 
-    const formValue = this.form.value;
+    const driverData: CreateDriverDto | UpdateDriverDto = {
+      code: formValue.code,
+      firstName: formValue.firstName,
+      lastName: formValue.lastName,
+      phone: formValue.phone,
+      email: formValue.email,
+      licenseNumber: formValue.licenseNumber,
+      vehicleType: formValue.vehicleType,
+      vehiclePlate: formValue.vehiclePlate,
+      productionSiteId: formValue.productionSiteId!,
+    };
 
-    if (this.data.mode === 'create') {
-      const createDto: CreateDriverDto = formValue;
-      this.driverService.createDriver(createDto).subscribe({
-        next: (driver) => {
-          this.saving.set(false);
-          this.dialogRef.close(driver);
-        },
-        error: (err) => {
-          this.saving.set(false);
-          console.error('Failed to create driver:', err);
-        }
-      });
-    } else if (this.data.driver) {
-      const updateDto: UpdateDriverDto = formValue;
-      this.driverService.updateDriver(this.data.driver.id, updateDto).subscribe({
-        next: (driver) => {
-          this.saving.set(false);
-          this.dialogRef.close(driver);
-        },
-        error: (err) => {
-          this.saving.set(false);
-          console.error('Failed to update driver:', err);
-        }
-      });
-    }
+    const result: DriverDialogResult = {
+      action: 'save',
+      data: driverData,
+    };
+
+    this.save.emit(result);
   }
 }

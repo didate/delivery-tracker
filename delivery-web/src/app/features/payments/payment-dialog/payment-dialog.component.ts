@@ -1,15 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, input, output, OnInit, OnChanges, SimpleChanges } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { DynamicDialogRef, DynamicDialogConfig } from 'primeng/dynamicdialog';
-import { ButtonModule } from 'primeng/button';
-import { InputTextModule } from 'primeng/inputtext';
-import { InputNumberModule } from 'primeng/inputnumber';
-import { TextareaModule } from 'primeng/textarea';
-import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 
+import { ModalComponent } from '../../../shared/components/modal/modal.component';
 import {
   Payment,
   PaymentMethod,
@@ -17,7 +10,6 @@ import {
   UpdatePaymentDto,
   PAYMENT_METHOD_LABELS
 } from '../models/payment.model';
-import { PaymentService } from '../services/payment.service';
 import { CustomerService } from '../../customers/services/customer.service';
 import { Customer } from '../../customers/models/customer.model';
 
@@ -26,203 +18,181 @@ export interface PaymentDialogData {
   payment?: Payment;
 }
 
+export interface PaymentDialogResult {
+  action: 'save';
+  data: CreatePaymentDto | UpdatePaymentDto;
+}
+
 @Component({
   selector: 'app-payment-dialog',
   standalone: true,
-  imports: [
-    CommonModule,
-    ReactiveFormsModule,
-    ButtonModule,
-    InputTextModule,
-    InputNumberModule,
-    TextareaModule,
-    SelectModule,
-    DatePickerModule,
-    ProgressSpinnerModule
-  ],
+  imports: [CommonModule, ReactiveFormsModule, ModalComponent],
   template: `
-    <form [formGroup]="paymentForm" class="payment-form">
-      <div class="field">
-        <label for="customerId">Customer <span class="required">*</span></label>
-        <p-select
-          id="customerId"
-          formControlName="customerId"
-          [options]="customerOptions()"
-          [loading]="isLoadingCustomers()"
-          [filter]="true"
-          filterBy="label"
-          placeholder="Select a customer"
-          styleClass="w-full"
-          [showClear]="true">
-        </p-select>
-        @if (paymentForm.controls.customerId.hasError('required') && paymentForm.controls.customerId.touched) {
-          <small class="p-error">Customer is required</small>
-        }
-      </div>
+    <app-modal
+      [isOpen]="isOpen()"
+      [title]="mode() === 'edit' ? 'Edit Payment' : 'Create Payment'"
+      maxWidth="550px"
+      (close)="onCancel()">
 
-      <div class="form-row">
-        <div class="field half-width">
-          <label for="amount">Amount <span class="required">*</span></label>
-          <p-inputNumber
-            id="amount"
-            formControlName="amount"
-            mode="currency"
-            currency="USD"
-            locale="en-US"
-            [min]="0"
-            placeholder="0.00"
-            styleClass="w-full">
-          </p-inputNumber>
-          @if (paymentForm.controls.amount.hasError('required') && paymentForm.controls.amount.touched) {
-            <small class="p-error">Amount is required</small>
-          }
-          @if (paymentForm.controls.amount.hasError('min') && paymentForm.controls.amount.touched) {
-            <small class="p-error">Amount must be greater than 0</small>
+      <form [formGroup]="paymentForm" (ngSubmit)="onSubmit()" class="space-y-4">
+        <!-- Customer -->
+        <div>
+          <label for="customerId" class="block text-sm font-medium text-gray-700 mb-1">
+            Customer <span class="text-red-500">*</span>
+          </label>
+          <div class="relative">
+            <select
+              id="customerId"
+              formControlName="customerId"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+              [class.border-red-500]="paymentForm.controls.customerId.invalid && paymentForm.controls.customerId.touched">
+              <option [ngValue]="null">Select a customer</option>
+              @for (option of customerOptions(); track option.value) {
+                <option [ngValue]="option.value">{{ option.label }}</option>
+              }
+            </select>
+            <i class="pi pi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+            @if (isLoadingCustomers()) {
+              <div class="absolute right-10 top-1/2 -translate-y-1/2">
+                <div class="w-4 h-4 border-2 border-gray-300 border-t-blue-600 rounded-full animate-spin"></div>
+              </div>
+            }
+          </div>
+          @if (paymentForm.controls.customerId.hasError('required') && paymentForm.controls.customerId.touched) {
+            <p class="mt-1 text-sm text-red-600">Customer is required</p>
           }
         </div>
 
-        <div class="field half-width">
-          <label for="method">Payment Method <span class="required">*</span></label>
-          <p-select
-            id="method"
-            formControlName="method"
-            [options]="paymentMethodOptions"
-            placeholder="Select method"
-            styleClass="w-full">
-          </p-select>
-          @if (paymentForm.controls.method.hasError('required') && paymentForm.controls.method.touched) {
-            <small class="p-error">Payment method is required</small>
-          }
+        <!-- Amount and Payment Method -->
+        <div class="grid grid-cols-2 gap-4">
+          <div>
+            <label for="amount" class="block text-sm font-medium text-gray-700 mb-1">
+              Amount <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <span class="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <input
+                id="amount"
+                type="number"
+                formControlName="amount"
+                step="0.01"
+                min="0"
+                placeholder="0.00"
+                class="w-full pl-7 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                [class.border-red-500]="paymentForm.controls.amount.invalid && paymentForm.controls.amount.touched" />
+            </div>
+            @if (paymentForm.controls.amount.hasError('required') && paymentForm.controls.amount.touched) {
+              <p class="mt-1 text-sm text-red-600">Amount is required</p>
+            }
+            @if (paymentForm.controls.amount.hasError('min') && paymentForm.controls.amount.touched) {
+              <p class="mt-1 text-sm text-red-600">Amount must be greater than 0</p>
+            }
+          </div>
+
+          <div>
+            <label for="method" class="block text-sm font-medium text-gray-700 mb-1">
+              Payment Method <span class="text-red-500">*</span>
+            </label>
+            <div class="relative">
+              <select
+                id="method"
+                formControlName="method"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 appearance-none bg-white"
+                [class.border-red-500]="paymentForm.controls.method.invalid && paymentForm.controls.method.touched">
+                <option [ngValue]="null">Select method</option>
+                @for (option of paymentMethodOptions; track option.value) {
+                  <option [ngValue]="option.value">{{ option.label }}</option>
+                }
+              </select>
+              <i class="pi pi-chevron-down absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-sm"></i>
+            </div>
+            @if (paymentForm.controls.method.hasError('required') && paymentForm.controls.method.touched) {
+              <p class="mt-1 text-sm text-red-600">Payment method is required</p>
+            }
+          </div>
         </div>
-      </div>
 
-      <div class="field">
-        <label for="paymentDate">Payment Date <span class="required">*</span></label>
-        <p-datepicker
-          id="paymentDate"
-          formControlName="paymentDate"
-          [showIcon]="true"
-          dateFormat="mm/dd/yy"
-          placeholder="Select date"
-          styleClass="w-full">
-        </p-datepicker>
-        @if (paymentForm.controls.paymentDate.hasError('required') && paymentForm.controls.paymentDate.touched) {
-          <small class="p-error">Payment date is required</small>
-        }
-      </div>
-
-      <div class="field">
-        <label for="reference">Reference</label>
-        <span class="p-input-icon-right w-full">
-          <i class="pi pi-tag"></i>
+        <!-- Payment Date -->
+        <div>
+          <label for="paymentDate" class="block text-sm font-medium text-gray-700 mb-1">
+            Payment Date <span class="text-red-500">*</span>
+          </label>
           <input
-            id="reference"
-            type="text"
-            pInputText
-            formControlName="reference"
-            placeholder="Check number, transaction ID, etc."
-            class="w-full" />
-        </span>
-      </div>
+            id="paymentDate"
+            type="date"
+            formControlName="paymentDate"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            [class.border-red-500]="paymentForm.controls.paymentDate.invalid && paymentForm.controls.paymentDate.touched" />
+          @if (paymentForm.controls.paymentDate.hasError('required') && paymentForm.controls.paymentDate.touched) {
+            <p class="mt-1 text-sm text-red-600">Payment date is required</p>
+          }
+        </div>
 
-      <div class="field">
-        <label for="notes">Notes</label>
-        <textarea
-          id="notes"
-          pTextarea
-          formControlName="notes"
-          placeholder="Additional notes..."
-          rows="3"
-          class="w-full">
-        </textarea>
-      </div>
+        <!-- Reference -->
+        <div>
+          <label for="reference" class="block text-sm font-medium text-gray-700 mb-1">Reference</label>
+          <div class="relative">
+            <i class="pi pi-tag absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+            <input
+              id="reference"
+              type="text"
+              formControlName="reference"
+              placeholder="Check number, transaction ID, etc."
+              class="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+          </div>
+        </div>
 
-      @if (errorMessage()) {
-        <div class="error-message">{{ errorMessage() }}</div>
-      }
-    </form>
+        <!-- Notes -->
+        <div>
+          <label for="notes" class="block text-sm font-medium text-gray-700 mb-1">Notes</label>
+          <textarea
+            id="notes"
+            formControlName="notes"
+            placeholder="Additional notes..."
+            rows="3"
+            class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+          </textarea>
+        </div>
 
-    <div class="dialog-footer">
-      <p-button
-        label="Cancel"
-        [text]="true"
-        (onClick)="onCancel()"
-        [disabled]="isLoading()">
-      </p-button>
-      <p-button
-        [label]="isEditMode ? 'Update' : 'Create'"
-        (onClick)="onSubmit()"
-        [disabled]="isLoading() || paymentForm.invalid"
-        [loading]="isLoading()">
-      </p-button>
-    </div>
+        @if (errorMessage()) {
+          <div class="p-3 bg-red-50 text-red-700 rounded-lg text-sm">
+            {{ errorMessage() }}
+          </div>
+        }
+
+        <!-- Actions -->
+        <div class="flex justify-end gap-3 pt-4 border-t border-gray-200 mt-6">
+          <button
+            type="button"
+            (click)="onCancel()"
+            [disabled]="isLoading()"
+            class="px-4 py-2 text-gray-700 bg-gray-100 hover:bg-gray-200 disabled:opacity-50 font-medium rounded-lg transition-colors">
+            Cancel
+          </button>
+          <button
+            type="submit"
+            [disabled]="isLoading() || paymentForm.invalid"
+            class="px-4 py-2 bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium rounded-lg transition-colors flex items-center gap-2">
+            @if (isLoading()) {
+              <div class="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            }
+            {{ mode() === 'edit' ? 'Update' : 'Create' }}
+          </button>
+        </div>
+      </form>
+    </app-modal>
   `,
-  styles: [`
-    .payment-form {
-      display: flex;
-      flex-direction: column;
-      padding-top: 8px;
-    }
-
-    .field {
-      margin-bottom: 16px;
-    }
-
-    .field label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-    }
-
-    .required {
-      color: #f44336;
-    }
-
-    .form-row {
-      display: flex;
-      gap: 16px;
-    }
-
-    .half-width {
-      flex: 1;
-    }
-
-    .w-full {
-      width: 100%;
-    }
-
-    .p-error {
-      color: #f44336;
-      font-size: 12px;
-      margin-top: 4px;
-      display: block;
-    }
-
-    .error-message {
-      color: #f44336;
-      font-size: 12px;
-      margin-top: 8px;
-      padding: 8px;
-      background-color: #ffebee;
-      border-radius: 4px;
-    }
-
-    .dialog-footer {
-      display: flex;
-      justify-content: flex-end;
-      gap: 8px;
-      padding-top: 16px;
-      border-top: 1px solid #e0e0e0;
-      margin-top: 8px;
-    }
-  `]
 })
-export class PaymentDialogComponent implements OnInit {
+export class PaymentDialogComponent implements OnInit, OnChanges {
   private readonly fb = inject(FormBuilder);
-  private readonly dialogRef = inject<DynamicDialogRef<any>>(DynamicDialogRef);
-  private readonly dialogConfig = inject(DynamicDialogConfig);
-  private readonly paymentService = inject(PaymentService);
   private readonly customerService = inject(CustomerService);
+
+  isOpen = input<boolean>(false);
+  mode = input<'create' | 'edit'>('create');
+  payment = input<Payment | null>(null);
+
+  save = output<PaymentDialogResult>();
+  cancel = output<void>();
 
   readonly isLoading = signal(false);
   readonly isLoadingCustomers = signal(false);
@@ -230,8 +200,6 @@ export class PaymentDialogComponent implements OnInit {
   readonly customers = signal<Customer[]>([]);
   readonly customerOptions = signal<{ label: string; value: number }[]>([]);
 
-  readonly data: PaymentDialogData = this.dialogConfig.data;
-  readonly isEditMode = this.data?.mode === 'edit';
   readonly paymentMethods = Object.values(PaymentMethod);
   readonly paymentMethodOptions = this.paymentMethods.map(method => ({
     label: PAYMENT_METHOD_LABELS[method],
@@ -239,16 +207,51 @@ export class PaymentDialogComponent implements OnInit {
   }));
 
   readonly paymentForm = this.fb.nonNullable.group({
-    customerId: [this.data?.payment?.customerId ?? null as number | null, [Validators.required]],
-    amount: [this.data?.payment?.amount ?? 0, [Validators.required, Validators.min(0.01)]],
-    method: [this.data?.payment?.method ?? PaymentMethod.CASH, [Validators.required]],
-    paymentDate: [this.data?.payment?.paymentDate ? new Date(this.data.payment.paymentDate) : new Date(), [Validators.required]],
-    reference: [this.data?.payment?.reference ?? ''],
-    notes: [this.data?.payment?.notes ?? '']
+    customerId: [null as number | null, [Validators.required]],
+    amount: [0, [Validators.required, Validators.min(0.01)]],
+    method: [null as PaymentMethod | null, [Validators.required]],
+    paymentDate: ['', [Validators.required]],
+    reference: [''],
+    notes: ['']
   });
 
   ngOnInit(): void {
     this.loadCustomers();
+  }
+
+  ngOnChanges(changes: SimpleChanges): void {
+    if (changes['payment'] || changes['isOpen']) {
+      this.initForm();
+    }
+  }
+
+  private initForm(): void {
+    const paymentData = this.payment();
+    if (paymentData) {
+      const paymentDate = typeof paymentData.paymentDate === 'string'
+        ? paymentData.paymentDate.split('T')[0]
+        : '';
+
+      this.paymentForm.patchValue({
+        customerId: paymentData.customerId,
+        amount: paymentData.amount,
+        method: paymentData.method,
+        paymentDate: paymentDate,
+        reference: paymentData.reference || '',
+        notes: paymentData.notes || ''
+      });
+    } else {
+      const today = new Date().toISOString().split('T')[0];
+      this.paymentForm.reset({
+        customerId: null,
+        amount: 0,
+        method: PaymentMethod.CASH,
+        paymentDate: today,
+        reference: '',
+        notes: ''
+      });
+    }
+    this.errorMessage.set(null);
   }
 
   loadCustomers(): void {
@@ -272,7 +275,7 @@ export class PaymentDialogComponent implements OnInit {
   }
 
   onCancel(): void {
-    this.dialogRef.close(null);
+    this.cancel.emit();
   }
 
   onSubmit(): void {
@@ -281,61 +284,22 @@ export class PaymentDialogComponent implements OnInit {
       return;
     }
 
-    this.isLoading.set(true);
-    this.errorMessage.set(null);
-
     const formValue = this.paymentForm.getRawValue();
-    const paymentDate = formValue.paymentDate instanceof Date
-      ? this.formatDate(formValue.paymentDate)
-      : formValue.paymentDate;
 
-    if (this.isEditMode && this.data.payment) {
-      const updateDto: UpdatePaymentDto = {
-        customerId: formValue.customerId!,
-        amount: formValue.amount,
-        method: formValue.method,
-        paymentDate: paymentDate as string,
-        reference: formValue.reference || undefined,
-        notes: formValue.notes || undefined
-      };
+    const data: CreatePaymentDto | UpdatePaymentDto = {
+      customerId: formValue.customerId!,
+      amount: formValue.amount,
+      method: formValue.method!,
+      paymentDate: formValue.paymentDate,
+      reference: formValue.reference || undefined,
+      notes: formValue.notes || undefined
+    };
 
-      this.paymentService.updatePayment(this.data.payment.id, updateDto).subscribe({
-        next: (payment) => {
-          this.isLoading.set(false);
-          this.dialogRef.close(payment);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err.message || 'Failed to update payment');
-        }
-      });
-    } else {
-      const createDto: CreatePaymentDto = {
-        customerId: formValue.customerId!,
-        amount: formValue.amount,
-        method: formValue.method,
-        paymentDate: paymentDate as string,
-        reference: formValue.reference || undefined,
-        notes: formValue.notes || undefined
-      };
+    const result: PaymentDialogResult = {
+      action: 'save',
+      data: data
+    };
 
-      this.paymentService.createPayment(createDto).subscribe({
-        next: (payment) => {
-          this.isLoading.set(false);
-          this.dialogRef.close(payment);
-        },
-        error: (err) => {
-          this.isLoading.set(false);
-          this.errorMessage.set(err.message || 'Failed to create payment');
-        }
-      });
-    }
-  }
-
-  private formatDate(date: Date): string {
-    const year = date.getFullYear();
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const day = String(date.getDate()).padStart(2, '0');
-    return `${year}-${month}-${day}`;
+    this.save.emit(result);
   }
 }

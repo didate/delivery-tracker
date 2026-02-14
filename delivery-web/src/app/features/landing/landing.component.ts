@@ -1,254 +1,122 @@
 import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
 import { RouterLink } from '@angular/router';
-import { ButtonModule } from 'primeng/button';
-import { CardModule } from 'primeng/card';
 
 @Component({
   selector: 'app-landing',
   standalone: true,
-  imports: [CommonModule, RouterLink, ButtonModule, CardModule],
+  imports: [RouterLink],
   template: `
-    <div class="landing-container">
+    <div class="min-h-screen flex flex-col">
       <!-- Header -->
-      <header class="landing-header">
-        <div class="header-content">
-          <div class="logo">
-            <i class="pi pi-truck" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
+      <header class="fixed top-0 left-0 right-0 z-50 bg-white shadow-sm">
+        <div class="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+          <a routerLink="/" class="flex items-center gap-2 text-blue-600 font-bold text-xl">
+            <i class="pi pi-truck text-2xl"></i>
             <span>Delivery Manager</span>
-          </div>
-          <div class="header-actions">
-            <a routerLink="/auth/login" class="login-link">Login</a>
-            <a routerLink="/auth/register" pButton label="Get Started" class="p-button-rounded"></a>
+          </a>
+          <div class="flex items-center gap-6">
+            <a routerLink="/auth/login" class="text-gray-700 hover:text-blue-600 font-medium transition-colors">
+              Login
+            </a>
+            <a routerLink="/auth/register" class="px-5 py-2 bg-blue-600 hover:bg-blue-700 text-white font-medium rounded-full transition-colors">
+              Get Started
+            </a>
           </div>
         </div>
       </header>
 
       <!-- Hero Section -->
-      <section class="hero-section">
-        <div class="hero-content">
-          <h1>Streamline Your Delivery Operations</h1>
-          <p>
+      <section class="bg-gradient-to-br from-blue-600 to-blue-800 text-white pt-32 pb-20 px-6 mt-16">
+        <div class="max-w-4xl mx-auto text-center">
+          <h1 class="text-4xl md:text-5xl font-bold mb-6 leading-tight">
+            Streamline Your Delivery Operations
+          </h1>
+          <p class="text-xl md:text-2xl mb-8 opacity-90 leading-relaxed">
             Manage customers, drivers, products, and deliveries all in one place.
             Track payments, monitor performance, and grow your business efficiently.
           </p>
-          <div class="hero-actions">
-            <a routerLink="/auth/register" pButton label="Start Free Trial" class="p-button-lg p-button-rounded"></a>
-            <a routerLink="/auth/login" pButton label="Sign In" class="p-button-lg p-button-rounded p-button-outlined"></a>
+          <div class="flex flex-wrap gap-4 justify-center">
+            <a routerLink="/auth/register" class="px-8 py-3 bg-white text-blue-600 font-semibold rounded-full hover:bg-blue-50 transition-colors text-lg">
+              Start Free Trial
+            </a>
+            <a routerLink="/auth/login" class="px-8 py-3 bg-transparent border-2 border-white text-white font-semibold rounded-full hover:bg-white/10 transition-colors text-lg">
+              Sign In
+            </a>
           </div>
         </div>
       </section>
 
       <!-- Features Section -->
-      <section class="features-section">
-        <h2>Everything You Need</h2>
-        <div class="features-grid">
-          <div class="feature-card">
-            <i class="pi pi-users"></i>
-            <h3>Customer Management</h3>
-            <p>Keep track of all your customers, their orders, and payment history in one place.</p>
-          </div>
-          <div class="feature-card">
-            <i class="pi pi-car"></i>
-            <h3>Driver Coordination</h3>
-            <p>Assign deliveries to drivers and monitor their routes and performance.</p>
-          </div>
-          <div class="feature-card">
-            <i class="pi pi-box"></i>
-            <h3>Product Catalog</h3>
-            <p>Manage your product inventory with pricing and availability tracking.</p>
-          </div>
-          <div class="feature-card">
-            <i class="pi pi-chart-line"></i>
-            <h3>Analytics Dashboard</h3>
-            <p>Get insights into your delivery operations with real-time analytics.</p>
-          </div>
-          <div class="feature-card">
-            <i class="pi pi-credit-card"></i>
-            <h3>Payment Tracking</h3>
-            <p>Track payments from customers and monitor outstanding balances.</p>
-          </div>
-          <div class="feature-card">
-            <i class="pi pi-sync"></i>
-            <h3>Returns Management</h3>
-            <p>Handle product returns efficiently with full tracking and reporting.</p>
+      <section class="py-20 px-6 bg-gray-50">
+        <div class="max-w-7xl mx-auto">
+          <h2 class="text-3xl md:text-4xl font-bold text-center text-gray-900 mb-12">
+            Everything You Need
+          </h2>
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            @for (feature of features; track feature.title) {
+              <div class="bg-white p-8 rounded-xl shadow-sm hover:shadow-lg hover:-translate-y-1 transition-all text-center">
+                <div class="w-16 h-16 mx-auto mb-6 rounded-2xl bg-blue-100 flex items-center justify-center">
+                  <i [class]="feature.icon + ' text-2xl text-blue-600'"></i>
+                </div>
+                <h3 class="text-xl font-semibold text-gray-900 mb-3">{{ feature.title }}</h3>
+                <p class="text-gray-600 leading-relaxed">{{ feature.description }}</p>
+              </div>
+            }
           </div>
         </div>
       </section>
 
+      <!-- CTA Section -->
+      <section class="py-16 px-6 bg-blue-600">
+        <div class="max-w-3xl mx-auto text-center">
+          <h2 class="text-3xl font-bold text-white mb-4">Ready to get started?</h2>
+          <p class="text-blue-100 text-lg mb-8">Join thousands of businesses managing their deliveries efficiently.</p>
+          <a routerLink="/auth/register" class="inline-block px-8 py-3 bg-white text-blue-600 font-semibold rounded-full hover:bg-blue-50 transition-colors text-lg">
+            Create Free Account
+          </a>
+        </div>
+      </section>
+
       <!-- Footer -->
-      <footer class="landing-footer">
-        <p>&copy; 2024 Delivery Manager. All rights reserved.</p>
+      <footer class="bg-gray-900 text-gray-400 py-8 px-6 mt-auto">
+        <div class="max-w-7xl mx-auto text-center">
+          <p>&copy; 2024 Delivery Manager. All rights reserved.</p>
+        </div>
       </footer>
     </div>
   `,
-  styles: [`
-    .landing-container {
-      min-height: 100vh;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .landing-header {
-      background: white;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      z-index: 100;
-    }
-
-    .header-content {
-      max-width: 1200px;
-      margin: 0 auto;
-      padding: 1rem 2rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      font-size: 1.5rem;
-      font-weight: 700;
-      color: var(--primary-color);
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 1.5rem;
-    }
-
-    .login-link {
-      color: var(--text-color);
-      text-decoration: none;
-      font-weight: 500;
-      transition: color 0.2s;
-    }
-
-    .login-link:hover {
-      color: var(--primary-color);
-    }
-
-    .hero-section {
-      background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-700) 100%);
-      color: white;
-      padding: 8rem 2rem 6rem;
-      margin-top: 60px;
-    }
-
-    .hero-content {
-      max-width: 800px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .hero-content h1 {
-      font-size: 3rem;
-      font-weight: 700;
-      margin-bottom: 1.5rem;
-      line-height: 1.2;
-    }
-
-    .hero-content p {
-      font-size: 1.25rem;
-      margin-bottom: 2rem;
-      opacity: 0.9;
-      line-height: 1.6;
-    }
-
-    .hero-actions {
-      display: flex;
-      gap: 1rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .hero-actions .p-button-outlined {
-      background: transparent;
-      border-color: white;
-      color: white;
-    }
-
-    .hero-actions .p-button-outlined:hover {
-      background: rgba(255, 255, 255, 0.1);
-    }
-
-    .features-section {
-      padding: 5rem 2rem;
-      background: var(--surface-ground);
-    }
-
-    .features-section h2 {
-      text-align: center;
-      font-size: 2.5rem;
-      margin-bottom: 3rem;
-      color: var(--text-color);
-    }
-
-    .features-grid {
-      max-width: 1200px;
-      margin: 0 auto;
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-      gap: 2rem;
-    }
-
-    .feature-card {
-      background: white;
-      padding: 2rem;
-      border-radius: 8px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      text-align: center;
-      transition: transform 0.2s, box-shadow 0.2s;
-    }
-
-    .feature-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
-    }
-
-    .feature-card i {
-      font-size: 2.5rem;
-      color: var(--primary-color);
-      margin-bottom: 1rem;
-    }
-
-    .feature-card h3 {
-      font-size: 1.25rem;
-      margin-bottom: 0.75rem;
-      color: var(--text-color);
-    }
-
-    .feature-card p {
-      color: var(--text-color-secondary);
-      line-height: 1.5;
-    }
-
-    .landing-footer {
-      background: var(--surface-900);
-      color: var(--surface-300);
-      padding: 2rem;
-      text-align: center;
-      margin-top: auto;
-    }
-
-    @media screen and (max-width: 768px) {
-      .hero-content h1 {
-        font-size: 2rem;
-      }
-
-      .hero-content p {
-        font-size: 1rem;
-      }
-
-      .features-section h2 {
-        font-size: 1.75rem;
-      }
-    }
-  `]
 })
-export class LandingComponent {}
+export class LandingComponent {
+  readonly features = [
+    {
+      icon: 'pi pi-users',
+      title: 'Customer Management',
+      description: 'Keep track of all your customers, their orders, and payment history in one place.'
+    },
+    {
+      icon: 'pi pi-car',
+      title: 'Driver Coordination',
+      description: 'Assign deliveries to drivers and monitor their routes and performance.'
+    },
+    {
+      icon: 'pi pi-box',
+      title: 'Product Catalog',
+      description: 'Manage your product inventory with pricing and availability tracking.'
+    },
+    {
+      icon: 'pi pi-chart-line',
+      title: 'Analytics Dashboard',
+      description: 'Get insights into your delivery operations with real-time analytics.'
+    },
+    {
+      icon: 'pi pi-credit-card',
+      title: 'Payment Tracking',
+      description: 'Track payments from customers and monitor outstanding balances.'
+    },
+    {
+      icon: 'pi pi-sync',
+      title: 'Returns Management',
+      description: 'Handle product returns efficiently with full tracking and reporting.'
+    }
+  ];
+}

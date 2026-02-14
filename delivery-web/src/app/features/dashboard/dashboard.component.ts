@@ -1,17 +1,14 @@
 import { Component, OnInit, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { CardModule } from 'primeng/card';
-import { ButtonModule } from 'primeng/button';
-import { DividerModule } from 'primeng/divider';
-import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { CurrencyPipe, DatePipe } from '@angular/common';
-import { DashboardService, DashboardStats, RecentDelivery, RecentPayment } from './services/dashboard.service';
+import { DashboardService } from './services/dashboard.service';
 
 interface StatCard {
   title: string;
   value: number | string;
   icon: string;
   color: string;
+  bgColor: string;
 }
 
 interface QuickAction {
@@ -19,6 +16,7 @@ interface QuickAction {
   icon: string;
   route: string;
   color: string;
+  bgColor: string;
 }
 
 type ActivityType = 'delivery' | 'payment';
@@ -35,513 +33,109 @@ interface RecentActivity {
 @Component({
   selector: 'app-dashboard',
   standalone: true,
-  imports: [
-    RouterLink,
-    CardModule,
-    ButtonModule,
-    DividerModule,
-    ProgressSpinnerModule,
-    DatePipe,
-    CurrencyPipe
-  ],
+  imports: [RouterLink, DatePipe, CurrencyPipe],
   template: `
-    <div class="dashboard-container">
-      <header class="dashboard-header">
-        <h1>Dashboard</h1>
-        <p class="subtitle">Welcome back! Here's an overview of your delivery operations.</p>
-      </header>
+    <div class="max-w-7xl mx-auto">
+      <!-- Header -->
+      <div class="mb-8">
+        <h1 class="text-2xl font-semibold text-gray-900">Dashboard</h1>
+        <p class="mt-1 text-gray-500">Welcome back! Here's an overview of your delivery operations.</p>
+      </div>
 
       @if (isLoading()) {
-        <div class="loading-container">
-          <p-progressSpinner></p-progressSpinner>
-          <p>Loading dashboard data...</p>
+        <div class="flex flex-col items-center justify-center py-20">
+          <div class="w-10 h-10 border-4 border-blue-200 border-t-blue-600 rounded-full animate-spin"></div>
+          <p class="mt-4 text-gray-500">Loading dashboard data...</p>
         </div>
       } @else {
-        <!-- Stats Cards Section -->
-        <section class="stats-section">
-          <h2 class="section-title">Overview</h2>
-          <div class="stats-grid">
+        <!-- Stats Cards -->
+        <section class="mb-8">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Overview</h2>
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
             @for (stat of stats(); track stat.title) {
-              <p-card styleClass="stat-card">
-                <div class="stat-card-content" [style.--accent-color]="stat.color">
-                  <div class="stat-icon" [style.background-color]="stat.color + '20'" [style.color]="stat.color">
-                    <i [class]="stat.icon"></i>
+              <div class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-shadow">
+                <div class="flex items-center gap-4">
+                  <div
+                    class="w-12 h-12 rounded-xl flex items-center justify-center"
+                    [style.background-color]="stat.bgColor"
+                    [style.color]="stat.color">
+                    <i [class]="stat.icon" class="text-xl"></i>
                   </div>
-                  <div class="stat-info">
-                    <span class="stat-value">{{ stat.value }}</span>
-                    <span class="stat-label">{{ stat.title }}</span>
+                  <div>
+                    <p class="text-2xl font-semibold text-gray-900">{{ stat.value }}</p>
+                    <p class="text-sm text-gray-500">{{ stat.title }}</p>
                   </div>
                 </div>
-              </p-card>
+              </div>
             }
           </div>
         </section>
 
-        <!-- Quick Actions Section -->
-        <section class="quick-actions-section">
-          <h2 class="section-title">Quick Actions</h2>
-          <div class="actions-grid">
+        <!-- Quick Actions -->
+        <section class="mb-8">
+          <h2 class="text-lg font-medium text-gray-900 mb-4">Quick Actions</h2>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
             @for (action of quickActions(); track action.label) {
-              <a [routerLink]="action.route" class="action-link">
-                <p-card styleClass="action-card">
-                  <div class="action-card-content">
-                    <div class="action-icon" [style.background-color]="action.color + '20'" [style.color]="action.color">
-                      <i [class]="action.icon"></i>
-                    </div>
-                    <span class="action-label">{{ action.label }}</span>
-                  </div>
-                </p-card>
+              <a
+                [routerLink]="action.route"
+                class="bg-white rounded-xl shadow-sm border border-gray-100 p-5 hover:shadow-md transition-all hover:-translate-y-0.5 text-center block">
+                <div
+                  class="w-12 h-12 mx-auto rounded-xl flex items-center justify-center mb-3"
+                  [style.background-color]="action.bgColor"
+                  [style.color]="action.color">
+                  <i [class]="action.icon" class="text-xl"></i>
+                </div>
+                <span class="text-sm font-medium text-gray-700">{{ action.label }}</span>
               </a>
             }
           </div>
         </section>
 
-        <!-- Recent Activity Section -->
-        <section class="activity-section">
-          <div class="section-header">
-            <h2 class="section-title">Recent Activity</h2>
-            <a routerLink="/deliveries" class="view-all-link">
+        <!-- Recent Activity -->
+        <section class="mb-8">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="text-lg font-medium text-gray-900">Recent Activity</h2>
+            <a routerLink="/deliveries" class="text-sm font-medium text-blue-600 hover:text-blue-700 flex items-center gap-1">
               View All
-              <i class="pi pi-arrow-right"></i>
+              <i class="pi pi-arrow-right text-xs"></i>
             </a>
           </div>
-          <p-card styleClass="activity-card">
+          <div class="bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden">
             @if (recentActivity().length === 0) {
-              <div class="empty-state">
-                <i class="pi pi-inbox"></i>
+              <div class="flex flex-col items-center justify-center py-12 text-gray-400">
+                <i class="pi pi-inbox text-5xl mb-4 opacity-50"></i>
                 <p>No recent activity</p>
               </div>
             } @else {
-              <div class="activity-list">
-                @for (activity of recentActivity(); track activity.id; let last = $last) {
-                  <div class="activity-item">
-                    <div class="activity-icon" [class]="activity.type">
+              <div class="divide-y divide-gray-100">
+                @for (activity of recentActivity(); track activity.id) {
+                  <div class="flex items-center gap-4 p-4 hover:bg-gray-50">
+                    <div
+                      class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
+                      [class]="activity.type === 'delivery' ? 'bg-blue-100 text-blue-600' : 'bg-green-100 text-green-600'">
                       <i [class]="getActivityIcon(activity.type)"></i>
                     </div>
-                    <div class="activity-content">
-                      <span class="activity-description">{{ activity.description }}</span>
-                      <span class="activity-time">{{ activity.timestamp | date:'short' }}</span>
+                    <div class="flex-1 min-w-0">
+                      <p class="text-sm font-medium text-gray-900 truncate">{{ activity.description }}</p>
+                      <p class="text-xs text-gray-500">{{ activity.timestamp | date:'short' }}</p>
                     </div>
                     @if (activity.amount) {
-                      <div class="activity-amount">
-                        {{ activity.amount | currency }}
-                      </div>
+                      <span class="text-sm font-semibold text-gray-900">{{ activity.amount | currency }}</span>
                     }
-                    <div class="activity-status" [class]="activity.status">
+                    <span
+                      class="px-3 py-1 text-xs font-medium rounded-full"
+                      [class]="getStatusClasses(activity.status)">
                       {{ formatStatus(activity.status) }}
-                    </div>
+                    </span>
                   </div>
-                  @if (!last) {
-                    <p-divider></p-divider>
-                  }
                 }
               </div>
             }
-          </p-card>
+          </div>
         </section>
       }
     </div>
   `,
-  styles: [`
-    .dashboard-container {
-      padding: 24px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .loading-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 80px 24px;
-      color: var(--text-color-secondary);
-
-      p {
-        margin-top: 16px;
-      }
-    }
-
-    .dashboard-header {
-      margin-bottom: 32px;
-
-      h1 {
-        margin: 0 0 8px 0;
-        font-size: 28px;
-        font-weight: 500;
-        color: var(--text-color);
-      }
-
-      .subtitle {
-        margin: 0;
-        color: var(--text-color-secondary);
-        font-size: 14px;
-      }
-    }
-
-    .section-title {
-      font-size: 18px;
-      font-weight: 500;
-      margin: 0 0 16px 0;
-      color: var(--text-color);
-    }
-
-    .section-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 16px;
-
-      .section-title {
-        margin: 0;
-      }
-    }
-
-    .view-all-link {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      color: var(--primary-color);
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 500;
-      transition: color 0.2s ease;
-
-      &:hover {
-        color: var(--primary-600);
-        text-decoration: underline;
-      }
-
-      i {
-        font-size: 12px;
-      }
-    }
-
-    /* Stats Section */
-    .stats-section {
-      margin-bottom: 32px;
-    }
-
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-      gap: 16px;
-    }
-
-    :host ::ng-deep .stat-card {
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-
-      .p-card-body {
-        padding: 0;
-      }
-
-      .p-card-content {
-        padding: 0;
-      }
-    }
-
-    .stat-card-content {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 20px;
-    }
-
-    .stat-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      i {
-        font-size: 28px;
-      }
-    }
-
-    .stat-info {
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      min-width: 0;
-    }
-
-    .stat-value {
-      font-size: 28px;
-      font-weight: 600;
-      color: var(--text-color);
-      line-height: 1.2;
-    }
-
-    .stat-label {
-      font-size: 13px;
-      color: var(--text-color-secondary);
-      margin-top: 4px;
-    }
-
-    /* Quick Actions Section */
-    .quick-actions-section {
-      margin-bottom: 32px;
-    }
-
-    .actions-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-      gap: 16px;
-    }
-
-    .action-link {
-      text-decoration: none;
-    }
-
-    :host ::ng-deep .action-card {
-      cursor: pointer;
-      transition: transform 0.2s ease, box-shadow 0.2s ease;
-
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      }
-
-      .p-card-body {
-        padding: 0;
-      }
-
-      .p-card-content {
-        padding: 0;
-      }
-    }
-
-    .action-card-content {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 12px;
-      padding: 24px 16px;
-      text-align: center;
-    }
-
-    .action-icon {
-      width: 48px;
-      height: 48px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-
-      i {
-        font-size: 24px;
-      }
-    }
-
-    .action-label {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--text-color);
-    }
-
-    /* Activity Section */
-    .activity-section {
-      margin-bottom: 32px;
-    }
-
-    :host ::ng-deep .activity-card {
-      .p-card-body {
-        padding: 0;
-      }
-
-      .p-card-content {
-        padding: 0;
-      }
-    }
-
-    .activity-list {
-      :host ::ng-deep p-divider {
-        margin: 0 16px;
-
-        .p-divider {
-          margin: 0;
-        }
-      }
-    }
-
-    .activity-item {
-      display: flex;
-      align-items: center;
-      gap: 16px;
-      padding: 16px;
-    }
-
-    .activity-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-
-      i {
-        font-size: 18px;
-      }
-
-      &.delivery {
-        background-color: #e3f2fd;
-        color: #1976d2;
-      }
-
-      &.payment {
-        background-color: #e8f5e9;
-        color: #388e3c;
-      }
-    }
-
-    .activity-content {
-      flex-grow: 1;
-      min-width: 0;
-      display: flex;
-      flex-direction: column;
-      gap: 4px;
-    }
-
-    .activity-description {
-      font-size: 14px;
-      color: var(--text-color);
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-    }
-
-    .activity-time {
-      font-size: 12px;
-      color: var(--text-color-secondary);
-    }
-
-    .activity-amount {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-color);
-      margin-right: 8px;
-    }
-
-    .activity-status {
-      font-size: 12px;
-      font-weight: 500;
-      padding: 4px 12px;
-      border-radius: 12px;
-      text-transform: capitalize;
-      flex-shrink: 0;
-
-      &.completed {
-        background-color: #e8f5e9;
-        color: #2e7d32;
-      }
-
-      &.pending {
-        background-color: #fff3e0;
-        color: #f57c00;
-      }
-
-      &.in_progress {
-        background-color: #e3f2fd;
-        color: #1976d2;
-      }
-
-      &.cancelled {
-        background-color: #ffebee;
-        color: #c62828;
-      }
-    }
-
-    .empty-state {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      padding: 48px 24px;
-      color: var(--text-color-secondary);
-
-      i {
-        font-size: 48px;
-        margin-bottom: 16px;
-        opacity: 0.5;
-      }
-
-      p {
-        margin: 0;
-        font-size: 14px;
-      }
-    }
-
-    /* Responsive adjustments */
-    @media (max-width: 768px) {
-      .dashboard-container {
-        padding: 16px;
-      }
-
-      .dashboard-header h1 {
-        font-size: 24px;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .actions-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .stat-card-content {
-        padding: 16px;
-      }
-
-      .stat-icon {
-        width: 48px;
-        height: 48px;
-
-        i {
-          font-size: 24px;
-        }
-      }
-
-      .stat-value {
-        font-size: 24px;
-      }
-
-      .activity-item {
-        flex-wrap: wrap;
-      }
-
-      .activity-content {
-        flex: 1 1 calc(100% - 72px);
-      }
-
-      .activity-amount,
-      .activity-status {
-        margin-left: 56px;
-        margin-top: 8px;
-      }
-    }
-
-    @media (max-width: 480px) {
-      .actions-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .section-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 8px;
-      }
-    }
-  `]
 })
 export class DashboardComponent implements OnInit {
   private readonly dashboardService = inject(DashboardService);
@@ -551,42 +145,12 @@ export class DashboardComponent implements OnInit {
   readonly recentActivity = signal<RecentActivity[]>([]);
 
   readonly quickActions = signal<QuickAction[]>([
-    {
-      label: 'New Delivery',
-      icon: 'pi pi-plus-circle',
-      route: '/deliveries',
-      color: '#1976d2'
-    },
-    {
-      label: 'New Customer',
-      icon: 'pi pi-user-plus',
-      route: '/customers',
-      color: '#7b1fa2'
-    },
-    {
-      label: 'New Product',
-      icon: 'pi pi-plus',
-      route: '/products',
-      color: '#388e3c'
-    },
-    {
-      label: 'View Returns',
-      icon: 'pi pi-replay',
-      route: '/returns',
-      color: '#f57c00'
-    },
-    {
-      label: 'Manage Drivers',
-      icon: 'pi pi-users',
-      route: '/drivers',
-      color: '#00897b'
-    },
-    {
-      label: 'View Payments',
-      icon: 'pi pi-credit-card',
-      route: '/payments',
-      color: '#5c6bc0'
-    }
+    { label: 'New Delivery', icon: 'pi pi-plus-circle', route: '/deliveries', color: '#1976d2', bgColor: '#e3f2fd' },
+    { label: 'New Customer', icon: 'pi pi-user-plus', route: '/customers', color: '#7b1fa2', bgColor: '#f3e5f5' },
+    { label: 'New Product', icon: 'pi pi-plus', route: '/products', color: '#388e3c', bgColor: '#e8f5e9' },
+    { label: 'View Returns', icon: 'pi pi-replay', route: '/returns', color: '#f57c00', bgColor: '#fff3e0' },
+    { label: 'Manage Drivers', icon: 'pi pi-users', route: '/drivers', color: '#00897b', bgColor: '#e0f2f1' },
+    { label: 'View Payments', icon: 'pi pi-credit-card', route: '/payments', color: '#5c6bc0', bgColor: '#e8eaf6' }
   ]);
 
   ngOnInit(): void {
@@ -599,42 +163,12 @@ export class DashboardComponent implements OnInit {
     this.dashboardService.getDashboardStats().subscribe({
       next: (dashboardStats) => {
         this.stats.set([
-          {
-            title: 'Total Customers',
-            value: dashboardStats.totalCustomers,
-            icon: 'pi pi-users',
-            color: '#1976d2'
-          },
-          {
-            title: 'Total Products',
-            value: dashboardStats.totalProducts,
-            icon: 'pi pi-box',
-            color: '#7b1fa2'
-          },
-          {
-            title: 'Active Drivers',
-            value: dashboardStats.activeDrivers,
-            icon: 'pi pi-truck',
-            color: '#388e3c'
-          },
-          {
-            title: "Today's Deliveries",
-            value: dashboardStats.todayDeliveries,
-            icon: 'pi pi-file',
-            color: '#f57c00'
-          },
-          {
-            title: 'Pending Returns',
-            value: dashboardStats.pendingReturns,
-            icon: 'pi pi-replay',
-            color: '#c62828'
-          },
-          {
-            title: 'Monthly Revenue',
-            value: this.formatCurrency(dashboardStats.monthlyRevenue),
-            icon: 'pi pi-wallet',
-            color: '#00897b'
-          }
+          { title: 'Total Customers', value: dashboardStats.totalCustomers, icon: 'pi pi-users', color: '#1976d2', bgColor: '#e3f2fd' },
+          { title: 'Total Products', value: dashboardStats.totalProducts, icon: 'pi pi-box', color: '#7b1fa2', bgColor: '#f3e5f5' },
+          { title: 'Active Drivers', value: dashboardStats.activeDrivers, icon: 'pi pi-truck', color: '#388e3c', bgColor: '#e8f5e9' },
+          { title: "Today's Deliveries", value: dashboardStats.todayDeliveries, icon: 'pi pi-file', color: '#f57c00', bgColor: '#fff3e0' },
+          { title: 'Pending Returns', value: dashboardStats.pendingReturns, icon: 'pi pi-replay', color: '#c62828', bgColor: '#ffebee' },
+          { title: 'Monthly Revenue', value: this.formatCurrency(dashboardStats.monthlyRevenue), icon: 'pi pi-wallet', color: '#00897b', bgColor: '#e0f2f1' }
         ]);
         this.loadRecentActivity();
       },
@@ -708,11 +242,17 @@ export class DashboardComponent implements OnInit {
   }
 
   getActivityIcon(type: ActivityType): string {
-    const icons: Record<ActivityType, string> = {
-      delivery: 'pi pi-truck',
-      payment: 'pi pi-wallet'
+    return type === 'delivery' ? 'pi pi-truck' : 'pi pi-wallet';
+  }
+
+  getStatusClasses(status: string): string {
+    const classes: Record<string, string> = {
+      'completed': 'bg-green-100 text-green-800',
+      'pending': 'bg-yellow-100 text-yellow-800',
+      'in_progress': 'bg-blue-100 text-blue-800',
+      'cancelled': 'bg-red-100 text-red-800'
     };
-    return icons[type];
+    return classes[status] || 'bg-gray-100 text-gray-800';
   }
 
   formatStatus(status: string): string {
