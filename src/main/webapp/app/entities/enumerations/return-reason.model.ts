@@ -1,0 +1,13 @@
+export enum ReturnReason {
+  DAMAGED = 'DAMAGED',
+
+  EXPIRED = 'EXPIRED',
+
+  WRONG_PRODUCT = 'WRONG_PRODUCT',
+
+  EXCESS = 'EXCESS',
+
+  CUSTOMER_REFUSAL = 'CUSTOMER_REFUSAL',
+
+  OTHER = 'OTHER',
+}

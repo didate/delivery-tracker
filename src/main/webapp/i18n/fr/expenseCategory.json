@@ -1,0 +1,28 @@
+{
+  "deliveryApp": {
+    "expenseCategory": {
+      "home": {
+        "title": "ExpenseCategories",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Expense Category",
+        "createOrEditLabel": "Créer ou éditer un Expense Category",
+        "notFound": "Aucun Expense Category trouvé"
+      },
+      "created": "Un nouveau Expense Category a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Expense Category avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Expense Category avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Expense Category {{ id }} ?"
+      },
+      "detail": {
+        "title": "Expense Category"
+      },
+      "id": "ID",
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "active": "Active",
+      "tenant": "Tenant"
+    }
+  }
+}

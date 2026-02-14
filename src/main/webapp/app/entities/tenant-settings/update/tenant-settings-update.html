@@ -1,0 +1,133 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-tenant-settings-heading"
+        data-cy="TenantSettingsCreateUpdateHeading"
+        jhiTranslate="deliveryApp.tenantSettings.home.createOrEditLabel"
+      >
+        Créer ou éditer un Tenant Settings
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.tenantSettings.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let currencyRef = editForm.get('currency')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_currency" jhiTranslate="deliveryApp.tenantSettings.currency">Currency</label>
+          <input type="text" class="form-control" name="currency" id="field_currency" data-cy="currency" formControlName="currency" />
+          @if (currencyRef.invalid && (currencyRef.dirty || currencyRef.touched)) {
+            <div>
+              @if (editForm.get('currency')?.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '3' }"
+                  >Ce champ doit faire au maximum 3 caractères.</small
+                >
+              }
+            </div>
+          }
+        </div>
+
+        @let timezoneRef = editForm.get('timezone')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_timezone" jhiTranslate="deliveryApp.tenantSettings.timezone">Timezone</label>
+          <input type="text" class="form-control" name="timezone" id="field_timezone" data-cy="timezone" formControlName="timezone" />
+          @if (timezoneRef.invalid && (timezoneRef.dirty || timezoneRef.touched)) {
+            <div>
+              @if (editForm.get('timezone')?.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
+                  >Ce champ doit faire au maximum 50 caractères.</small
+                >
+              }
+            </div>
+          }
+        </div>
+
+        @let dateFormatRef = editForm.get('dateFormat')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_dateFormat" jhiTranslate="deliveryApp.tenantSettings.dateFormat">Date Format</label>
+          <input
+            type="text"
+            class="form-control"
+            name="dateFormat"
+            id="field_dateFormat"
+            data-cy="dateFormat"
+            formControlName="dateFormat"
+          />
+          @if (dateFormatRef.invalid && (dateFormatRef.dirty || dateFormatRef.touched)) {
+            <div>
+              @if (editForm.get('dateFormat')?.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '20' }"
+                  >Ce champ doit faire au maximum 20 caractères.</small
+                >
+              }
+            </div>
+          }
+        </div>
+
+        @let languageRef = editForm.get('language')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_language" jhiTranslate="deliveryApp.tenantSettings.language">Language</label>
+          <input type="text" class="form-control" name="language" id="field_language" data-cy="language" formControlName="language" />
+          @if (languageRef.invalid && (languageRef.dirty || languageRef.touched)) {
+            <div>
+              @if (editForm.get('language')?.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '10' }"
+                  >Ce champ doit faire au maximum 10 caractères.</small
+                >
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_tenant" jhiTranslate="deliveryApp.tenantSettings.tenant">Tenant</label>
+          <select
+            class="form-control"
+            id="field_tenant"
+            data-cy="tenant"
+            name="tenant"
+            formControlName="tenant"
+            [compareWith]="compareTenant"
+          >
+            @if (!editForm.get('tenant')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (tenantOption of tenantsSharedCollection(); track $index) {
+              <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['tenant'])!.invalid && (editForm.get(['tenant'])!.dirty || editForm.get(['tenant'])!.touched)) {
+          <div>
+            @if (editForm.get(['tenant'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

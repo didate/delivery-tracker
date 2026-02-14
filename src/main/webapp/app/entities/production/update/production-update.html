@@ -1,0 +1,166 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-production-heading" data-cy="ProductionCreateUpdateHeading" jhiTranslate="deliveryApp.production.home.createOrEditLabel">
+        Créer ou éditer un Production
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.production.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let productionDateRef = editForm.get('productionDate')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_productionDate" jhiTranslate="deliveryApp.production.productionDate">Production Date</label>
+          <div class="input-group">
+            <input
+              id="field_productionDate"
+              data-cy="productionDate"
+              type="text"
+              class="form-control"
+              name="productionDate"
+              ngbDatepicker
+              #productionDateDp="ngbDatepicker"
+              formControlName="productionDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="productionDateDp.toggle()"><fa-icon icon="calendar-alt" /></button>
+          </div>
+          @if (productionDateRef.invalid && (productionDateRef.dirty || productionDateRef.touched)) {
+            <div>
+              @if (editForm.get('productionDate')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let quantityRef = editForm.get('quantity')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_quantity" jhiTranslate="deliveryApp.production.quantity">Quantity</label>
+          <input type="number" class="form-control" name="quantity" id="field_quantity" data-cy="quantity" formControlName="quantity" />
+          @if (quantityRef.invalid && (quantityRef.dirty || quantityRef.touched)) {
+            <div>
+              @if (editForm.get('quantity')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!editForm.get('quantity')?.errors?.number"
+                jhiTranslate="entity.validation.number"
+                >Ce champ doit être un nombre.</small
+              >
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_notes" jhiTranslate="deliveryApp.production.notes">Notes</label>
+          <textarea class="form-control" name="notes" id="field_notes" data-cy="notes" formControlName="notes"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_tenant" jhiTranslate="deliveryApp.production.tenant">Tenant</label>
+          <select
+            class="form-control"
+            id="field_tenant"
+            data-cy="tenant"
+            name="tenant"
+            formControlName="tenant"
+            [compareWith]="compareTenant"
+          >
+            @if (!editForm.get('tenant')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (tenantOption of tenantsSharedCollection(); track $index) {
+              <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['tenant'])!.invalid && (editForm.get(['tenant'])!.dirty || editForm.get(['tenant'])!.touched)) {
+          <div>
+            @if (editForm.get(['tenant'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_product" jhiTranslate="deliveryApp.production.product">Product</label>
+          <select
+            class="form-control"
+            id="field_product"
+            data-cy="product"
+            name="product"
+            formControlName="product"
+            [compareWith]="compareProduct"
+          >
+            @if (!editForm.get('product')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (productOption of productsSharedCollection(); track $index) {
+              <option [ngValue]="productOption">{{ productOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['product'])!.invalid && (editForm.get(['product'])!.dirty || editForm.get(['product'])!.touched)) {
+          <div>
+            @if (editForm.get(['product'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_productionSite" jhiTranslate="deliveryApp.production.productionSite">Production Site</label>
+          <select
+            class="form-control"
+            id="field_productionSite"
+            data-cy="productionSite"
+            name="productionSite"
+            formControlName="productionSite"
+            [compareWith]="compareProductionSite"
+          >
+            @if (!editForm.get('productionSite')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (productionSiteOption of productionSitesSharedCollection(); track $index) {
+              <option [ngValue]="productionSiteOption">{{ productionSiteOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (
+          editForm.get(['productionSite'])!.invalid &&
+          (editForm.get(['productionSite'])!.dirty || editForm.get(['productionSite'])!.touched)
+        ) {
+          <div>
+            @if (editForm.get(['productionSite'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

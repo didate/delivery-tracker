@@ -1,0 +1,28 @@
+{
+  "deliveryApp": {
+    "tenantSettings": {
+      "home": {
+        "title": "Tenant Settings",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Tenant Settings",
+        "createOrEditLabel": "Create or edit a Tenant Settings",
+        "notFound": "No Tenant Settings found"
+      },
+      "created": "A new Tenant Settings is created with identifier {{ param }}",
+      "updated": "A Tenant Settings is updated with identifier {{ param }}",
+      "deleted": "A Tenant Settings is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Tenant Settings {{ id }}?"
+      },
+      "detail": {
+        "title": "Tenant Settings"
+      },
+      "id": "ID",
+      "currency": "Currency",
+      "timezone": "Timezone",
+      "dateFormat": "Date Format",
+      "language": "Language",
+      "tenant": "Tenant"
+    }
+  }
+}

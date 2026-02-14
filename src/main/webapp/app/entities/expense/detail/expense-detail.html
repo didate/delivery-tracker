@@ -1,0 +1,70 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (expense(); as expenseRef) {
+      <div>
+        <h2 data-cy="expenseDetailsHeading"><span jhiTranslate="deliveryApp.expense.detail.title">Expense</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ expenseRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.expense.expenseDate">Expense Date</span></dt>
+          <dd>
+            <span>{{ expenseRef.expenseDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.expense.amount">Amount</span></dt>
+          <dd>
+            <span>{{ expenseRef.amount }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.expense.description">Description</span></dt>
+          <dd>
+            <span>{{ expenseRef.description }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.expense.receiptUrl">Receipt Url</span></dt>
+          <dd>
+            <span>{{ expenseRef.receiptUrl }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.expense.tenant">Tenant</span></dt>
+          <dd>
+            @if (expense()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', expense()!.tenant?.id, 'view']">{{ expenseRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.expense.category">Category</span></dt>
+          <dd>
+            @if (expense()!.category) {
+              <div>
+                <a [routerLink]="['/expense-category', expense()!.category?.id, 'view']">{{ expenseRef.category?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.expense.driver">Driver</span></dt>
+          <dd>
+            @if (expense()!.driver) {
+              <div>
+                <a [routerLink]="['/driver', expense()!.driver?.id, 'view']">{{ expenseRef.driver?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/expense', expenseRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

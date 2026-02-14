@@ -1,0 +1,82 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (customer(); as customerRef) {
+      <div>
+        <h2 data-cy="customerDetailsHeading"><span jhiTranslate="deliveryApp.customer.detail.title">Customer</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ customerRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.code">Code</span></dt>
+          <dd>
+            <span>{{ customerRef.code }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.name">Name</span></dt>
+          <dd>
+            <span>{{ customerRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.phone">Phone</span></dt>
+          <dd>
+            <span>{{ customerRef.phone }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.email">Email</span></dt>
+          <dd>
+            <span>{{ customerRef.email }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.address">Address</span></dt>
+          <dd>
+            <span>{{ customerRef.address }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.latitude">Latitude</span></dt>
+          <dd>
+            <span>{{ customerRef.latitude }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.longitude">Longitude</span></dt>
+          <dd>
+            <span>{{ customerRef.longitude }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.active">Active</span></dt>
+          <dd>
+            <span>{{ customerRef.active }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.notes">Notes</span></dt>
+          <dd>
+            <span>{{ customerRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.tenant">Tenant</span></dt>
+          <dd>
+            @if (customer()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', customer()!.tenant?.id, 'view']">{{ customerRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.customer.driver">Driver</span></dt>
+          <dd>
+            @if (customer()!.driver) {
+              <div>
+                <a [routerLink]="['/driver', customer()!.driver?.id, 'view']">{{ customerRef.driver?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/customer', customerRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

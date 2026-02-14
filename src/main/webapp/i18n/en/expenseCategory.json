@@ -1,0 +1,28 @@
+{
+  "deliveryApp": {
+    "expenseCategory": {
+      "home": {
+        "title": "Expense Categories",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Expense Category",
+        "createOrEditLabel": "Create or edit a Expense Category",
+        "notFound": "No Expense Categories found"
+      },
+      "created": "A new Expense Category is created with identifier {{ param }}",
+      "updated": "A Expense Category is updated with identifier {{ param }}",
+      "deleted": "A Expense Category is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Expense Category {{ id }}?"
+      },
+      "detail": {
+        "title": "Expense Category"
+      },
+      "id": "ID",
+      "code": "Code",
+      "name": "Name",
+      "description": "Description",
+      "active": "Active",
+      "tenant": "Tenant"
+    }
+  }
+}

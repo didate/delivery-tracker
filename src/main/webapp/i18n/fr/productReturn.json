@@ -1,0 +1,29 @@
+{
+  "deliveryApp": {
+    "productReturn": {
+      "home": {
+        "title": "ProductReturns",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Product Return",
+        "createOrEditLabel": "Créer ou éditer un Product Return",
+        "notFound": "Aucun Product Return trouvé"
+      },
+      "created": "Un nouveau Product Return a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Product Return avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Product Return avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Product Return {{ id }} ?"
+      },
+      "detail": {
+        "title": "Product Return"
+      },
+      "id": "ID",
+      "returnDate": "Return Date",
+      "reason": "Reason",
+      "notes": "Notes",
+      "tenant": "Tenant",
+      "customer": "Customer",
+      "delivery": "Delivery"
+    }
+  }
+}

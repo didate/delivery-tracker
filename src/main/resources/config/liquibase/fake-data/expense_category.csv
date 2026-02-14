@@ -1,0 +1,11 @@
+id;code;name;description;active;tenant_id
+1;de crainte que tourn;cot cot administration;../fake-data/blob/hipster.txt;false;1
+2;cuicui;timide;../fake-data/blob/hipster.txt;true;2
+3;soit fonctionnaire;présenter prestataire de services;../fake-data/blob/hipster.txt;false;3
+4;vers bè broum;extatique proche de;../fake-data/blob/hipster.txt;false;4
+5;volontiers tellement;après;../fake-data/blob/hipster.txt;false;5
+6;bof paraître;afin que sage grâce à;../fake-data/blob/hipster.txt;false;6
+7;membre de l’équipe;membre de l’équipe juriste bien que;../fake-data/blob/hipster.txt;true;7
+8;habile malgré;préparer franco police;../fake-data/blob/hipster.txt;false;8
+9;a tsoin-tsoin;toc-toc sans clac;../fake-data/blob/hipster.txt;false;9
+10;dire;que;../fake-data/blob/hipster.txt;false;10

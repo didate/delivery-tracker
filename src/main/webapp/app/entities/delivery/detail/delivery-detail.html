@@ -1,0 +1,78 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (delivery(); as deliveryRef) {
+      <div>
+        <h2 data-cy="deliveryDetailsHeading"><span jhiTranslate="deliveryApp.delivery.detail.title">Delivery</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ deliveryRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.deliveryDate">Delivery Date</span></dt>
+          <dd>
+            <span>{{ deliveryRef.deliveryDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.status">Status</span></dt>
+          <dd>
+            <span [jhiTranslate]="'deliveryApp.DeliveryStatus.' + (deliveryRef.status ?? 'null')">{{
+              { null: '', PENDING: 'PENDING', IN_PROGRESS: 'IN_PROGRESS', DELIVERED: 'DELIVERED', CANCELLED: 'CANCELLED' }[
+                deliveryRef.status ?? 'null'
+              ]
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.totalAmount">Total Amount</span></dt>
+          <dd>
+            <span>{{ deliveryRef.totalAmount }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.paidAmount">Paid Amount</span></dt>
+          <dd>
+            <span>{{ deliveryRef.paidAmount }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.notes">Notes</span></dt>
+          <dd>
+            <span>{{ deliveryRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.tenant">Tenant</span></dt>
+          <dd>
+            @if (delivery()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', delivery()!.tenant?.id, 'view']">{{ deliveryRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.customer">Customer</span></dt>
+          <dd>
+            @if (delivery()!.customer) {
+              <div>
+                <a [routerLink]="['/customer', delivery()!.customer?.id, 'view']">{{ deliveryRef.customer?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.delivery.driver">Driver</span></dt>
+          <dd>
+            @if (delivery()!.driver) {
+              <div>
+                <a [routerLink]="['/driver', delivery()!.driver?.id, 'view']">{{ deliveryRef.driver?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/delivery', deliveryRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

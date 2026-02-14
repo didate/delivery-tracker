@@ -1,0 +1,11 @@
+{
+  "deliveryApp": {
+    "VehicleType": {
+      "null": "",
+      "CAR": "CAR",
+      "MOTO": "MOTO",
+      "TRUCK": "TRUCK",
+      "VAN": "VAN"
+    }
+  }
+}

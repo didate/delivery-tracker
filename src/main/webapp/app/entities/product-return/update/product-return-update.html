@@ -1,0 +1,157 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-product-return-heading"
+        data-cy="ProductReturnCreateUpdateHeading"
+        jhiTranslate="deliveryApp.productReturn.home.createOrEditLabel"
+      >
+        Créer ou éditer un Product Return
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.productReturn.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let returnDateRef = editForm.get('returnDate')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_returnDate" jhiTranslate="deliveryApp.productReturn.returnDate">Return Date</label>
+          <div class="input-group">
+            <input
+              id="field_returnDate"
+              data-cy="returnDate"
+              type="text"
+              class="form-control"
+              name="returnDate"
+              ngbDatepicker
+              #returnDateDp="ngbDatepicker"
+              formControlName="returnDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="returnDateDp.toggle()"><fa-icon icon="calendar-alt" /></button>
+          </div>
+          @if (returnDateRef.invalid && (returnDateRef.dirty || returnDateRef.touched)) {
+            <div>
+              @if (editForm.get('returnDate')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let reasonRef = editForm.get('reason')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_reason" jhiTranslate="deliveryApp.productReturn.reason">Reason</label>
+          <select class="form-control" name="reason" formControlName="reason" id="field_reason" data-cy="reason">
+            <option [ngValue]="null">{{ 'deliveryApp.ReturnReason.null' | translate }}</option>
+            @for (returnReason of returnReasonValues; track $index) {
+              <option [value]="returnReason">{{ 'deliveryApp.ReturnReason.' + returnReason | translate }}</option>
+            }
+          </select>
+          @if (reasonRef.invalid && (reasonRef.dirty || reasonRef.touched)) {
+            <div>
+              @if (editForm.get('reason')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_notes" jhiTranslate="deliveryApp.productReturn.notes">Notes</label>
+          <textarea class="form-control" name="notes" id="field_notes" data-cy="notes" formControlName="notes"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_tenant" jhiTranslate="deliveryApp.productReturn.tenant">Tenant</label>
+          <select
+            class="form-control"
+            id="field_tenant"
+            data-cy="tenant"
+            name="tenant"
+            formControlName="tenant"
+            [compareWith]="compareTenant"
+          >
+            @if (!editForm.get('tenant')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (tenantOption of tenantsSharedCollection(); track $index) {
+              <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['tenant'])!.invalid && (editForm.get(['tenant'])!.dirty || editForm.get(['tenant'])!.touched)) {
+          <div>
+            @if (editForm.get(['tenant'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_customer" jhiTranslate="deliveryApp.productReturn.customer">Customer</label>
+          <select
+            class="form-control"
+            id="field_customer"
+            data-cy="customer"
+            name="customer"
+            formControlName="customer"
+            [compareWith]="compareCustomer"
+          >
+            @if (!editForm.get('customer')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (customerOption of customersSharedCollection(); track $index) {
+              <option [ngValue]="customerOption">{{ customerOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['customer'])!.invalid && (editForm.get(['customer'])!.dirty || editForm.get(['customer'])!.touched)) {
+          <div>
+            @if (editForm.get(['customer'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_delivery" jhiTranslate="deliveryApp.productReturn.delivery">Delivery</label>
+          <select
+            class="form-control"
+            id="field_delivery"
+            data-cy="delivery"
+            name="delivery"
+            formControlName="delivery"
+            [compareWith]="compareDelivery"
+          >
+            <option [ngValue]="null"></option>
+            @for (deliveryOption of deliveriesSharedCollection(); track $index) {
+              <option [ngValue]="deliveryOption">{{ deliveryOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

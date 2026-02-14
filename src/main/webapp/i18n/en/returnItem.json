@@ -1,0 +1,27 @@
+{
+  "deliveryApp": {
+    "returnItem": {
+      "home": {
+        "title": "Return Items",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Return Item",
+        "createOrEditLabel": "Create or edit a Return Item",
+        "notFound": "No Return Items found"
+      },
+      "created": "A new Return Item is created with identifier {{ param }}",
+      "updated": "A Return Item is updated with identifier {{ param }}",
+      "deleted": "A Return Item is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Return Item {{ id }}?"
+      },
+      "detail": {
+        "title": "Return Item"
+      },
+      "id": "ID",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "productReturn": "Product Return",
+      "product": "Product"
+    }
+  }
+}

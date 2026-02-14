@@ -1,106 +1,153 @@
-# Maven
-target/
-pom.xml.tag
-pom.xml.releaseBackup
-pom.xml.versionsBackup
-pom.xml.next
-release.properties
-dependency-reduced-pom.xml
-buildNumber.properties
-.mvn/timing.properties
-.mvn/wrapper/maven-wrapper.jar
+######################
+# Node
+######################
+/node/
+node_tmp/
+node_modules/
+npm-debug.log.*
+/.awcache/*
+/.cache-loader/*
+/dist/
 
-# Gradle
-.gradle/
-build/
-!gradle/wrapper/gradle-wrapper.jar
+######################
+# SASS
+######################
+.sass-cache/
 
-# IDE - IntelliJ IDEA
+######################
+# Eclipse
+######################
+*.pydevproject
+.project
+.metadata
+tmp/
+*.tmp
+*.bak
+*.swp
+*~.nib
+local.properties
+.classpath
+.settings/
+.loadpath
+.factorypath
+
+# External tool builders
+.externalToolBuilders/**
+
+# Locally stored "Eclipse launch configurations"
+*.launch
+
+# CDT-specific
+.cproject
+
+# PDT-specific
+.buildpath
+
+# STS-specific
+/.sts4-cache/*
+
+######################
+# IntelliJ
+######################
 .idea/
-*.iws
 *.iml
+*.iws
 *.ipr
+*.ids
+*.orig
+classes/
 out/
 
-# IDE - Eclipse
-.apt_generated
-.classpath
-.factorypath
-.project
-.settings
-.springBeans
-.sts4-cache
-bin/
+######################
+# Visual Studio Code
+######################
+.vscode/*
+!.vscode/settings.json
+!.vscode/tasks.json
+!.vscode/launch.json
+!.vscode/extensions.json
+*.code-workspace
 
-# IDE - VS Code
-.vscode/
+######################
+# Maven
+######################
+/log/
+/target/
 
-# IDE - NetBeans
-/nbproject/private/
-/nbbuild/
-/dist/
-/nbdist/
-/.nb-gradle/
+######################
+# Gradle
+######################
+.gradle/
+/build/
+/buildSrc/.gradle/
+/buildSrc/build/
 
-# OS
-.DS_Store
-Thumbs.db
-
-# Logs
-*.log
-logs/
-
-# Java
-*.class
+######################
+# Package Files
+######################
 *.jar
 *.war
 *.ear
-*.nar
-hs_err_pid*
-replay_pid*
+*.db
 
-# Spring Boot
-*.pid
+######################
+# Windows
+######################
+# Windows image file caches
+Thumbs.db
 
-# Application
-application-local.yml
-application-local.properties
-application-*.local.yml
-application-*.local.properties
+# Folder config file
+Desktop.ini
 
-# Environment
-.env
-.env.local
-.env.*.local
-*.env
+######################
+# Mac OSX
+######################
+.DS_Store
+.svn
 
-# Secrets
-secrets/
-**/secrets/
-*.pem
-*.key
+# Thumbnails
+._*
 
-# Test
-test-output/
-/coverage/
-*.exec
+# Files that might appear on external disk
+.Spotlight-V100
+.Trashes
 
-# Node (for frontend if any)
-node_modules/
-npm-debug.log
-yarn-error.log
+######################
+# Directories
+######################
+/bin/
+/deploy/
 
-# Docker
-docker-compose.override.yml
+######################
+# Logs
+######################
+*.log*
 
-# Temporary files
-*.tmp
-*.temp
-*.swp
+######################
+# Others
+######################
+*.class
+*.*~
 *~
+.merge_file*
 
-# BMAD output (keep in repo but ignore local changes)
-# _bmad-output/
+######################
+# Gradle Wrapper
+######################
+!gradle/wrapper/gradle-wrapper.jar
 
-# Claude Code
-.claude/
+######################
+# Maven Wrapper
+######################
+!.mvn/wrapper/maven-wrapper.jar
+
+######################
+# ESLint
+######################
+.eslintcache
+
+######################
+# Code coverage
+######################
+coverage/
+.nyc_output/

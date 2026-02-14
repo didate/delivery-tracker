@@ -1,0 +1,31 @@
+{
+  "deliveryApp": {
+    "round": {
+      "home": {
+        "title": "Rounds",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Round",
+        "createOrEditLabel": "Créer ou éditer un Round",
+        "notFound": "Aucun Round trouvé"
+      },
+      "created": "Un nouveau Round a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Round avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Round avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Round {{ id }} ?"
+      },
+      "detail": {
+        "title": "Round"
+      },
+      "id": "ID",
+      "name": "Name",
+      "roundDate": "Round Date",
+      "status": "Status",
+      "startTime": "Start Time",
+      "endTime": "End Time",
+      "notes": "Notes",
+      "tenant": "Tenant",
+      "driver": "Driver"
+    }
+  }
+}

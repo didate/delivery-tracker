@@ -1,0 +1,31 @@
+{
+  "deliveryApp": {
+    "delivery": {
+      "home": {
+        "title": "Deliveries",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Delivery",
+        "createOrEditLabel": "Créer ou éditer un Delivery",
+        "notFound": "Aucun Delivery trouvé"
+      },
+      "created": "Un nouveau Delivery a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Delivery avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Delivery avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Delivery {{ id }} ?"
+      },
+      "detail": {
+        "title": "Delivery"
+      },
+      "id": "ID",
+      "deliveryDate": "Delivery Date",
+      "status": "Status",
+      "totalAmount": "Total Amount",
+      "paidAmount": "Paid Amount",
+      "notes": "Notes",
+      "tenant": "Tenant",
+      "customer": "Customer",
+      "driver": "Driver"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "deliveryApp": {
+    "deliveryItem": {
+      "home": {
+        "title": "DeliveryItems",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Delivery Item",
+        "createOrEditLabel": "Créer ou éditer un Delivery Item",
+        "notFound": "Aucun Delivery Item trouvé"
+      },
+      "created": "Un nouveau Delivery Item a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Delivery Item avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Delivery Item avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Delivery Item {{ id }} ?"
+      },
+      "detail": {
+        "title": "Delivery Item"
+      },
+      "id": "ID",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "totalPrice": "Total Price",
+      "delivery": "Delivery",
+      "product": "Product"
+    }
+  }
+}

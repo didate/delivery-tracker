@@ -1,0 +1,78 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (payment(); as paymentRef) {
+      <div>
+        <h2 data-cy="paymentDetailsHeading"><span jhiTranslate="deliveryApp.payment.detail.title">Payment</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ paymentRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.paymentDate">Payment Date</span></dt>
+          <dd>
+            <span>{{ paymentRef.paymentDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.amount">Amount</span></dt>
+          <dd>
+            <span>{{ paymentRef.amount }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.method">Method</span></dt>
+          <dd>
+            <span [jhiTranslate]="'deliveryApp.PaymentMethod.' + (paymentRef.method ?? 'null')">{{
+              { null: '', CASH: 'CASH', BANK_TRANSFER: 'BANK_TRANSFER', CHECK: 'CHECK', MOBILE_PAYMENT: 'MOBILE_PAYMENT' }[
+                paymentRef.method ?? 'null'
+              ]
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.reference">Reference</span></dt>
+          <dd>
+            <span>{{ paymentRef.reference }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.notes">Notes</span></dt>
+          <dd>
+            <span>{{ paymentRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.tenant">Tenant</span></dt>
+          <dd>
+            @if (payment()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', payment()!.tenant?.id, 'view']">{{ paymentRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.customer">Customer</span></dt>
+          <dd>
+            @if (payment()!.customer) {
+              <div>
+                <a [routerLink]="['/customer', payment()!.customer?.id, 'view']">{{ paymentRef.customer?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.payment.delivery">Delivery</span></dt>
+          <dd>
+            @if (payment()!.delivery) {
+              <div>
+                <a [routerLink]="['/delivery', payment()!.delivery?.id, 'view']">{{ paymentRef.delivery?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/payment', paymentRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

@@ -1,0 +1,229 @@
+// Enumerations
+enum DeliveryStatus {
+    PENDING, IN_PROGRESS, DELIVERED, CANCELLED
+}
+
+enum RoundStatus {
+    PLANNED, IN_PROGRESS, COMPLETED, CANCELLED
+}
+
+enum PaymentMethod {
+    CASH, BANK_TRANSFER, CHECK, MOBILE_PAYMENT
+}
+
+enum ReturnReason {
+    DAMAGED, EXPIRED, WRONG_PRODUCT, EXCESS, CUSTOMER_REFUSAL, OTHER
+}
+
+enum VehicleType {
+    CAR, MOTO, TRUCK, VAN
+}
+
+// Core Entities
+entity Tenant {
+    code String required unique maxlength(20)
+    name String required maxlength(100)
+    email String required
+    phone String maxlength(20)
+    address TextBlob
+    logoUrl String maxlength(500)
+    active Boolean required
+}
+
+entity TenantSettings {
+    currency String maxlength(3)
+    timezone String maxlength(50)
+    dateFormat String maxlength(20)
+    language String maxlength(10)
+}
+
+// Catalog
+entity Product {
+    code String required maxlength(20)
+    name String required maxlength(100)
+    description TextBlob
+    price BigDecimal required
+    active Boolean required
+}
+
+entity PriceHistory {
+    price BigDecimal required
+    effectiveDate LocalDate required
+}
+
+// Fleet
+entity Vehicle {
+    code String required maxlength(20)
+    name String required maxlength(100)
+    type VehicleType required
+    brand String maxlength(50)
+    model String maxlength(50)
+    registrationNumber String maxlength(20)
+    year Integer
+    capacity BigDecimal
+    fuelType String maxlength(20)
+    active Boolean required
+    notes TextBlob
+}
+
+// Operations
+entity Driver {
+    code String required maxlength(20)
+    name String required maxlength(100)
+    phone String maxlength(20)
+    email String maxlength(100)
+    licenseNumber String maxlength(50)
+    active Boolean required
+}
+
+entity ProductionSite {
+    code String required maxlength(20)
+    name String required maxlength(100)
+    address TextBlob
+    phone String maxlength(20)
+    active Boolean required
+}
+
+entity Customer {
+    code String required maxlength(50)
+    name String required maxlength(100)
+    phone String maxlength(20)
+    email String maxlength(100)
+    address TextBlob
+    latitude BigDecimal
+    longitude BigDecimal
+    active Boolean required
+    notes TextBlob
+}
+
+entity Production {
+    productionDate LocalDate required
+    quantity BigDecimal required
+    notes TextBlob
+}
+
+// Delivery Management
+entity Delivery {
+    deliveryDate LocalDate required
+    status DeliveryStatus required
+    totalAmount BigDecimal
+    paidAmount BigDecimal
+    notes TextBlob
+}
+
+entity DeliveryItem {
+    quantity BigDecimal required
+    unitPrice BigDecimal required
+    totalPrice BigDecimal
+}
+
+// Rounds
+entity Round {
+    name String required maxlength(100)
+    roundDate LocalDate required
+    status RoundStatus required
+    startTime Instant
+    endTime Instant
+    notes TextBlob
+}
+
+entity RoundCustomer {
+    sequenceOrder Integer required
+    visited Boolean
+    visitTime Instant
+    notes TextBlob
+}
+
+// Payments
+entity Payment {
+    paymentDate LocalDate required
+    amount BigDecimal required
+    method PaymentMethod required
+    reference String maxlength(100)
+    notes TextBlob
+}
+
+// Returns
+entity ProductReturn {
+    returnDate LocalDate required
+    reason ReturnReason required
+    notes TextBlob
+}
+
+entity ReturnItem {
+    quantity BigDecimal required
+    unitPrice BigDecimal
+}
+
+// Expenses
+entity ExpenseCategory {
+    code String required maxlength(20)
+    name String required maxlength(100)
+    description TextBlob
+    active Boolean required
+}
+
+entity Expense {
+    expenseDate LocalDate required
+    amount BigDecimal required
+    description TextBlob
+    receiptUrl String maxlength(500)
+}
+
+// Relationships
+relationship ManyToOne {
+    // Tenant relationships
+    TenantSettings{tenant required} to Tenant
+    Product{tenant required} to Tenant
+    Vehicle{tenant required} to Tenant
+    Driver{tenant required} to Tenant
+    Driver{vehicle} to Vehicle
+    ProductionSite{tenant required} to Tenant
+    Customer{tenant required} to Tenant
+    Customer{driver} to Driver
+
+    // Price history
+    PriceHistory{product required} to Product
+
+    // Production
+    Production{tenant required} to Tenant
+    Production{product required} to Product
+    Production{productionSite required} to ProductionSite
+
+    // Delivery
+    Delivery{tenant required} to Tenant
+    Delivery{customer required} to Customer
+    Delivery{driver required} to Driver
+    DeliveryItem{delivery required} to Delivery
+    DeliveryItem{product required} to Product
+
+    // Rounds
+    Round{tenant required} to Tenant
+    Round{driver required} to Driver
+    RoundCustomer{round required} to Round
+    RoundCustomer{customer required} to Customer
+
+    // Payments
+    Payment{tenant required} to Tenant
+    Payment{customer required} to Customer
+    Payment{delivery} to Delivery
+
+    // Returns
+    ProductReturn{tenant required} to Tenant
+    ProductReturn{customer required} to Customer
+    ProductReturn{delivery} to Delivery
+    ReturnItem{productReturn required} to ProductReturn
+    ReturnItem{product required} to Product
+
+    // Expenses
+    ExpenseCategory{tenant required} to Tenant
+    Expense{tenant required} to Tenant
+    Expense{category required} to ExpenseCategory
+    Expense{driver} to Driver
+}
+
+// Options
+dto * with mapstruct
+service * with serviceClass
+paginate * with pagination
+filter *

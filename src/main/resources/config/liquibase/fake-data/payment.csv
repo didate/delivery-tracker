@@ -1,0 +1,11 @@
+id;payment_date;amount;method;reference;notes;tenant_id;customer_id
+1;2026-02-13;26803.04;CASH;vouh;../fake-data/blob/hipster.txt;1;1
+2;2026-02-13;30339.5;CHECK;tarder autrefois;../fake-data/blob/hipster.txt;2;2
+3;2026-02-13;29607.41;CHECK;fourrer au point que;../fake-data/blob/hipster.txt;3;3
+4;2026-02-13;7036.65;CASH;brusque;../fake-data/blob/hipster.txt;4;4
+5;2026-02-13;5434.77;MOBILE_PAYMENT;si bien que maigre;../fake-data/blob/hipster.txt;5;5
+6;2026-02-14;2380.01;CASH;proche croâ;../fake-data/blob/hipster.txt;6;6
+7;2026-02-13;17077.08;MOBILE_PAYMENT;réprimer près tellement;../fake-data/blob/hipster.txt;7;7
+8;2026-02-13;29554.64;MOBILE_PAYMENT;promener;../fake-data/blob/hipster.txt;8;8
+9;2026-02-14;7230.88;CASH;moins aventurer;../fake-data/blob/hipster.txt;9;9
+10;2026-02-13;3636.39;MOBILE_PAYMENT;par chef de cuisine étant donné que;../fake-data/blob/hipster.txt;10;10

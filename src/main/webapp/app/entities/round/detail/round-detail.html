@@ -1,0 +1,74 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (round(); as roundRef) {
+      <div>
+        <h2 data-cy="roundDetailsHeading"><span jhiTranslate="deliveryApp.round.detail.title">Round</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ roundRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.name">Name</span></dt>
+          <dd>
+            <span>{{ roundRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.roundDate">Round Date</span></dt>
+          <dd>
+            <span>{{ roundRef.roundDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.status">Status</span></dt>
+          <dd>
+            <span [jhiTranslate]="'deliveryApp.RoundStatus.' + (roundRef.status ?? 'null')">{{
+              { null: '', PLANNED: 'PLANNED', IN_PROGRESS: 'IN_PROGRESS', COMPLETED: 'COMPLETED', CANCELLED: 'CANCELLED' }[
+                roundRef.status ?? 'null'
+              ]
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.startTime">Start Time</span></dt>
+          <dd>
+            <span>{{ roundRef.startTime | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.endTime">End Time</span></dt>
+          <dd>
+            <span>{{ roundRef.endTime | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.notes">Notes</span></dt>
+          <dd>
+            <span>{{ roundRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.tenant">Tenant</span></dt>
+          <dd>
+            @if (round()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', round()!.tenant?.id, 'view']">{{ roundRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.round.driver">Driver</span></dt>
+          <dd>
+            @if (round()!.driver) {
+              <div>
+                <a [routerLink]="['/driver', round()!.driver?.id, 'view']">{{ roundRef.driver?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/round', roundRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

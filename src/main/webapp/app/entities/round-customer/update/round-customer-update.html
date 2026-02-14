@@ -1,0 +1,136 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2
+        id="jhi-round-customer-heading"
+        data-cy="RoundCustomerCreateUpdateHeading"
+        jhiTranslate="deliveryApp.roundCustomer.home.createOrEditLabel"
+      >
+        Créer ou éditer un Round Customer
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.roundCustomer.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let sequenceOrderRef = editForm.get('sequenceOrder')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_sequenceOrder" jhiTranslate="deliveryApp.roundCustomer.sequenceOrder">Sequence Order</label>
+          <input
+            type="number"
+            class="form-control"
+            name="sequenceOrder"
+            id="field_sequenceOrder"
+            data-cy="sequenceOrder"
+            formControlName="sequenceOrder"
+          />
+          @if (sequenceOrderRef.invalid && (sequenceOrderRef.dirty || sequenceOrderRef.touched)) {
+            <div>
+              @if (editForm.get('sequenceOrder')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!editForm.get('sequenceOrder')?.errors?.number"
+                jhiTranslate="entity.validation.number"
+                >Ce champ doit être un nombre.</small
+              >
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_visited" jhiTranslate="deliveryApp.roundCustomer.visited">Visited</label>
+          <input type="checkbox" class="form-check" name="visited" id="field_visited" data-cy="visited" formControlName="visited" />
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_visitTime" jhiTranslate="deliveryApp.roundCustomer.visitTime">Visit Time</label>
+          <div class="d-flex">
+            <input
+              id="field_visitTime"
+              data-cy="visitTime"
+              type="datetime-local"
+              class="form-control"
+              name="visitTime"
+              formControlName="visitTime"
+              placeholder="YYYY-MM-DD HH:mm"
+            />
+          </div>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_notes" jhiTranslate="deliveryApp.roundCustomer.notes">Notes</label>
+          <textarea class="form-control" name="notes" id="field_notes" data-cy="notes" formControlName="notes"></textarea>
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_round" jhiTranslate="deliveryApp.roundCustomer.round">Round</label>
+          <select class="form-control" id="field_round" data-cy="round" name="round" formControlName="round" [compareWith]="compareRound">
+            @if (!editForm.get('round')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (roundOption of roundsSharedCollection(); track $index) {
+              <option [ngValue]="roundOption">{{ roundOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['round'])!.invalid && (editForm.get(['round'])!.dirty || editForm.get(['round'])!.touched)) {
+          <div>
+            @if (editForm.get(['round'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_customer" jhiTranslate="deliveryApp.roundCustomer.customer">Customer</label>
+          <select
+            class="form-control"
+            id="field_customer"
+            data-cy="customer"
+            name="customer"
+            formControlName="customer"
+            [compareWith]="compareCustomer"
+          >
+            @if (!editForm.get('customer')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (customerOption of customersSharedCollection(); track $index) {
+              <option [ngValue]="customerOption">{{ customerOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['customer'])!.invalid && (editForm.get(['customer'])!.dirty || editForm.get(['customer'])!.touched)) {
+          <div>
+            @if (editForm.get(['customer'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

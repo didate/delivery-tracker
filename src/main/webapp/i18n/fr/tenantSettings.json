@@ -1,0 +1,28 @@
+{
+  "deliveryApp": {
+    "tenantSettings": {
+      "home": {
+        "title": "TenantSettings",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Tenant Settings",
+        "createOrEditLabel": "Créer ou éditer un Tenant Settings",
+        "notFound": "Aucun Tenant Settings trouvé"
+      },
+      "created": "Un nouveau Tenant Settings a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Tenant Settings avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Tenant Settings avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Tenant Settings {{ id }} ?"
+      },
+      "detail": {
+        "title": "Tenant Settings"
+      },
+      "id": "ID",
+      "currency": "Currency",
+      "timezone": "Timezone",
+      "dateFormat": "Date Format",
+      "language": "Language",
+      "tenant": "Tenant"
+    }
+  }
+}

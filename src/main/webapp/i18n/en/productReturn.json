@@ -1,0 +1,29 @@
+{
+  "deliveryApp": {
+    "productReturn": {
+      "home": {
+        "title": "Product Returns",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Product Return",
+        "createOrEditLabel": "Create or edit a Product Return",
+        "notFound": "No Product Returns found"
+      },
+      "created": "A new Product Return is created with identifier {{ param }}",
+      "updated": "A Product Return is updated with identifier {{ param }}",
+      "deleted": "A Product Return is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Product Return {{ id }}?"
+      },
+      "detail": {
+        "title": "Product Return"
+      },
+      "id": "ID",
+      "returnDate": "Return Date",
+      "reason": "Reason",
+      "notes": "Notes",
+      "tenant": "Tenant",
+      "customer": "Customer",
+      "delivery": "Delivery"
+    }
+  }
+}

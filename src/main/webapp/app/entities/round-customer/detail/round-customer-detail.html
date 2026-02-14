@@ -1,0 +1,62 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (roundCustomer(); as roundCustomerRef) {
+      <div>
+        <h2 data-cy="roundCustomerDetailsHeading"><span jhiTranslate="deliveryApp.roundCustomer.detail.title">Round Customer</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ roundCustomerRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.roundCustomer.sequenceOrder">Sequence Order</span></dt>
+          <dd>
+            <span>{{ roundCustomerRef.sequenceOrder }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.roundCustomer.visited">Visited</span></dt>
+          <dd>
+            <span>{{ roundCustomerRef.visited }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.roundCustomer.visitTime">Visit Time</span></dt>
+          <dd>
+            <span>{{ roundCustomerRef.visitTime | formatMediumDatetime }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.roundCustomer.notes">Notes</span></dt>
+          <dd>
+            <span>{{ roundCustomerRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.roundCustomer.round">Round</span></dt>
+          <dd>
+            @if (roundCustomer()!.round) {
+              <div>
+                <a [routerLink]="['/round', roundCustomer()!.round?.id, 'view']">{{ roundCustomerRef.round?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.roundCustomer.customer">Customer</span></dt>
+          <dd>
+            @if (roundCustomer()!.customer) {
+              <div>
+                <a [routerLink]="['/customer', roundCustomer()!.customer?.id, 'view']">{{ roundCustomerRef.customer?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/round-customer', roundCustomerRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

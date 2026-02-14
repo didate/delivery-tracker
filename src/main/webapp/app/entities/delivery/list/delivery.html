@@ -1,0 +1,182 @@
+<div>
+  <h2 id="page-heading" data-cy="DeliveryHeading">
+    <span jhiTranslate="deliveryApp.delivery.home.title">Deliveries</span>
+
+    <div class="d-flex justify-content-end">
+      <button class="btn btn-info me-2" (click)="load()" [disabled]="isLoading()">
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+        <span jhiTranslate="deliveryApp.delivery.home.refreshListLabel">Actualiser la liste</span>
+      </button>
+
+      <button
+        id="jh-create-entity"
+        data-cy="entityCreateButton"
+        class="btn btn-primary jh-create-entity create-delivery"
+        [routerLink]="['/delivery/new']"
+      >
+        <fa-icon icon="plus" />
+        <span jhiTranslate="deliveryApp.delivery.home.createLabel">Créer un nouveau Delivery</span>
+      </button>
+    </div>
+  </h2>
+
+  <jhi-alert-error />
+
+  <jhi-alert />
+
+  <jhi-filter [filters]="filters" />
+
+  @if (deliveries().length === 0) {
+    <div class="alert alert-warning" id="no-result">
+      <span jhiTranslate="deliveryApp.delivery.home.notFound">Aucun Delivery trouvé</span>
+    </div>
+  } @else {
+    <div class="table-responsive table-entities" id="entities">
+      <table class="table table-striped" aria-describedby="page-heading">
+        <thead>
+          <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)">
+            <th scope="col" jhiSortBy="id">
+              <div class="d-flex">
+                <span jhiTranslate="global.field.id">ID</span>
+
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="deliveryDate">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.deliveryDate">Delivery Date</span>
+
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="status">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.status">Status</span>
+
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="totalAmount">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.totalAmount">Total Amount</span>
+
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="paidAmount">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.paidAmount">Paid Amount</span>
+
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="notes">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.notes">Notes</span>
+
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="tenant.id">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.tenant">Tenant</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="customer.id">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.customer">Customer</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col" jhiSortBy="driver.id">
+              <div class="d-flex">
+                <span jhiTranslate="deliveryApp.delivery.driver">Driver</span>
+                <fa-icon class="p-1" icon="sort" />
+              </div>
+            </th>
+            <th scope="col"></th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (delivery of deliveries(); track trackId(delivery)) {
+            <tr data-cy="entityTable">
+              <td>
+                <a [routerLink]="['/delivery', delivery.id, 'view']">{{ delivery.id }}</a>
+              </td>
+              <td>{{ delivery.deliveryDate | formatMediumDate }}</td>
+              <td [jhiTranslate]="'deliveryApp.DeliveryStatus.' + (delivery.status ?? 'null')">
+                {{
+                  { null: '', PENDING: 'PENDING', IN_PROGRESS: 'IN_PROGRESS', DELIVERED: 'DELIVERED', CANCELLED: 'CANCELLED' }[
+                    delivery.status ?? 'null'
+                  ]
+                }}
+              </td>
+              <td>{{ delivery.totalAmount }}</td>
+              <td>{{ delivery.paidAmount }}</td>
+              <td>{{ delivery.notes }}</td>
+              <td>
+                @if (delivery.tenant) {
+                  <div>
+                    <a [routerLink]="['/tenant', delivery.tenant.id, 'view']">{{ delivery.tenant.id }}</a>
+                  </div>
+                }
+              </td>
+              <td>
+                @if (delivery.customer) {
+                  <div>
+                    <a [routerLink]="['/customer', delivery.customer.id, 'view']">{{ delivery.customer.id }}</a>
+                  </div>
+                }
+              </td>
+              <td>
+                @if (delivery.driver) {
+                  <div>
+                    <a [routerLink]="['/driver', delivery.driver.id, 'view']">{{ delivery.driver.id }}</a>
+                  </div>
+                }
+              </td>
+              <td class="text-end">
+                <div class="btn-group">
+                  <a [routerLink]="['/delivery', delivery.id, 'view']" class="btn btn-info btn-sm" data-cy="entityDetailsButton">
+                    <fa-icon icon="eye" />
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.view">Voir</span>
+                  </a>
+
+                  <a [routerLink]="['/delivery', delivery.id, 'edit']" class="btn btn-primary btn-sm" data-cy="entityEditButton">
+                    <fa-icon icon="pencil-alt" />
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.edit">Editer</span>
+                  </a>
+
+                  <button type="submit" (click)="delete(delivery)" class="btn btn-danger btn-sm" data-cy="entityDeleteButton">
+                    <fa-icon icon="times" />
+                    <span class="d-none d-md-inline" jhiTranslate="entity.action.delete">Supprimer</span>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+  @if (deliveries().length > 0) {
+    <div>
+      <div class="d-flex justify-content-center">
+        <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
+      </div>
+
+      <div class="d-flex justify-content-center">
+        <ngb-pagination
+          [collectionSize]="totalItems()"
+          [page]="page()"
+          [pageSize]="itemsPerPage()"
+          [maxSize]="5"
+          [rotate]="true"
+          [boundaryLinks]="true"
+          (pageChange)="navigateToPage($event)"
+        />
+      </div>
+    </div>
+  }
+</div>

@@ -1,0 +1,29 @@
+{
+  "deliveryApp": {
+    "productionSite": {
+      "home": {
+        "title": "Production Sites",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Production Site",
+        "createOrEditLabel": "Create or edit a Production Site",
+        "notFound": "No Production Sites found"
+      },
+      "created": "A new Production Site is created with identifier {{ param }}",
+      "updated": "A Production Site is updated with identifier {{ param }}",
+      "deleted": "A Production Site is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Production Site {{ id }}?"
+      },
+      "detail": {
+        "title": "Production Site"
+      },
+      "id": "ID",
+      "code": "Code",
+      "name": "Name",
+      "address": "Address",
+      "phone": "Phone",
+      "active": "Active",
+      "tenant": "Tenant"
+    }
+  }
+}

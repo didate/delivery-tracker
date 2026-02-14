@@ -1,0 +1,11 @@
+id;return_date;reason;notes;tenant_id;customer_id
+1;2026-02-14;OTHER;../fake-data/blob/hipster.txt;1;1
+2;2026-02-14;EXPIRED;../fake-data/blob/hipster.txt;2;2
+3;2026-02-14;CUSTOMER_REFUSAL;../fake-data/blob/hipster.txt;3;3
+4;2026-02-13;EXCESS;../fake-data/blob/hipster.txt;4;4
+5;2026-02-13;OTHER;../fake-data/blob/hipster.txt;5;5
+6;2026-02-13;EXCESS;../fake-data/blob/hipster.txt;6;6
+7;2026-02-13;EXPIRED;../fake-data/blob/hipster.txt;7;7
+8;2026-02-13;DAMAGED;../fake-data/blob/hipster.txt;8;8
+9;2026-02-14;DAMAGED;../fake-data/blob/hipster.txt;9;9
+10;2026-02-14;DAMAGED;../fake-data/blob/hipster.txt;10;10

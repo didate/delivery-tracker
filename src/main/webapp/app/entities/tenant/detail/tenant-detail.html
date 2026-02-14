@@ -1,0 +1,58 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (tenant(); as tenantRef) {
+      <div>
+        <h2 data-cy="tenantDetailsHeading"><span jhiTranslate="deliveryApp.tenant.detail.title">Tenant</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ tenantRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.tenant.code">Code</span></dt>
+          <dd>
+            <span>{{ tenantRef.code }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.tenant.name">Name</span></dt>
+          <dd>
+            <span>{{ tenantRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.tenant.email">Email</span></dt>
+          <dd>
+            <span>{{ tenantRef.email }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.tenant.phone">Phone</span></dt>
+          <dd>
+            <span>{{ tenantRef.phone }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.tenant.address">Address</span></dt>
+          <dd>
+            <span>{{ tenantRef.address }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.tenant.logoUrl">Logo Url</span></dt>
+          <dd>
+            <span>{{ tenantRef.logoUrl }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.tenant.active">Active</span></dt>
+          <dd>
+            <span>{{ tenantRef.active }}</span>
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/tenant', tenantRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

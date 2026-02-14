@@ -1,0 +1,29 @@
+{
+  "deliveryApp": {
+    "roundCustomer": {
+      "home": {
+        "title": "Round Customers",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Round Customer",
+        "createOrEditLabel": "Create or edit a Round Customer",
+        "notFound": "No Round Customers found"
+      },
+      "created": "A new Round Customer is created with identifier {{ param }}",
+      "updated": "A Round Customer is updated with identifier {{ param }}",
+      "deleted": "A Round Customer is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Round Customer {{ id }}?"
+      },
+      "detail": {
+        "title": "Round Customer"
+      },
+      "id": "ID",
+      "sequenceOrder": "Sequence Order",
+      "visited": "Visited",
+      "visitTime": "Visit Time",
+      "notes": "Notes",
+      "round": "Round",
+      "customer": "Customer"
+    }
+  }
+}

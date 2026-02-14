@@ -1,0 +1,11 @@
+id;delivery_date;status;total_amount;paid_amount;notes;tenant_id;customer_id;driver_id
+1;2026-02-14;IN_PROGRESS;9871.86;21293.03;../fake-data/blob/hipster.txt;1;1;1
+2;2026-02-14;IN_PROGRESS;26588.88;4473.94;../fake-data/blob/hipster.txt;2;2;2
+3;2026-02-14;CANCELLED;12486.42;31748.83;../fake-data/blob/hipster.txt;3;3;3
+4;2026-02-14;IN_PROGRESS;10930.85;12588.09;../fake-data/blob/hipster.txt;4;4;4
+5;2026-02-14;IN_PROGRESS;26861.31;28169.16;../fake-data/blob/hipster.txt;5;5;5
+6;2026-02-14;PENDING;238.77;5834.43;../fake-data/blob/hipster.txt;6;6;6
+7;2026-02-14;IN_PROGRESS;25536.52;5478.98;../fake-data/blob/hipster.txt;7;7;7
+8;2026-02-14;PENDING;18109.25;3781.28;../fake-data/blob/hipster.txt;8;8;8
+9;2026-02-14;PENDING;25892.03;18897.35;../fake-data/blob/hipster.txt;9;9;9
+10;2026-02-14;IN_PROGRESS;538.7;8855.1;../fake-data/blob/hipster.txt;10;10;10

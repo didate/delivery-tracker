@@ -1,0 +1,26 @@
+{
+  "deliveryApp": {
+    "priceHistory": {
+      "home": {
+        "title": "Price Histories",
+        "refreshListLabel": "Refresh list",
+        "createLabel": "Create a new Price History",
+        "createOrEditLabel": "Create or edit a Price History",
+        "notFound": "No Price Histories found"
+      },
+      "created": "A new Price History is created with identifier {{ param }}",
+      "updated": "A Price History is updated with identifier {{ param }}",
+      "deleted": "A Price History is deleted with identifier {{ param }}",
+      "delete": {
+        "question": "Are you sure you want to delete Price History {{ id }}?"
+      },
+      "detail": {
+        "title": "Price History"
+      },
+      "id": "ID",
+      "price": "Price",
+      "effectiveDate": "Effective Date",
+      "product": "Product"
+    }
+  }
+}

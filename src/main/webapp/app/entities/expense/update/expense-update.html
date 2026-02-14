@@ -1,0 +1,182 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+      <h2 id="jhi-expense-heading" data-cy="ExpenseCreateUpdateHeading" jhiTranslate="deliveryApp.expense.home.createOrEditLabel">
+        Créer ou éditer un Expense
+      </h2>
+
+      <div>
+        <jhi-alert-error />
+
+        @if (editForm.controls.id.value !== null) {
+          <div class="mb-3">
+            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.expense.id">ID</label>
+            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
+          </div>
+        }
+
+        @let expenseDateRef = editForm.get('expenseDate')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_expenseDate" jhiTranslate="deliveryApp.expense.expenseDate">Expense Date</label>
+          <div class="input-group">
+            <input
+              id="field_expenseDate"
+              data-cy="expenseDate"
+              type="text"
+              class="form-control"
+              name="expenseDate"
+              ngbDatepicker
+              #expenseDateDp="ngbDatepicker"
+              formControlName="expenseDate"
+            />
+            <button type="button" class="btn btn-secondary" (click)="expenseDateDp.toggle()"><fa-icon icon="calendar-alt" /></button>
+          </div>
+          @if (expenseDateRef.invalid && (expenseDateRef.dirty || expenseDateRef.touched)) {
+            <div>
+              @if (editForm.get('expenseDate')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+              }
+            </div>
+          }
+        </div>
+
+        @let amountRef = editForm.get('amount')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_amount" jhiTranslate="deliveryApp.expense.amount">Amount</label>
+          <input type="number" class="form-control" name="amount" id="field_amount" data-cy="amount" formControlName="amount" />
+          @if (amountRef.invalid && (amountRef.dirty || amountRef.touched)) {
+            <div>
+              @if (editForm.get('amount')?.errors?.required) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+              }
+              <small
+                class="form-text text-danger"
+                [hidden]="!editForm.get('amount')?.errors?.number"
+                jhiTranslate="entity.validation.number"
+                >Ce champ doit être un nombre.</small
+              >
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_description" jhiTranslate="deliveryApp.expense.description">Description</label>
+          <textarea
+            class="form-control"
+            name="description"
+            id="field_description"
+            data-cy="description"
+            formControlName="description"
+          ></textarea>
+        </div>
+
+        @let receiptUrlRef = editForm.get('receiptUrl')!;
+        <div class="mb-3">
+          <label class="form-label" for="field_receiptUrl" jhiTranslate="deliveryApp.expense.receiptUrl">Receipt Url</label>
+          <input
+            type="text"
+            class="form-control"
+            name="receiptUrl"
+            id="field_receiptUrl"
+            data-cy="receiptUrl"
+            formControlName="receiptUrl"
+          />
+          @if (receiptUrlRef.invalid && (receiptUrlRef.dirty || receiptUrlRef.touched)) {
+            <div>
+              @if (editForm.get('receiptUrl')?.errors?.maxlength) {
+                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '500' }"
+                  >Ce champ doit faire au maximum 500 caractères.</small
+                >
+              }
+            </div>
+          }
+        </div>
+
+        <div class="mb-3">
+          <label class="form-label" for="field_tenant" jhiTranslate="deliveryApp.expense.tenant">Tenant</label>
+          <select
+            class="form-control"
+            id="field_tenant"
+            data-cy="tenant"
+            name="tenant"
+            formControlName="tenant"
+            [compareWith]="compareTenant"
+          >
+            @if (!editForm.get('tenant')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (tenantOption of tenantsSharedCollection(); track $index) {
+              <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['tenant'])!.invalid && (editForm.get(['tenant'])!.dirty || editForm.get(['tenant'])!.touched)) {
+          <div>
+            @if (editForm.get(['tenant'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_category" jhiTranslate="deliveryApp.expense.category">Category</label>
+          <select
+            class="form-control"
+            id="field_category"
+            data-cy="category"
+            name="category"
+            formControlName="category"
+            [compareWith]="compareExpenseCategory"
+          >
+            @if (!editForm.get('category')!.value) {
+              <option [ngValue]="null" selected></option>
+            }
+            @for (expenseCategoryOption of expenseCategoriesSharedCollection(); track $index) {
+              <option [ngValue]="expenseCategoryOption">{{ expenseCategoryOption.id }}</option>
+            }
+          </select>
+        </div>
+        @if (editForm.get(['category'])!.invalid && (editForm.get(['category'])!.dirty || editForm.get(['category'])!.touched)) {
+          <div>
+            @if (editForm.get(['category'])?.errors?.required) {
+              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
+            }
+          </div>
+        }
+
+        <div class="mb-3">
+          <label class="form-label" for="field_driver" jhiTranslate="deliveryApp.expense.driver">Driver</label>
+          <select
+            class="form-control"
+            id="field_driver"
+            data-cy="driver"
+            name="driver"
+            formControlName="driver"
+            [compareWith]="compareDriver"
+          >
+            <option [ngValue]="null"></option>
+            @for (driverOption of driversSharedCollection(); track $index) {
+              <option [ngValue]="driverOption">{{ driverOption.id }}</option>
+            }
+          </select>
+        </div>
+      </div>
+
+      <div>
+        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
+          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
+        </button>
+
+        <button
+          type="submit"
+          id="save-entity"
+          data-cy="entityCreateSaveButton"
+          [disabled]="editForm.invalid || isSaving()"
+          class="btn btn-primary"
+        >
+          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

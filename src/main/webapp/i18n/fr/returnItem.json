@@ -1,0 +1,27 @@
+{
+  "deliveryApp": {
+    "returnItem": {
+      "home": {
+        "title": "ReturnItems",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Return Item",
+        "createOrEditLabel": "Créer ou éditer un Return Item",
+        "notFound": "Aucun Return Item trouvé"
+      },
+      "created": "Un nouveau Return Item a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Return Item avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Return Item avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Return Item {{ id }} ?"
+      },
+      "detail": {
+        "title": "Return Item"
+      },
+      "id": "ID",
+      "quantity": "Quantity",
+      "unitPrice": "Unit Price",
+      "productReturn": "Product Return",
+      "product": "Product"
+    }
+  }
+}

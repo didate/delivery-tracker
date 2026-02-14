@@ -1,0 +1,29 @@
+{
+  "deliveryApp": {
+    "productionSite": {
+      "home": {
+        "title": "ProductionSites",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Production Site",
+        "createOrEditLabel": "Créer ou éditer un Production Site",
+        "notFound": "Aucun Production Site trouvé"
+      },
+      "created": "Un nouveau Production Site a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Production Site avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Production Site avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Production Site {{ id }} ?"
+      },
+      "detail": {
+        "title": "Production Site"
+      },
+      "id": "ID",
+      "code": "Code",
+      "name": "Name",
+      "address": "Address",
+      "phone": "Phone",
+      "active": "Active",
+      "tenant": "Tenant"
+    }
+  }
+}

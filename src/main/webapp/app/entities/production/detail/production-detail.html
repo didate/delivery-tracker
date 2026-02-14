@@ -1,0 +1,66 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (production(); as productionRef) {
+      <div>
+        <h2 data-cy="productionDetailsHeading"><span jhiTranslate="deliveryApp.production.detail.title">Production</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ productionRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.production.productionDate">Production Date</span></dt>
+          <dd>
+            <span>{{ productionRef.productionDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.production.quantity">Quantity</span></dt>
+          <dd>
+            <span>{{ productionRef.quantity }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.production.notes">Notes</span></dt>
+          <dd>
+            <span>{{ productionRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.production.tenant">Tenant</span></dt>
+          <dd>
+            @if (production()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', production()!.tenant?.id, 'view']">{{ productionRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.production.product">Product</span></dt>
+          <dd>
+            @if (production()!.product) {
+              <div>
+                <a [routerLink]="['/product', production()!.product?.id, 'view']">{{ productionRef.product?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.production.productionSite">Production Site</span></dt>
+          <dd>
+            @if (production()!.productionSite) {
+              <div>
+                <a [routerLink]="['/production-site', production()!.productionSite?.id, 'view']">{{ productionRef.productionSite?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/production', productionRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

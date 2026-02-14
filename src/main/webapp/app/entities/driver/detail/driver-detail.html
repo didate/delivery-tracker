@@ -1,0 +1,70 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (driver(); as driverRef) {
+      <div>
+        <h2 data-cy="driverDetailsHeading"><span jhiTranslate="deliveryApp.driver.detail.title">Driver</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ driverRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.code">Code</span></dt>
+          <dd>
+            <span>{{ driverRef.code }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.name">Name</span></dt>
+          <dd>
+            <span>{{ driverRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.phone">Phone</span></dt>
+          <dd>
+            <span>{{ driverRef.phone }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.email">Email</span></dt>
+          <dd>
+            <span>{{ driverRef.email }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.licenseNumber">License Number</span></dt>
+          <dd>
+            <span>{{ driverRef.licenseNumber }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.active">Active</span></dt>
+          <dd>
+            <span>{{ driverRef.active }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.tenant">Tenant</span></dt>
+          <dd>
+            @if (driver()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', driver()!.tenant?.id, 'view']">{{ driverRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.driver.vehicle">Vehicle</span></dt>
+          <dd>
+            @if (driver()!.vehicle) {
+              <div>
+                <a [routerLink]="['/vehicle', driver()!.vehicle?.id, 'view']">{{ driverRef.vehicle?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/driver', driverRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

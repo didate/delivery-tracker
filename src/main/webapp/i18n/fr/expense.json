@@ -1,0 +1,30 @@
+{
+  "deliveryApp": {
+    "expense": {
+      "home": {
+        "title": "Expenses",
+        "refreshListLabel": "Actualiser la liste",
+        "createLabel": "Créer un nouveau Expense",
+        "createOrEditLabel": "Créer ou éditer un Expense",
+        "notFound": "Aucun Expense trouvé"
+      },
+      "created": "Un nouveau Expense a été créé avec l'identifiant {{ param }}",
+      "updated": "Le Expense avec l'identifiant {{ param }} a été mis à jour",
+      "deleted": "Le Expense avec l'identifiant {{ param }} a été supprimé",
+      "delete": {
+        "question": "Êtes-vous certain de vouloir supprimer le Expense {{ id }} ?"
+      },
+      "detail": {
+        "title": "Expense"
+      },
+      "id": "ID",
+      "expenseDate": "Expense Date",
+      "amount": "Amount",
+      "description": "Description",
+      "receiptUrl": "Receipt Url",
+      "tenant": "Tenant",
+      "category": "Category",
+      "driver": "Driver"
+    }
+  }
+}

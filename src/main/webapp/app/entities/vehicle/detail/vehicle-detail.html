@@ -1,0 +1,84 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (vehicle(); as vehicleRef) {
+      <div>
+        <h2 data-cy="vehicleDetailsHeading"><span jhiTranslate="deliveryApp.vehicle.detail.title">Vehicle</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ vehicleRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.code">Code</span></dt>
+          <dd>
+            <span>{{ vehicleRef.code }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.name">Name</span></dt>
+          <dd>
+            <span>{{ vehicleRef.name }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.type">Type</span></dt>
+          <dd>
+            <span [jhiTranslate]="'deliveryApp.VehicleType.' + (vehicleRef.type ?? 'null')">{{
+              { null: '', CAR: 'CAR', MOTO: 'MOTO', TRUCK: 'TRUCK', VAN: 'VAN' }[vehicleRef.type ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.brand">Brand</span></dt>
+          <dd>
+            <span>{{ vehicleRef.brand }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.model">Model</span></dt>
+          <dd>
+            <span>{{ vehicleRef.model }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.registrationNumber">Registration Number</span></dt>
+          <dd>
+            <span>{{ vehicleRef.registrationNumber }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.year">Year</span></dt>
+          <dd>
+            <span>{{ vehicleRef.year }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.capacity">Capacity</span></dt>
+          <dd>
+            <span>{{ vehicleRef.capacity }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.fuelType">Fuel Type</span></dt>
+          <dd>
+            <span>{{ vehicleRef.fuelType }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.active">Active</span></dt>
+          <dd>
+            <span>{{ vehicleRef.active }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.notes">Notes</span></dt>
+          <dd>
+            <span>{{ vehicleRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.vehicle.tenant">Tenant</span></dt>
+          <dd>
+            @if (vehicle()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', vehicle()!.tenant?.id, 'view']">{{ vehicleRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/vehicle', vehicleRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>

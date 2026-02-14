@@ -1,0 +1,76 @@
+<div class="d-flex justify-content-center">
+  <div class="col-8">
+    @if (productReturn(); as productReturnRef) {
+      <div>
+        <h2 data-cy="productReturnDetailsHeading"><span jhiTranslate="deliveryApp.productReturn.detail.title">Product Return</span></h2>
+
+        <hr />
+
+        <jhi-alert-error />
+
+        <jhi-alert />
+
+        <dl class="row-md jh-entity-details">
+          <dt><span jhiTranslate="global.field.id">ID</span></dt>
+          <dd>
+            <span>{{ productReturnRef.id }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.productReturn.returnDate">Return Date</span></dt>
+          <dd>
+            <span>{{ productReturnRef.returnDate | formatMediumDate }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.productReturn.reason">Reason</span></dt>
+          <dd>
+            <span [jhiTranslate]="'deliveryApp.ReturnReason.' + (productReturnRef.reason ?? 'null')">{{
+              {
+                null: '',
+                DAMAGED: 'DAMAGED',
+                EXPIRED: 'EXPIRED',
+                WRONG_PRODUCT: 'WRONG_PRODUCT',
+                EXCESS: 'EXCESS',
+                CUSTOMER_REFUSAL: 'CUSTOMER_REFUSAL',
+                OTHER: 'OTHER',
+              }[productReturnRef.reason ?? 'null']
+            }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.productReturn.notes">Notes</span></dt>
+          <dd>
+            <span>{{ productReturnRef.notes }}</span>
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.productReturn.tenant">Tenant</span></dt>
+          <dd>
+            @if (productReturn()!.tenant) {
+              <div>
+                <a [routerLink]="['/tenant', productReturn()!.tenant?.id, 'view']">{{ productReturnRef.tenant?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.productReturn.customer">Customer</span></dt>
+          <dd>
+            @if (productReturn()!.customer) {
+              <div>
+                <a [routerLink]="['/customer', productReturn()!.customer?.id, 'view']">{{ productReturnRef.customer?.id }}</a>
+              </div>
+            }
+          </dd>
+          <dt><span jhiTranslate="deliveryApp.productReturn.delivery">Delivery</span></dt>
+          <dd>
+            @if (productReturn()!.delivery) {
+              <div>
+                <a [routerLink]="['/delivery', productReturn()!.delivery?.id, 'view']">{{ productReturnRef.delivery?.id }}</a>
+              </div>
+            }
+          </dd>
+        </dl>
+
+        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
+          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
+        </button>
+
+        <button type="button" [routerLink]="['/product-return', productReturnRef.id, 'edit']" class="btn btn-primary">
+          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
+        </button>
+      </div>
+    }
+  </div>
+</div>
