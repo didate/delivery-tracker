@@ -12,7 +12,7 @@ import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigati
 import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
-import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
+import { Filter, FilterField, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared/filter';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
@@ -45,6 +45,11 @@ export class Driver implements OnInit {
 
   sortState = sortStateSignal({});
   filters: IFilterOptions = new FilterOptions();
+  filterFields: FilterField[] = [
+    { name: 'name', label: 'Name', type: 'contains', placeholder: 'Search by name...' },
+    { name: 'code', label: 'Code', type: 'contains', placeholder: 'Search by code...' },
+    { name: 'phone', label: 'Phone', type: 'contains', placeholder: 'Search by phone...' },
+  ];
 
   itemsPerPage = signal(ITEMS_PER_PAGE);
   totalItems = signal(0);
