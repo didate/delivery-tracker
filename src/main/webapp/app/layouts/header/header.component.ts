@@ -16,6 +16,7 @@ import { SidebarService } from '../sidebar/sidebar.service';
 })
 export default class HeaderComponent {
   isNavbarCollapsed = signal(true);
+  isUserMenuOpen = signal(false);
   account = inject(AccountService).trackCurrentAccount();
 
   readonly sidebarService = inject(SidebarService);
@@ -24,6 +25,14 @@ export default class HeaderComponent {
 
   collapseNavbar(): void {
     this.isNavbarCollapsed.set(true);
+  }
+
+  toggleUserMenu(): void {
+    this.isUserMenuOpen.update(v => !v);
+  }
+
+  closeUserMenu(): void {
+    this.isUserMenuOpen.set(false);
   }
 
   login(): void {
