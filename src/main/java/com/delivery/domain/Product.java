@@ -28,7 +28,7 @@ public class Product implements Serializable {
 
     @NotNull
     @Size(max = 20)
-    @Column(name = "code", length = 20, nullable = false)
+    @Column(name = "code", length = 20, nullable = false, unique = true)
     private String code;
 
     @NotNull

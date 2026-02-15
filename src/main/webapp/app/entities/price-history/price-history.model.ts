@@ -6,6 +6,7 @@ export interface IPriceHistory {
   id: number;
   price?: number | null;
   effectiveDate?: dayjs.Dayjs | null;
+  endDate?: dayjs.Dayjs | null;
   product?: Pick<IProduct, 'id'> | null;
 }
 

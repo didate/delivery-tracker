@@ -11,8 +11,22 @@
       "created": "Un nouveau Produit a été créé avec l'identifiant {{ param }}",
       "updated": "Le Produit avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "Le Produit avec l'identifiant {{ param }} a été supprimé",
+      "deactivated": "Le produit {{ param }} a été désactivé",
+      "reactivated": "Le produit {{ param }} a été réactivé",
       "delete": {
         "question": "Êtes-vous certain de vouloir supprimer le Produit {{ id }} ?"
+      },
+      "deactivate": {
+        "title": "Confirmer la désactivation",
+        "question": "Êtes-vous certain de vouloir désactiver le produit \"{{ name }}\" ?",
+        "warning": "Les produits désactivés ne seront plus disponibles pour la sélection dans les nouvelles livraisons.",
+        "confirm": "Désactiver"
+      },
+      "reactivate": {
+        "title": "Confirmer la réactivation",
+        "question": "Êtes-vous certain de vouloir réactiver le produit \"{{ name }}\" ?",
+        "warning": "Les produits réactivés seront disponibles pour la sélection dans les nouvelles livraisons.",
+        "confirm": "Réactiver"
       },
       "detail": {
         "title": "Produit"

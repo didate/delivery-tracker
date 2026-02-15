@@ -12,8 +12,9 @@ import { IPriceHistory, NewPriceHistory } from '../price-history.model';
 
 export type PartialUpdatePriceHistory = Partial<IPriceHistory> & Pick<IPriceHistory, 'id'>;
 
-type RestOf<T extends IPriceHistory | NewPriceHistory> = Omit<T, 'effectiveDate'> & {
+type RestOf<T extends IPriceHistory | NewPriceHistory> = Omit<T, 'effectiveDate' | 'endDate'> & {
   effectiveDate?: string | null;
+  endDate?: string | null;
 };
 
 export type RestPriceHistory = RestOf<IPriceHistory>;
@@ -108,6 +109,7 @@ export class PriceHistoryService {
     return {
       ...priceHistory,
       effectiveDate: priceHistory.effectiveDate?.format(DATE_FORMAT) ?? null,
+      endDate: priceHistory.endDate?.format(DATE_FORMAT) ?? null,
     };
   }
 
@@ -115,6 +117,7 @@ export class PriceHistoryService {
     return {
       ...restPriceHistory,
       effectiveDate: restPriceHistory.effectiveDate ? dayjs(restPriceHistory.effectiveDate) : undefined,
+      endDate: restPriceHistory.endDate ? dayjs(restPriceHistory.endDate) : undefined,
     };
   }
 

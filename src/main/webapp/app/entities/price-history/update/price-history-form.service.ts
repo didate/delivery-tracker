@@ -20,6 +20,7 @@ type PriceHistoryFormGroupContent = {
   id: FormControl<IPriceHistory['id'] | NewPriceHistory['id']>;
   price: FormControl<IPriceHistory['price']>;
   effectiveDate: FormControl<IPriceHistory['effectiveDate']>;
+  endDate: FormControl<IPriceHistory['endDate']>;
   product: FormControl<IPriceHistory['product']>;
 };
 
@@ -46,6 +47,7 @@ export class PriceHistoryFormService {
       effectiveDate: new FormControl(priceHistoryRawValue.effectiveDate, {
         validators: [Validators.required],
       }),
+      endDate: new FormControl(priceHistoryRawValue.endDate),
       product: new FormControl(priceHistoryRawValue.product, {
         validators: [Validators.required],
       }),

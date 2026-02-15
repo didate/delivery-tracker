@@ -11,8 +11,22 @@
       "created": "A new Product is created with identifier {{ param }}",
       "updated": "A Product is updated with identifier {{ param }}",
       "deleted": "A Product is deleted with identifier {{ param }}",
+      "deactivated": "Product {{ param }} has been deactivated",
+      "reactivated": "Product {{ param }} has been reactivated",
       "delete": {
         "question": "Are you sure you want to delete Product {{ id }}?"
+      },
+      "deactivate": {
+        "title": "Confirm Deactivation",
+        "question": "Are you sure you want to deactivate product \"{{ name }}\"?",
+        "warning": "Deactivated products will no longer be available for selection in new deliveries.",
+        "confirm": "Deactivate"
+      },
+      "reactivate": {
+        "title": "Confirm Reactivation",
+        "question": "Are you sure you want to reactivate product \"{{ name }}\"?",
+        "warning": "Reactivated products will be available for selection in new deliveries.",
+        "confirm": "Reactivate"
       },
       "detail": {
         "title": "Product"

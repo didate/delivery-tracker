@@ -36,6 +36,9 @@ public class PriceHistory implements Serializable {
     @Column(name = "effective_date", nullable = false)
     private LocalDate effectiveDate;
 
+    @Column(name = "end_date")
+    private LocalDate endDate;
+
     @ManyToOne(optional = false)
     @NotNull
     @JsonIgnoreProperties(value = { "tenant" }, allowSetters = true)
@@ -82,6 +85,19 @@ public class PriceHistory implements Serializable {
         this.effectiveDate = effectiveDate;
     }
 
+    public LocalDate getEndDate() {
+        return this.endDate;
+    }
+
+    public PriceHistory endDate(LocalDate endDate) {
+        this.setEndDate(endDate);
+        return this;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
+    }
+
     public Product getProduct() {
         return this.product;
     }
@@ -121,6 +137,7 @@ public class PriceHistory implements Serializable {
             "id=" + getId() +
             ", price=" + getPrice() +
             ", effectiveDate='" + getEffectiveDate() + "'" +
+            ", endDate='" + getEndDate() + "'" +
             "}";
     }
 }

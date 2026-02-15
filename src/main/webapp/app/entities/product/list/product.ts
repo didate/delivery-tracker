@@ -20,6 +20,7 @@ import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { ProductDeleteDialog } from '../delete/product-delete-dialog';
+import { TranslateService } from '@ngx-translate/core';
 import { IProduct } from '../product.model';
 import { EntityArrayResponseType, ProductService } from '../service/product.service';
 
@@ -65,6 +66,7 @@ export class Product implements OnInit {
   protected readonly sortService = inject(SortService);
   protected dataUtils = inject(DataUtils);
   protected modalService = inject(ModalService);
+  protected translateService = inject(TranslateService);
 
   trackId = (item: IProduct): number => this.productService.getProductIdentifier(item);
 
@@ -97,6 +99,24 @@ export class Product implements OnInit {
         tap(() => this.load()),
       )
       .subscribe();
+  }
+
+  toggleActive(product: IProduct, activate: boolean): void {
+    const translationPrefix = activate ? 'deliveryApp.product.reactivate' : 'deliveryApp.product.deactivate';
+    const questionHtml = `<p>${this.translateService.instant(`${translationPrefix}.question`, { name: product.name })}</p>
+      <p class="text-sm text-gray-500 mt-2">${this.translateService.instant(`${translationPrefix}.warning`)}</p>`;
+
+    this.modalService.confirm({
+      title: `${translationPrefix}.title`,
+      message: questionHtml,
+      rawMessage: true,
+      confirmText: `${translationPrefix}.confirm`,
+      confirmButtonType: activate ? 'success' : 'warning',
+      onConfirm: () => {
+        const updatedProduct = { ...product, active: activate };
+        this.productService.update(updatedProduct).subscribe(() => this.load());
+      },
+    });
   }
 
   load(): void {

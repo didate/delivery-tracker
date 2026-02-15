@@ -23,6 +23,17 @@
           <dd>
             <span>{{ priceHistoryRef.effectiveDate | formatMediumDate }}</span>
           </dd>
+          <dt><span jhiTranslate="deliveryApp.priceHistory.endDate">End Date</span></dt>
+          <dd>
+            @if (priceHistoryRef.endDate) {
+              <span>{{ priceHistoryRef.endDate | formatMediumDate }}</span>
+            } @else {
+              <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                <fa-icon icon="check-circle" class="mr-1" />
+                <span jhiTranslate="deliveryApp.priceHistory.active">Active</span>
+              </span>
+            }
+          </dd>
           <dt><span jhiTranslate="deliveryApp.priceHistory.product">Product</span></dt>
           <dd>
             @if (priceHistory()!.product) {

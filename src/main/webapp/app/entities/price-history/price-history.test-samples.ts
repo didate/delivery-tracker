@@ -18,6 +18,7 @@ export const sampleWithFullData: IPriceHistory = {
   id: 2654,
   price: 16324.48,
   effectiveDate: dayjs('2026-02-13'),
+  endDate: dayjs('2026-02-14'),
 };
 
 export const sampleWithNewData: NewPriceHistory = {

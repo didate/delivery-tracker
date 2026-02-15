@@ -20,6 +20,10 @@
       "id": "ID",
       "price": "Prix",
       "effectiveDate": "Date d'effet",
+      "endDate": "Date de fin",
+      "status": "Statut",
+      "active": "Actif",
+      "expired": "Expiré",
       "product": "Produit"
     }
   }

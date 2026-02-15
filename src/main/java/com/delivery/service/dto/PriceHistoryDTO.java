@@ -20,6 +20,8 @@ public class PriceHistoryDTO implements Serializable {
     @NotNull
     private LocalDate effectiveDate;
 
+    private LocalDate endDate;
+
     @NotNull
     private ProductDTO product;
 
@@ -45,6 +47,14 @@ public class PriceHistoryDTO implements Serializable {
 
     public void setEffectiveDate(LocalDate effectiveDate) {
         this.effectiveDate = effectiveDate;
+    }
+
+    public LocalDate getEndDate() {
+        return endDate;
+    }
+
+    public void setEndDate(LocalDate endDate) {
+        this.endDate = endDate;
     }
 
     public ProductDTO getProduct() {
@@ -83,6 +93,7 @@ public class PriceHistoryDTO implements Serializable {
             "id=" + getId() +
             ", price=" + getPrice() +
             ", effectiveDate='" + getEffectiveDate() + "'" +
+            ", endDate='" + getEndDate() + "'" +
             ", product=" + getProduct() +
             "}";
     }

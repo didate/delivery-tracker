@@ -113,7 +113,7 @@ export class DeliveryItemUpdate implements OnInit {
       .subscribe((deliveries: IDelivery[]) => this.deliveriesSharedCollection.set(deliveries));
 
     this.productService
-      .query()
+      .query({ 'active.equals': true })
       .pipe(map((res: HttpResponse<IProduct[]>) => res.body ?? []))
       .pipe(
         map((products: IProduct[]) => this.productService.addProductToCollectionIfMissing<IProduct>(products, this.deliveryItem?.product)),

@@ -26,6 +26,7 @@ public class ProductDTO implements Serializable {
     private String description;
 
     @NotNull
+    @Positive
     private BigDecimal price;
 
     @NotNull
