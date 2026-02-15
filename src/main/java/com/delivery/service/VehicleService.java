@@ -73,8 +73,13 @@ public class VehicleService {
     public Optional<VehicleDTO> partialUpdate(VehicleDTO vehicleDTO) {
         LOG.debug("Request to partially update Vehicle : {}", vehicleDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return vehicleRepository
-            .findById(vehicleDTO.getId())
+            .findByIdAndTenant_Id(vehicleDTO.getId(), tenantId)
             .map(existingVehicle -> {
                 vehicleMapper.partialUpdate(existingVehicle, vehicleDTO);
 
@@ -93,7 +98,11 @@ public class VehicleService {
     @Transactional(readOnly = true)
     public Optional<VehicleDTO> findOne(Long id) {
         LOG.debug("Request to get Vehicle : {}", id);
-        return vehicleRepository.findById(id).map(vehicleMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return vehicleRepository.findByIdAndTenant_Id(id, tenantId).map(vehicleMapper::toDto);
     }
 
     /**
@@ -103,6 +112,24 @@ public class VehicleService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Vehicle : {}", id);
-        vehicleRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            vehicleRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a vehicle exists by id within the current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if the vehicle exists within the current tenant, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return vehicleRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.DeliveryRepository;
 import com.delivery.service.DeliveryQueryService;
 import com.delivery.service.DeliveryService;
 import com.delivery.service.criteria.DeliveryCriteria;
@@ -42,17 +41,10 @@ public class DeliveryResource {
 
     private final DeliveryService deliveryService;
 
-    private final DeliveryRepository deliveryRepository;
-
     private final DeliveryQueryService deliveryQueryService;
 
-    public DeliveryResource(
-        DeliveryService deliveryService,
-        DeliveryRepository deliveryRepository,
-        DeliveryQueryService deliveryQueryService
-    ) {
+    public DeliveryResource(DeliveryService deliveryService, DeliveryQueryService deliveryQueryService) {
         this.deliveryService = deliveryService;
-        this.deliveryRepository = deliveryRepository;
         this.deliveryQueryService = deliveryQueryService;
     }
 
@@ -98,7 +90,7 @@ public class DeliveryResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!deliveryRepository.existsById(id)) {
+        if (!deliveryService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -132,7 +124,7 @@ public class DeliveryResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!deliveryRepository.existsById(id)) {
+        if (!deliveryService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

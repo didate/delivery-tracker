@@ -59,6 +59,11 @@ public class PaymentService {
      */
     public PaymentDTO update(PaymentDTO paymentDTO) {
         LOG.debug("Request to update Payment : {}", paymentDTO);
+        // Verify tenant ownership
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || !paymentRepository.existsByIdAndTenant_Id(paymentDTO.getId(), tenantId)) {
+            throw new IllegalArgumentException("Entity not found or access denied");
+        }
         Payment payment = paymentMapper.toEntity(paymentDTO);
         payment = paymentRepository.save(payment);
         return paymentMapper.toDto(payment);
@@ -66,6 +71,7 @@ public class PaymentService {
 
     /**
      * Partially update a payment.
+     * Users can only update payments from their current tenant.
      *
      * @param paymentDTO the entity to update partially.
      * @return the persisted entity.
@@ -73,11 +79,15 @@ public class PaymentService {
     public Optional<PaymentDTO> partialUpdate(PaymentDTO paymentDTO) {
         LOG.debug("Request to partially update Payment : {}", paymentDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return paymentRepository
-            .findById(paymentDTO.getId())
+            .findByIdAndTenant_Id(paymentDTO.getId(), tenantId)
             .map(existingPayment -> {
                 paymentMapper.partialUpdate(existingPayment, paymentDTO);
-
                 return existingPayment;
             })
             .map(paymentRepository::save)
@@ -86,6 +96,7 @@ public class PaymentService {
 
     /**
      * Get one payment by id.
+     * Users can only access payments from their current tenant.
      *
      * @param id the id of the entity.
      * @return the entity.
@@ -93,16 +104,41 @@ public class PaymentService {
     @Transactional(readOnly = true)
     public Optional<PaymentDTO> findOne(Long id) {
         LOG.debug("Request to get Payment : {}", id);
-        return paymentRepository.findById(id).map(paymentMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return paymentRepository.findByIdAndTenant_Id(id, tenantId).map(paymentMapper::toDto);
     }
 
     /**
      * Delete the payment by id.
+     * Users can only delete payments from their current tenant.
      *
      * @param id the id of the entity.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Payment : {}", id);
-        paymentRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            paymentRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a payment exists by id.
+     * Users can only check payments from their current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        LOG.debug("Request to check if Payment exists : {}", id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return paymentRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

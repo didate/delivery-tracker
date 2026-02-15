@@ -77,8 +77,13 @@ public class ProductionService {
     public Optional<ProductionDTO> partialUpdate(ProductionDTO productionDTO) {
         LOG.debug("Request to partially update Production : {}", productionDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return productionRepository
-            .findById(productionDTO.getId())
+            .findByIdAndTenant_Id(productionDTO.getId(), tenantId)
             .map(existingProduction -> {
                 productionMapper.partialUpdate(existingProduction, productionDTO);
 
@@ -97,7 +102,11 @@ public class ProductionService {
     @Transactional(readOnly = true)
     public Optional<ProductionDTO> findOne(Long id) {
         LOG.debug("Request to get Production : {}", id);
-        return productionRepository.findById(id).map(productionMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return productionRepository.findByIdAndTenant_Id(id, tenantId).map(productionMapper::toDto);
     }
 
     /**
@@ -107,6 +116,24 @@ public class ProductionService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Production : {}", id);
-        productionRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            productionRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a production exists by id within the current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return productionRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

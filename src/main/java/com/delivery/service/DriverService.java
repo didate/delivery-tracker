@@ -1,7 +1,6 @@
 package com.delivery.service;
 
 import com.delivery.domain.Driver;
-import com.delivery.domain.Tenant;
 import com.delivery.repository.DriverRepository;
 import com.delivery.repository.TenantRepository;
 import com.delivery.security.TenantContext;
@@ -59,6 +58,10 @@ public class DriverService {
      */
     public DriverDTO update(DriverDTO driverDTO) {
         LOG.debug("Request to update Driver : {}", driverDTO);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || !driverRepository.existsByIdAndTenant_Id(driverDTO.getId(), tenantId)) {
+            throw new IllegalArgumentException("Entity not found or access denied");
+        }
         Driver driver = driverMapper.toEntity(driverDTO);
         driver = driverRepository.save(driver);
         return driverMapper.toDto(driver);
@@ -73,8 +76,13 @@ public class DriverService {
     public Optional<DriverDTO> partialUpdate(DriverDTO driverDTO) {
         LOG.debug("Request to partially update Driver : {}", driverDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return driverRepository
-            .findById(driverDTO.getId())
+            .findByIdAndTenant_Id(driverDTO.getId(), tenantId)
             .map(existingDriver -> {
                 driverMapper.partialUpdate(existingDriver, driverDTO);
 
@@ -93,7 +101,11 @@ public class DriverService {
     @Transactional(readOnly = true)
     public Optional<DriverDTO> findOne(Long id) {
         LOG.debug("Request to get Driver : {}", id);
-        return driverRepository.findById(id).map(driverMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return driverRepository.findByIdAndTenant_Id(id, tenantId).map(driverMapper::toDto);
     }
 
     /**
@@ -103,6 +115,26 @@ public class DriverService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Driver : {}", id);
-        driverRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return;
+        }
+        driverRepository.deleteByIdAndTenant_Id(id, tenantId);
+    }
+
+    /**
+     * Check if a driver exists by id with tenant filtering.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        LOG.debug("Request to check if Driver exists : {}", id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return driverRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

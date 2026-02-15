@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.PaymentRepository;
 import com.delivery.service.PaymentQueryService;
 import com.delivery.service.PaymentService;
 import com.delivery.service.criteria.PaymentCriteria;
@@ -42,13 +41,10 @@ public class PaymentResource {
 
     private final PaymentService paymentService;
 
-    private final PaymentRepository paymentRepository;
-
     private final PaymentQueryService paymentQueryService;
 
-    public PaymentResource(PaymentService paymentService, PaymentRepository paymentRepository, PaymentQueryService paymentQueryService) {
+    public PaymentResource(PaymentService paymentService, PaymentQueryService paymentQueryService) {
         this.paymentService = paymentService;
-        this.paymentRepository = paymentRepository;
         this.paymentQueryService = paymentQueryService;
     }
 
@@ -94,7 +90,7 @@ public class PaymentResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!paymentRepository.existsById(id)) {
+        if (!paymentService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -128,7 +124,7 @@ public class PaymentResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!paymentRepository.existsById(id)) {
+        if (!paymentService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.RoundRepository;
 import com.delivery.service.RoundQueryService;
 import com.delivery.service.RoundService;
 import com.delivery.service.criteria.RoundCriteria;
@@ -42,13 +41,10 @@ public class RoundResource {
 
     private final RoundService roundService;
 
-    private final RoundRepository roundRepository;
-
     private final RoundQueryService roundQueryService;
 
-    public RoundResource(RoundService roundService, RoundRepository roundRepository, RoundQueryService roundQueryService) {
+    public RoundResource(RoundService roundService, RoundQueryService roundQueryService) {
         this.roundService = roundService;
-        this.roundRepository = roundRepository;
         this.roundQueryService = roundQueryService;
     }
 
@@ -94,7 +90,7 @@ public class RoundResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!roundRepository.existsById(id)) {
+        if (!roundService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -128,7 +124,7 @@ public class RoundResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!roundRepository.existsById(id)) {
+        if (!roundService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.ExpenseCategoryRepository;
 import com.delivery.service.ExpenseCategoryQueryService;
 import com.delivery.service.ExpenseCategoryService;
 import com.delivery.service.criteria.ExpenseCategoryCriteria;
@@ -42,17 +41,10 @@ public class ExpenseCategoryResource {
 
     private final ExpenseCategoryService expenseCategoryService;
 
-    private final ExpenseCategoryRepository expenseCategoryRepository;
-
     private final ExpenseCategoryQueryService expenseCategoryQueryService;
 
-    public ExpenseCategoryResource(
-        ExpenseCategoryService expenseCategoryService,
-        ExpenseCategoryRepository expenseCategoryRepository,
-        ExpenseCategoryQueryService expenseCategoryQueryService
-    ) {
+    public ExpenseCategoryResource(ExpenseCategoryService expenseCategoryService, ExpenseCategoryQueryService expenseCategoryQueryService) {
         this.expenseCategoryService = expenseCategoryService;
-        this.expenseCategoryRepository = expenseCategoryRepository;
         this.expenseCategoryQueryService = expenseCategoryQueryService;
     }
 
@@ -99,7 +91,7 @@ public class ExpenseCategoryResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!expenseCategoryRepository.existsById(id)) {
+        if (!expenseCategoryService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -133,7 +125,7 @@ public class ExpenseCategoryResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!expenseCategoryRepository.existsById(id)) {
+        if (!expenseCategoryService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

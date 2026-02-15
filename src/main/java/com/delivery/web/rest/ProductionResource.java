@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.ProductionRepository;
 import com.delivery.service.ProductionQueryService;
 import com.delivery.service.ProductionService;
 import com.delivery.service.criteria.ProductionCriteria;
@@ -42,17 +41,10 @@ public class ProductionResource {
 
     private final ProductionService productionService;
 
-    private final ProductionRepository productionRepository;
-
     private final ProductionQueryService productionQueryService;
 
-    public ProductionResource(
-        ProductionService productionService,
-        ProductionRepository productionRepository,
-        ProductionQueryService productionQueryService
-    ) {
+    public ProductionResource(ProductionService productionService, ProductionQueryService productionQueryService) {
         this.productionService = productionService;
-        this.productionRepository = productionRepository;
         this.productionQueryService = productionQueryService;
     }
 
@@ -98,7 +90,7 @@ public class ProductionResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productionRepository.existsById(id)) {
+        if (!productionService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -132,7 +124,7 @@ public class ProductionResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productionRepository.existsById(id)) {
+        if (!productionService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

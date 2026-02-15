@@ -1,6 +1,5 @@
 package com.delivery.service;
 
-import com.delivery.domain.Tenant;
 import com.delivery.domain.TenantSettings;
 import com.delivery.repository.TenantRepository;
 import com.delivery.repository.TenantSettingsRepository;
@@ -63,6 +62,11 @@ public class TenantSettingsService {
      */
     public TenantSettingsDTO update(TenantSettingsDTO tenantSettingsDTO) {
         LOG.debug("Request to update TenantSettings : {}", tenantSettingsDTO);
+        // Verify tenant ownership
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || !tenantSettingsRepository.existsByIdAndTenant_Id(tenantSettingsDTO.getId(), tenantId)) {
+            throw new IllegalArgumentException("Entity not found or access denied");
+        }
         TenantSettings tenantSettings = tenantSettingsMapper.toEntity(tenantSettingsDTO);
         tenantSettings = tenantSettingsRepository.save(tenantSettings);
         return tenantSettingsMapper.toDto(tenantSettings);
@@ -70,6 +74,7 @@ public class TenantSettingsService {
 
     /**
      * Partially update a tenantSettings.
+     * Users can only update tenantSettings from their current tenant.
      *
      * @param tenantSettingsDTO the entity to update partially.
      * @return the persisted entity.
@@ -77,11 +82,15 @@ public class TenantSettingsService {
     public Optional<TenantSettingsDTO> partialUpdate(TenantSettingsDTO tenantSettingsDTO) {
         LOG.debug("Request to partially update TenantSettings : {}", tenantSettingsDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return tenantSettingsRepository
-            .findById(tenantSettingsDTO.getId())
+            .findByIdAndTenant_Id(tenantSettingsDTO.getId(), tenantId)
             .map(existingTenantSettings -> {
                 tenantSettingsMapper.partialUpdate(existingTenantSettings, tenantSettingsDTO);
-
                 return existingTenantSettings;
             })
             .map(tenantSettingsRepository::save)
@@ -90,6 +99,7 @@ public class TenantSettingsService {
 
     /**
      * Get one tenantSettings by id.
+     * Users can only access tenantSettings from their current tenant.
      *
      * @param id the id of the entity.
      * @return the entity.
@@ -97,16 +107,41 @@ public class TenantSettingsService {
     @Transactional(readOnly = true)
     public Optional<TenantSettingsDTO> findOne(Long id) {
         LOG.debug("Request to get TenantSettings : {}", id);
-        return tenantSettingsRepository.findById(id).map(tenantSettingsMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return tenantSettingsRepository.findByIdAndTenant_Id(id, tenantId).map(tenantSettingsMapper::toDto);
     }
 
     /**
      * Delete the tenantSettings by id.
+     * Users can only delete tenantSettings from their current tenant.
      *
      * @param id the id of the entity.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete TenantSettings : {}", id);
-        tenantSettingsRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            tenantSettingsRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a tenantSettings exists by id.
+     * Users can only check tenantSettings from their current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        LOG.debug("Request to check if TenantSettings exists : {}", id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return tenantSettingsRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

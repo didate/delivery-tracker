@@ -73,8 +73,13 @@ public class RoundService {
     public Optional<RoundDTO> partialUpdate(RoundDTO roundDTO) {
         LOG.debug("Request to partially update Round : {}", roundDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return roundRepository
-            .findById(roundDTO.getId())
+            .findByIdAndTenant_Id(roundDTO.getId(), tenantId)
             .map(existingRound -> {
                 roundMapper.partialUpdate(existingRound, roundDTO);
 
@@ -93,7 +98,11 @@ public class RoundService {
     @Transactional(readOnly = true)
     public Optional<RoundDTO> findOne(Long id) {
         LOG.debug("Request to get Round : {}", id);
-        return roundRepository.findById(id).map(roundMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return roundRepository.findByIdAndTenant_Id(id, tenantId).map(roundMapper::toDto);
     }
 
     /**
@@ -103,6 +112,24 @@ public class RoundService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Round : {}", id);
-        roundRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            roundRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a round exists by id within the current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists in the current tenant, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return roundRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

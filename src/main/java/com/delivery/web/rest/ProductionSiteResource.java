@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.ProductionSiteRepository;
 import com.delivery.service.ProductionSiteQueryService;
 import com.delivery.service.ProductionSiteService;
 import com.delivery.service.criteria.ProductionSiteCriteria;
@@ -42,17 +41,10 @@ public class ProductionSiteResource {
 
     private final ProductionSiteService productionSiteService;
 
-    private final ProductionSiteRepository productionSiteRepository;
-
     private final ProductionSiteQueryService productionSiteQueryService;
 
-    public ProductionSiteResource(
-        ProductionSiteService productionSiteService,
-        ProductionSiteRepository productionSiteRepository,
-        ProductionSiteQueryService productionSiteQueryService
-    ) {
+    public ProductionSiteResource(ProductionSiteService productionSiteService, ProductionSiteQueryService productionSiteQueryService) {
         this.productionSiteService = productionSiteService;
-        this.productionSiteRepository = productionSiteRepository;
         this.productionSiteQueryService = productionSiteQueryService;
     }
 
@@ -99,7 +91,7 @@ public class ProductionSiteResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productionSiteRepository.existsById(id)) {
+        if (!productionSiteService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -133,7 +125,7 @@ public class ProductionSiteResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productionSiteRepository.existsById(id)) {
+        if (!productionSiteService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

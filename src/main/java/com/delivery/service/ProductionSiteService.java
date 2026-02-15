@@ -1,7 +1,6 @@
 package com.delivery.service;
 
 import com.delivery.domain.ProductionSite;
-import com.delivery.domain.Tenant;
 import com.delivery.repository.ProductionSiteRepository;
 import com.delivery.repository.TenantRepository;
 import com.delivery.security.TenantContext;
@@ -70,6 +69,7 @@ public class ProductionSiteService {
 
     /**
      * Partially update a productionSite.
+     * Users can only update production sites from their own tenant.
      *
      * @param productionSiteDTO the entity to update partially.
      * @return the persisted entity.
@@ -77,11 +77,15 @@ public class ProductionSiteService {
     public Optional<ProductionSiteDTO> partialUpdate(ProductionSiteDTO productionSiteDTO) {
         LOG.debug("Request to partially update ProductionSite : {}", productionSiteDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return productionSiteRepository
-            .findById(productionSiteDTO.getId())
+            .findByIdAndTenant_Id(productionSiteDTO.getId(), tenantId)
             .map(existingProductionSite -> {
                 productionSiteMapper.partialUpdate(existingProductionSite, productionSiteDTO);
-
                 return existingProductionSite;
             })
             .map(productionSiteRepository::save)
@@ -90,6 +94,7 @@ public class ProductionSiteService {
 
     /**
      * Get one productionSite by id.
+     * Users can only access production sites from their own tenant.
      *
      * @param id the id of the entity.
      * @return the entity.
@@ -97,16 +102,39 @@ public class ProductionSiteService {
     @Transactional(readOnly = true)
     public Optional<ProductionSiteDTO> findOne(Long id) {
         LOG.debug("Request to get ProductionSite : {}", id);
-        return productionSiteRepository.findById(id).map(productionSiteMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return productionSiteRepository.findByIdAndTenant_Id(id, tenantId).map(productionSiteMapper::toDto);
     }
 
     /**
      * Delete the productionSite by id.
+     * Users can only delete production sites from their own tenant.
      *
      * @param id the id of the entity.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete ProductionSite : {}", id);
-        productionSiteRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            productionSiteRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a productionSite exists by id within the current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists in the current tenant, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return productionSiteRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

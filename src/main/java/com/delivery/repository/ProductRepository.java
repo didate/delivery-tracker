@@ -12,4 +12,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductRepository extends JpaRepository<Product, Long>, JpaSpecificationExecutor<Product> {
     Optional<Product> findByCode(String code);
+    Optional<Product> findByIdAndTenant_Id(Long id, Long tenantId);
+    boolean existsByIdAndTenant_Id(Long id, Long tenantId);
+    void deleteByIdAndTenant_Id(Long id, Long tenantId);
 }

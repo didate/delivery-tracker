@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.ExpenseRepository;
 import com.delivery.service.ExpenseQueryService;
 import com.delivery.service.ExpenseService;
 import com.delivery.service.criteria.ExpenseCriteria;
@@ -42,13 +41,10 @@ public class ExpenseResource {
 
     private final ExpenseService expenseService;
 
-    private final ExpenseRepository expenseRepository;
-
     private final ExpenseQueryService expenseQueryService;
 
-    public ExpenseResource(ExpenseService expenseService, ExpenseRepository expenseRepository, ExpenseQueryService expenseQueryService) {
+    public ExpenseResource(ExpenseService expenseService, ExpenseQueryService expenseQueryService) {
         this.expenseService = expenseService;
-        this.expenseRepository = expenseRepository;
         this.expenseQueryService = expenseQueryService;
     }
 
@@ -94,7 +90,7 @@ public class ExpenseResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!expenseRepository.existsById(id)) {
+        if (!expenseService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -128,7 +124,7 @@ public class ExpenseResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!expenseRepository.existsById(id)) {
+        if (!expenseService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

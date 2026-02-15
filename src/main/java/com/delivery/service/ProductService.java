@@ -73,6 +73,12 @@ public class ProductService {
      */
     public ProductDTO update(ProductDTO productDTO) {
         LOG.debug("Request to update Product : {}", productDTO);
+
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || !productRepository.existsByIdAndTenant_Id(productDTO.getId(), tenantId)) {
+            throw new IllegalArgumentException("Entity not found or access denied");
+        }
+
         validateCodeUniqueness(productDTO.getCode(), productDTO.getId());
 
         // Check if price is changing and log old price to history
@@ -109,8 +115,13 @@ public class ProductService {
     public Optional<ProductDTO> partialUpdate(ProductDTO productDTO) {
         LOG.debug("Request to partially update Product : {}", productDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return productRepository
-            .findById(productDTO.getId())
+            .findByIdAndTenant_Id(productDTO.getId(), tenantId)
             .map(existingProduct -> {
                 BigDecimal oldPrice = existingProduct.getPrice();
                 BigDecimal newPrice = productDTO.getPrice();
@@ -143,7 +154,11 @@ public class ProductService {
     @Transactional(readOnly = true)
     public Optional<ProductDTO> findOne(Long id) {
         LOG.debug("Request to get Product : {}", id);
-        return productRepository.findById(id).map(productMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return productRepository.findByIdAndTenant_Id(id, tenantId).map(productMapper::toDto);
     }
 
     /**
@@ -153,7 +168,27 @@ public class ProductService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Product : {}", id);
-        productRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            productRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a product exists by id with tenant filtering.
+     * Verifies both existence and tenant ownership.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists and belongs to the current tenant.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        LOG.debug("Request to check if Product exists : {}", id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return productRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 
     private void validateCodeUniqueness(String code, Long productId) {

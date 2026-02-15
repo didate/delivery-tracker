@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.TenantSettings;
 import com.delivery.repository.TenantSettingsRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.TenantSettingsCriteria;
 import com.delivery.service.dto.TenantSettingsDTO;
 import com.delivery.service.mapper.TenantSettingsMapper;
@@ -81,6 +82,7 @@ public class TenantSettingsQueryService extends QueryService<TenantSettings> {
                 buildSpecification(criteria.getTenantId(), root -> root.join(TenantSettings_.tenant, JoinType.LEFT).get(Tenant_.id))
             );
         }
-        return specification;
+        // Apply automatic tenant filtering
+        return TenantSpecifications.withTenantFilter(specification, TenantSettings_.tenant, Tenant_.id);
     }
 }

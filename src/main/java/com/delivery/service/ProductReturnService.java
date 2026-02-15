@@ -1,7 +1,6 @@
 package com.delivery.service;
 
 import com.delivery.domain.ProductReturn;
-import com.delivery.domain.Tenant;
 import com.delivery.repository.ProductReturnRepository;
 import com.delivery.repository.TenantRepository;
 import com.delivery.security.TenantContext;
@@ -63,6 +62,11 @@ public class ProductReturnService {
      */
     public ProductReturnDTO update(ProductReturnDTO productReturnDTO) {
         LOG.debug("Request to update ProductReturn : {}", productReturnDTO);
+        // Verify tenant ownership
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || !productReturnRepository.existsByIdAndTenant_Id(productReturnDTO.getId(), tenantId)) {
+            throw new IllegalArgumentException("Entity not found or access denied");
+        }
         ProductReturn productReturn = productReturnMapper.toEntity(productReturnDTO);
         productReturn = productReturnRepository.save(productReturn);
         return productReturnMapper.toDto(productReturn);
@@ -70,6 +74,7 @@ public class ProductReturnService {
 
     /**
      * Partially update a productReturn.
+     * Users can only update productReturns from their own tenant.
      *
      * @param productReturnDTO the entity to update partially.
      * @return the persisted entity.
@@ -77,11 +82,15 @@ public class ProductReturnService {
     public Optional<ProductReturnDTO> partialUpdate(ProductReturnDTO productReturnDTO) {
         LOG.debug("Request to partially update ProductReturn : {}", productReturnDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return productReturnRepository
-            .findById(productReturnDTO.getId())
+            .findByIdAndTenant_Id(productReturnDTO.getId(), tenantId)
             .map(existingProductReturn -> {
                 productReturnMapper.partialUpdate(existingProductReturn, productReturnDTO);
-
                 return existingProductReturn;
             })
             .map(productReturnRepository::save)
@@ -90,6 +99,7 @@ public class ProductReturnService {
 
     /**
      * Get one productReturn by id.
+     * Users can only access productReturns from their own tenant.
      *
      * @param id the id of the entity.
      * @return the entity.
@@ -97,16 +107,41 @@ public class ProductReturnService {
     @Transactional(readOnly = true)
     public Optional<ProductReturnDTO> findOne(Long id) {
         LOG.debug("Request to get ProductReturn : {}", id);
-        return productReturnRepository.findById(id).map(productReturnMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return productReturnRepository.findByIdAndTenant_Id(id, tenantId).map(productReturnMapper::toDto);
+    }
+
+    /**
+     * Check if a productReturn exists by id.
+     * Users can only check productReturns from their own tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        LOG.debug("Request to check if ProductReturn exists : {}", id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return productReturnRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 
     /**
      * Delete the productReturn by id.
+     * Users can only delete productReturns from their own tenant.
      *
      * @param id the id of the entity.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete ProductReturn : {}", id);
-        productReturnRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            productReturnRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
     }
 }

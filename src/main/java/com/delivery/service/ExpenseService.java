@@ -73,8 +73,12 @@ public class ExpenseService {
     public Optional<ExpenseDTO> partialUpdate(ExpenseDTO expenseDTO) {
         LOG.debug("Request to partially update Expense : {}", expenseDTO);
 
+        if (!TenantContext.hasTenant()) {
+            return Optional.empty();
+        }
+
         return expenseRepository
-            .findById(expenseDTO.getId())
+            .findByIdAndTenant_Id(expenseDTO.getId(), TenantContext.getCurrentTenant())
             .map(existingExpense -> {
                 expenseMapper.partialUpdate(existingExpense, expenseDTO);
 
@@ -93,7 +97,10 @@ public class ExpenseService {
     @Transactional(readOnly = true)
     public Optional<ExpenseDTO> findOne(Long id) {
         LOG.debug("Request to get Expense : {}", id);
-        return expenseRepository.findById(id).map(expenseMapper::toDto);
+        if (!TenantContext.hasTenant()) {
+            return Optional.empty();
+        }
+        return expenseRepository.findByIdAndTenant_Id(id, TenantContext.getCurrentTenant()).map(expenseMapper::toDto);
     }
 
     /**
@@ -103,6 +110,23 @@ public class ExpenseService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Expense : {}", id);
-        expenseRepository.deleteById(id);
+        if (TenantContext.hasTenant()) {
+            expenseRepository.deleteByIdAndTenant_Id(id, TenantContext.getCurrentTenant());
+        }
+    }
+
+    /**
+     * Check if expense exists by id within current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return expenseRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

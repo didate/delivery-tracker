@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.ProductRepository;
 import com.delivery.service.ProductQueryService;
 import com.delivery.service.ProductService;
 import com.delivery.service.criteria.ProductCriteria;
@@ -42,13 +41,10 @@ public class ProductResource {
 
     private final ProductService productService;
 
-    private final ProductRepository productRepository;
-
     private final ProductQueryService productQueryService;
 
-    public ProductResource(ProductService productService, ProductRepository productRepository, ProductQueryService productQueryService) {
+    public ProductResource(ProductService productService, ProductQueryService productQueryService) {
         this.productService = productService;
-        this.productRepository = productRepository;
         this.productQueryService = productQueryService;
     }
 
@@ -94,7 +90,7 @@ public class ProductResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productRepository.existsById(id)) {
+        if (!productService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -128,7 +124,7 @@ public class ProductResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productRepository.existsById(id)) {
+        if (!productService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

@@ -1,7 +1,6 @@
 package com.delivery.service;
 
 import com.delivery.domain.Customer;
-import com.delivery.domain.Tenant;
 import com.delivery.repository.CustomerRepository;
 import com.delivery.repository.TenantRepository;
 import com.delivery.security.TenantContext;
@@ -53,19 +52,40 @@ public class CustomerService {
 
     /**
      * Update a customer.
+     * Users can only update customers from their current tenant.
      *
      * @param customerDTO the entity to save.
      * @return the persisted entity.
      */
     public CustomerDTO update(CustomerDTO customerDTO) {
         LOG.debug("Request to update Customer : {}", customerDTO);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || !customerRepository.existsByIdAndTenant_Id(customerDTO.getId(), tenantId)) {
+            throw new IllegalArgumentException("Entity not found or access denied");
+        }
         Customer customer = customerMapper.toEntity(customerDTO);
         customer = customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }
 
     /**
+     * Check if a customer exists by id within the current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if exists in current tenant.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return customerRepository.existsByIdAndTenant_Id(id, tenantId);
+    }
+
+    /**
      * Partially update a customer.
+     * Users can only update customers from their current tenant.
      *
      * @param customerDTO the entity to update partially.
      * @return the persisted entity.
@@ -73,11 +93,15 @@ public class CustomerService {
     public Optional<CustomerDTO> partialUpdate(CustomerDTO customerDTO) {
         LOG.debug("Request to partially update Customer : {}", customerDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return customerRepository
-            .findById(customerDTO.getId())
+            .findByIdAndTenant_Id(customerDTO.getId(), tenantId)
             .map(existingCustomer -> {
                 customerMapper.partialUpdate(existingCustomer, customerDTO);
-
                 return existingCustomer;
             })
             .map(customerRepository::save)
@@ -85,7 +109,7 @@ public class CustomerService {
     }
 
     /**
-     * Get one customer by id.
+     * Get one customer by id within the current tenant.
      *
      * @param id the id of the entity.
      * @return the entity.
@@ -93,16 +117,23 @@ public class CustomerService {
     @Transactional(readOnly = true)
     public Optional<CustomerDTO> findOne(Long id) {
         LOG.debug("Request to get Customer : {}", id);
-        return customerRepository.findById(id).map(customerMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return customerRepository.findByIdAndTenant_Id(id, tenantId).map(customerMapper::toDto);
     }
 
     /**
-     * Delete the customer by id.
+     * Delete the customer by id within the current tenant.
      *
      * @param id the id of the entity.
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Customer : {}", id);
-        customerRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            customerRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
     }
 }

@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.CustomerRepository;
 import com.delivery.service.CustomerQueryService;
 import com.delivery.service.CustomerService;
 import com.delivery.service.criteria.CustomerCriteria;
@@ -42,17 +41,10 @@ public class CustomerResource {
 
     private final CustomerService customerService;
 
-    private final CustomerRepository customerRepository;
-
     private final CustomerQueryService customerQueryService;
 
-    public CustomerResource(
-        CustomerService customerService,
-        CustomerRepository customerRepository,
-        CustomerQueryService customerQueryService
-    ) {
+    public CustomerResource(CustomerService customerService, CustomerQueryService customerQueryService) {
         this.customerService = customerService;
-        this.customerRepository = customerRepository;
         this.customerQueryService = customerQueryService;
     }
 
@@ -98,7 +90,7 @@ public class CustomerResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!customerRepository.existsById(id)) {
+        if (!customerService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -132,7 +124,7 @@ public class CustomerResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!customerRepository.existsById(id)) {
+        if (!customerService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

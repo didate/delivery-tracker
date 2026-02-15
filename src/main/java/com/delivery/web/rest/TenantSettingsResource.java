@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.TenantSettingsRepository;
 import com.delivery.service.TenantSettingsQueryService;
 import com.delivery.service.TenantSettingsService;
 import com.delivery.service.criteria.TenantSettingsCriteria;
@@ -42,17 +41,10 @@ public class TenantSettingsResource {
 
     private final TenantSettingsService tenantSettingsService;
 
-    private final TenantSettingsRepository tenantSettingsRepository;
-
     private final TenantSettingsQueryService tenantSettingsQueryService;
 
-    public TenantSettingsResource(
-        TenantSettingsService tenantSettingsService,
-        TenantSettingsRepository tenantSettingsRepository,
-        TenantSettingsQueryService tenantSettingsQueryService
-    ) {
+    public TenantSettingsResource(TenantSettingsService tenantSettingsService, TenantSettingsQueryService tenantSettingsQueryService) {
         this.tenantSettingsService = tenantSettingsService;
-        this.tenantSettingsRepository = tenantSettingsRepository;
         this.tenantSettingsQueryService = tenantSettingsQueryService;
     }
 
@@ -99,7 +91,7 @@ public class TenantSettingsResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!tenantSettingsRepository.existsById(id)) {
+        if (!tenantSettingsService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -133,7 +125,7 @@ public class TenantSettingsResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!tenantSettingsRepository.existsById(id)) {
+        if (!tenantSettingsService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

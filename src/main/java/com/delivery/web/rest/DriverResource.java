@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.DriverRepository;
 import com.delivery.service.DriverQueryService;
 import com.delivery.service.DriverService;
 import com.delivery.service.criteria.DriverCriteria;
@@ -42,13 +41,10 @@ public class DriverResource {
 
     private final DriverService driverService;
 
-    private final DriverRepository driverRepository;
-
     private final DriverQueryService driverQueryService;
 
-    public DriverResource(DriverService driverService, DriverRepository driverRepository, DriverQueryService driverQueryService) {
+    public DriverResource(DriverService driverService, DriverQueryService driverQueryService) {
         this.driverService = driverService;
-        this.driverRepository = driverRepository;
         this.driverQueryService = driverQueryService;
     }
 
@@ -94,7 +90,7 @@ public class DriverResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!driverRepository.existsById(id)) {
+        if (!driverService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -128,7 +124,7 @@ public class DriverResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!driverRepository.existsById(id)) {
+        if (!driverService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

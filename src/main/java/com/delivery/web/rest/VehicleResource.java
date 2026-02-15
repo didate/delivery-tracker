@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.VehicleRepository;
 import com.delivery.service.VehicleQueryService;
 import com.delivery.service.VehicleService;
 import com.delivery.service.criteria.VehicleCriteria;
@@ -42,13 +41,10 @@ public class VehicleResource {
 
     private final VehicleService vehicleService;
 
-    private final VehicleRepository vehicleRepository;
-
     private final VehicleQueryService vehicleQueryService;
 
-    public VehicleResource(VehicleService vehicleService, VehicleRepository vehicleRepository, VehicleQueryService vehicleQueryService) {
+    public VehicleResource(VehicleService vehicleService, VehicleQueryService vehicleQueryService) {
         this.vehicleService = vehicleService;
-        this.vehicleRepository = vehicleRepository;
         this.vehicleQueryService = vehicleQueryService;
     }
 
@@ -94,7 +90,7 @@ public class VehicleResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!vehicleRepository.existsById(id)) {
+        if (!vehicleService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -128,7 +124,7 @@ public class VehicleResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!vehicleRepository.existsById(id)) {
+        if (!vehicleService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

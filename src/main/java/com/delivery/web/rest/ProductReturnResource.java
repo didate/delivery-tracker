@@ -1,6 +1,5 @@
 package com.delivery.web.rest;
 
-import com.delivery.repository.ProductReturnRepository;
 import com.delivery.service.ProductReturnQueryService;
 import com.delivery.service.ProductReturnService;
 import com.delivery.service.criteria.ProductReturnCriteria;
@@ -42,17 +41,10 @@ public class ProductReturnResource {
 
     private final ProductReturnService productReturnService;
 
-    private final ProductReturnRepository productReturnRepository;
-
     private final ProductReturnQueryService productReturnQueryService;
 
-    public ProductReturnResource(
-        ProductReturnService productReturnService,
-        ProductReturnRepository productReturnRepository,
-        ProductReturnQueryService productReturnQueryService
-    ) {
+    public ProductReturnResource(ProductReturnService productReturnService, ProductReturnQueryService productReturnQueryService) {
         this.productReturnService = productReturnService;
-        this.productReturnRepository = productReturnRepository;
         this.productReturnQueryService = productReturnQueryService;
     }
 
@@ -99,7 +91,7 @@ public class ProductReturnResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productReturnRepository.existsById(id)) {
+        if (!productReturnService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 
@@ -133,7 +125,7 @@ public class ProductReturnResource {
             throw new BadRequestAlertException("Invalid ID", ENTITY_NAME, "idinvalid");
         }
 
-        if (!productReturnRepository.existsById(id)) {
+        if (!productReturnService.existsById(id)) {
             throw new BadRequestAlertException("Entity not found", ENTITY_NAME, "idnotfound");
         }
 

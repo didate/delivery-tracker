@@ -59,6 +59,10 @@ public class DeliveryService {
      */
     public DeliveryDTO update(DeliveryDTO deliveryDTO) {
         LOG.debug("Request to update Delivery : {}", deliveryDTO);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null || !deliveryRepository.existsByIdAndTenant_Id(deliveryDTO.getId(), tenantId)) {
+            throw new IllegalArgumentException("Entity not found or access denied");
+        }
         Delivery delivery = deliveryMapper.toEntity(deliveryDTO);
         delivery = deliveryRepository.save(delivery);
         return deliveryMapper.toDto(delivery);
@@ -73,8 +77,13 @@ public class DeliveryService {
     public Optional<DeliveryDTO> partialUpdate(DeliveryDTO deliveryDTO) {
         LOG.debug("Request to partially update Delivery : {}", deliveryDTO);
 
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+
         return deliveryRepository
-            .findById(deliveryDTO.getId())
+            .findByIdAndTenant_Id(deliveryDTO.getId(), tenantId)
             .map(existingDelivery -> {
                 deliveryMapper.partialUpdate(existingDelivery, deliveryDTO);
 
@@ -93,7 +102,11 @@ public class DeliveryService {
     @Transactional(readOnly = true)
     public Optional<DeliveryDTO> findOne(Long id) {
         LOG.debug("Request to get Delivery : {}", id);
-        return deliveryRepository.findById(id).map(deliveryMapper::toDto);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return Optional.empty();
+        }
+        return deliveryRepository.findByIdAndTenant_Id(id, tenantId).map(deliveryMapper::toDto);
     }
 
     /**
@@ -103,6 +116,25 @@ public class DeliveryService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete Delivery : {}", id);
-        deliveryRepository.deleteById(id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId != null) {
+            deliveryRepository.deleteByIdAndTenant_Id(id, tenantId);
+        }
+    }
+
+    /**
+     * Check if a delivery exists by id with tenant filtering.
+     *
+     * @param id the id of the entity.
+     * @return true if the entity exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        LOG.debug("Request to check if Delivery exists : {}", id);
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return deliveryRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }

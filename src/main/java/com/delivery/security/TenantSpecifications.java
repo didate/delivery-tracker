@@ -14,29 +14,23 @@ public final class TenantSpecifications {
 
     /**
      * Creates a specification that filters by the current tenant.
-     * If the current user is an ADMIN, no filtering is applied.
-     * If no tenant is set in TenantContext, no filtering is applied (for unauthenticated requests).
+     * All users (including ADMIN) operate within their current tenant context.
+     * ADMIN users can switch tenants via the tenant switcher.
      *
      * @param tenantAttribute the metamodel attribute for the tenant relationship
      * @param tenantIdAttribute the metamodel attribute for the tenant's id
      * @param <T> the entity type
      * @param <X> the tenant entity type
-     * @return a specification that filters by tenant, or unrestricted if not applicable
+     * @return a specification that filters by tenant, or unrestricted if no tenant context
      */
     public static <T, X> Specification<T> forCurrentTenant(
         SingularAttribute<T, X> tenantAttribute,
         SingularAttribute<X, Long> tenantIdAttribute
     ) {
-        // ADMIN can see all tenants
-        if (SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN)) {
-            return Specification.unrestricted();
-        }
-
         Long tenantId = TenantContext.getCurrentTenant();
         if (tenantId == null) {
-            // No tenant in context - this shouldn't happen for authenticated requests
-            // Return unrestricted for safety (security should be handled elsewhere)
-            return Specification.unrestricted();
+            // No tenant in context - return empty result for safety
+            return (root, query, criteriaBuilder) -> criteriaBuilder.disjunction();
         }
 
         return (root, query, criteriaBuilder) ->
@@ -66,11 +60,12 @@ public final class TenantSpecifications {
     }
 
     /**
-     * Check if the current user should have tenant filtering applied.
+     * Check if tenant filtering should be applied.
+     * Always returns true if a tenant context exists.
      *
      * @return true if tenant filtering should be applied
      */
     public static boolean shouldFilterByTenant() {
-        return !SecurityUtils.hasCurrentUserThisAuthority(AuthoritiesConstants.ADMIN) && TenantContext.hasTenant();
+        return TenantContext.hasTenant();
     }
 }

@@ -77,8 +77,12 @@ public class ExpenseCategoryService {
     public Optional<ExpenseCategoryDTO> partialUpdate(ExpenseCategoryDTO expenseCategoryDTO) {
         LOG.debug("Request to partially update ExpenseCategory : {}", expenseCategoryDTO);
 
+        if (!TenantContext.hasTenant()) {
+            return Optional.empty();
+        }
+
         return expenseCategoryRepository
-            .findById(expenseCategoryDTO.getId())
+            .findByIdAndTenant_Id(expenseCategoryDTO.getId(), TenantContext.getCurrentTenant())
             .map(existingExpenseCategory -> {
                 expenseCategoryMapper.partialUpdate(existingExpenseCategory, expenseCategoryDTO);
 
@@ -97,7 +101,10 @@ public class ExpenseCategoryService {
     @Transactional(readOnly = true)
     public Optional<ExpenseCategoryDTO> findOne(Long id) {
         LOG.debug("Request to get ExpenseCategory : {}", id);
-        return expenseCategoryRepository.findById(id).map(expenseCategoryMapper::toDto);
+        if (!TenantContext.hasTenant()) {
+            return Optional.empty();
+        }
+        return expenseCategoryRepository.findByIdAndTenant_Id(id, TenantContext.getCurrentTenant()).map(expenseCategoryMapper::toDto);
     }
 
     /**
@@ -107,6 +114,23 @@ public class ExpenseCategoryService {
      */
     public void delete(Long id) {
         LOG.debug("Request to delete ExpenseCategory : {}", id);
-        expenseCategoryRepository.deleteById(id);
+        if (TenantContext.hasTenant()) {
+            expenseCategoryRepository.deleteByIdAndTenant_Id(id, TenantContext.getCurrentTenant());
+        }
+    }
+
+    /**
+     * Check if expenseCategory exists by id within current tenant.
+     *
+     * @param id the id of the entity.
+     * @return true if entity exists, false otherwise.
+     */
+    @Transactional(readOnly = true)
+    public boolean existsById(Long id) {
+        Long tenantId = TenantContext.getCurrentTenant();
+        if (tenantId == null) {
+            return false;
+        }
+        return expenseCategoryRepository.existsByIdAndTenant_Id(id, tenantId);
     }
 }
