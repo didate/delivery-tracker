@@ -12,7 +12,7 @@
       "updated": "Le Chauffeur avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "Le Chauffeur avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Chauffeur {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ce chauffeur ?"
       },
       "detail": {
         "title": "Chauffeur"

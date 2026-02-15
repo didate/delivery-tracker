@@ -12,7 +12,7 @@
       "updated": "Le Retour de produit avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "Le Retour de produit avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Retour de produit {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ce retour de produit ?"
       },
       "detail": {
         "title": "Retour de produit"

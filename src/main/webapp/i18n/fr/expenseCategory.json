@@ -12,7 +12,7 @@
       "updated": "La Catégorie de dépense avec l'identifiant {{ param }} a été mise à jour",
       "deleted": "La Catégorie de dépense avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer la Catégorie de dépense {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cette catégorie de dépense ?"
       },
       "detail": {
         "title": "Catégorie de dépense"

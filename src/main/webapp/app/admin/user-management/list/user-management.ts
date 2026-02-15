@@ -5,7 +5,7 @@ import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalService } from 'app/shared/modal';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { combineLatest } from 'rxjs';
 
 import { SORT } from 'app/config/navigation.constants';
@@ -16,7 +16,6 @@ import { AlertError } from 'app/shared/alert/alert-error';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, SortState, sortStateSignal } from 'app/shared/sort';
-import UserManagementDeleteDialog from '../delete/user-management-delete-dialog';
 import { UserManagementService } from '../service/user-management.service';
 import { User } from '../user-management.model';
 
@@ -51,6 +50,7 @@ export default class UserManagement implements OnInit {
   private readonly router = inject(Router);
   private readonly sortService = inject(SortService);
   private readonly modalService = inject(ModalService);
+  private readonly translateService = inject(TranslateService);
 
   ngOnInit(): void {
     this.handleNavigation();
@@ -65,13 +65,14 @@ export default class UserManagement implements OnInit {
   }
 
   deleteUser(user: User): void {
-    const modalRef = this.modalService.open(UserManagementDeleteDialog, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.user = user;
-    // unsubscribe not needed because closed completes on modal close
-    modalRef.closed.subscribe(reason => {
-      if (reason === 'deleted') {
-        this.loadAll();
-      }
+    this.modalService.confirm({
+      title: 'entity.delete.title',
+      message: 'userManagement.delete.question',
+      confirmText: 'entity.action.delete',
+      confirmButtonType: 'danger',
+      onConfirm: () => {
+        this.userService.delete(user.login!).subscribe(() => this.loadAll());
+      },
     });
   }
 

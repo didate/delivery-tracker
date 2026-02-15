@@ -4,16 +4,15 @@ import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/rou
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalService } from 'app/shared/modal';
-import { TranslateModule } from '@ngx-translate/core';
-import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Observable, Subscription, combineLatest, finalize, tap } from 'rxjs';
 
-import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
+import { DEFAULT_SORT_DATA, SORT } from 'app/config/navigation.constants';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { TranslateDirective } from 'app/shared/language';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
 import { IAuthority } from '../authority.model';
-import { AuthorityDeleteDialog } from '../delete/authority-delete-dialog';
 import { AuthorityService, EntityArrayResponseType } from '../service/authority.service';
 
 @Component({
@@ -43,6 +42,7 @@ export class Authority implements OnInit {
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
   protected modalService = inject(ModalService);
+  protected translateService = inject(TranslateService);
 
   trackName = (item: IAuthority): string => this.authorityService.getAuthorityIdentifier(item);
 
@@ -62,15 +62,15 @@ export class Authority implements OnInit {
   }
 
   delete(authority: IAuthority): void {
-    const modalRef = this.modalService.open(AuthorityDeleteDialog, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.authority = authority;
-    // unsubscribe not needed because closed completes on modal close
-    modalRef.closed
-      .pipe(
-        filter(reason => reason === ITEM_DELETED_EVENT),
-        tap(() => this.load()),
-      )
-      .subscribe();
+    this.modalService.confirm({
+      title: 'entity.delete.title',
+      message: 'deliveryApp.authority.delete.question',
+      confirmText: 'entity.action.delete',
+      confirmButtonType: 'danger',
+      onConfirm: () => {
+        this.authorityService.delete(authority.name).subscribe(() => this.load());
+      },
+    });
   }
 
   load(): void {

@@ -12,7 +12,7 @@
       "updated": "A Product Return is updated with identifier {{ param }}",
       "deleted": "A Product Return is deleted with identifier {{ param }}",
       "delete": {
-        "question": "Are you sure you want to delete Product Return {{ id }}?"
+        "question": "Are you sure you want to delete this product return?"
       },
       "detail": {
         "title": "Product Return"

@@ -12,7 +12,7 @@
       "updated": "Le Paiement avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "Le Paiement avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Paiement {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ce paiement ?"
       },
       "detail": {
         "title": "Paiement"

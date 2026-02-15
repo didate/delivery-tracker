@@ -12,7 +12,7 @@
       "updated": "Le Client avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "Le Client avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Client {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ce client ?"
       },
       "detail": {
         "title": "Client"

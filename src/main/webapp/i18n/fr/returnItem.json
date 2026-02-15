@@ -12,7 +12,7 @@
       "updated": "L'Article retourné avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "L'Article retourné avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer l'Article retourné {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cet article de retour ?"
       },
       "detail": {
         "title": "Article retourné"

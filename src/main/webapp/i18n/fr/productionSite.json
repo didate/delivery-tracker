@@ -12,7 +12,7 @@
       "updated": "Le Site de production avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "Le Site de production avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Site de production {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ce site de production ?"
       },
       "detail": {
         "title": "Site de production"

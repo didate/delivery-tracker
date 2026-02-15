@@ -12,7 +12,7 @@
       "updated": "L'Historique de prix avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "L'Historique de prix avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer l'Historique de prix {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cet historique de prix ?"
       },
       "detail": {
         "title": "Historique de prix"

@@ -5,10 +5,10 @@ import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/rou
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalService } from 'app/shared/modal';
-import { TranslateModule } from '@ngx-translate/core';
-import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
+import { Observable, Subscription, combineLatest, finalize, tap } from 'rxjs';
 
-import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
+import { DEFAULT_SORT_DATA, SORT } from 'app/config/navigation.constants';
 import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
@@ -18,7 +18,6 @@ import { Filter, FilterOptions, IFilterOption, IFilterOptions } from 'app/shared
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
-import { PriceHistoryDeleteDialog } from '../delete/price-history-delete-dialog';
 import { IPriceHistory } from '../price-history.model';
 import { EntityArrayResponseType, PriceHistoryService } from '../service/price-history.service';
 
@@ -59,6 +58,7 @@ export class PriceHistory implements OnInit {
   protected readonly activatedRoute = inject(ActivatedRoute);
   protected readonly sortService = inject(SortService);
   protected modalService = inject(ModalService);
+  protected translateService = inject(TranslateService);
 
   trackId = (item: IPriceHistory): number => this.priceHistoryService.getPriceHistoryIdentifier(item);
 
@@ -74,15 +74,15 @@ export class PriceHistory implements OnInit {
   }
 
   delete(priceHistory: IPriceHistory): void {
-    const modalRef = this.modalService.open(PriceHistoryDeleteDialog, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.priceHistory = priceHistory;
-    // unsubscribe not needed because closed completes on modal close
-    modalRef.closed
-      .pipe(
-        filter(reason => reason === ITEM_DELETED_EVENT),
-        tap(() => this.load()),
-      )
-      .subscribe();
+    this.modalService.confirm({
+      title: 'entity.delete.title',
+      message: 'deliveryApp.priceHistory.delete.question',
+      confirmText: 'entity.action.delete',
+      confirmButtonType: 'danger',
+      onConfirm: () => {
+        this.priceHistoryService.delete(priceHistory.id).subscribe(() => this.load());
+      },
+    });
   }
 
   load(): void {

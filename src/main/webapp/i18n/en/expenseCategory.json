@@ -12,7 +12,7 @@
       "updated": "A Expense Category is updated with identifier {{ param }}",
       "deleted": "A Expense Category is deleted with identifier {{ param }}",
       "delete": {
-        "question": "Are you sure you want to delete Expense Category {{ id }}?"
+        "question": "Are you sure you want to delete this expense category?"
       },
       "detail": {
         "title": "Expense Category"

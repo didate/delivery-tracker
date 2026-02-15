@@ -12,7 +12,7 @@
       "updated": "Le Locataire avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "Le Locataire avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Locataire {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ce locataire ?"
       },
       "detail": {
         "title": "Locataire"

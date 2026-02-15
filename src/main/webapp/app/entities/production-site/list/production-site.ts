@@ -6,9 +6,9 @@ import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/rou
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
+import { Observable, Subscription, combineLatest, finalize, tap } from 'rxjs';
 
-import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
+import { DEFAULT_SORT_DATA, SORT } from 'app/config/navigation.constants';
 import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 import { DataUtils } from 'app/core/util/data-util.service';
 import { Alert } from 'app/shared/alert/alert';
@@ -18,7 +18,6 @@ import { ResponsiveTableDirective } from 'app/shared/directives';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
-import { ProductionSiteDeleteDialog } from '../delete/production-site-delete-dialog';
 import { IProductionSite } from '../production-site.model';
 import { EntityArrayResponseType, ProductionSiteService } from '../service/production-site.service';
 
@@ -82,15 +81,15 @@ export class ProductionSite implements OnInit {
   }
 
   delete(productionSite: IProductionSite): void {
-    const modalRef = this.modalService.open(ProductionSiteDeleteDialog, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.productionSite = productionSite;
-    // unsubscribe not needed because closed completes on modal close
-    modalRef.closed
-      .pipe(
-        filter(reason => reason === ITEM_DELETED_EVENT),
-        tap(() => this.load()),
-      )
-      .subscribe();
+    this.modalService.confirm({
+      title: 'entity.delete.title',
+      message: 'deliveryApp.productionSite.delete.question',
+      confirmText: 'entity.action.delete',
+      confirmButtonType: 'danger',
+      onConfirm: () => {
+        this.productionSiteService.delete(productionSite.id).subscribe(() => this.load());
+      },
+    });
   }
 
   load(): void {

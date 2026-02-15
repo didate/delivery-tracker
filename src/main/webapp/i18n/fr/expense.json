@@ -12,7 +12,7 @@
       "updated": "La Dépense avec l'identifiant {{ param }} a été mise à jour",
       "deleted": "La Dépense avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer la Dépense {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cette dépense ?"
       },
       "detail": {
         "title": "Dépense"

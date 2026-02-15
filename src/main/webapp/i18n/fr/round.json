@@ -12,7 +12,7 @@
       "updated": "La Tournée avec l'identifiant {{ param }} a été mise à jour",
       "deleted": "La Tournée avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer la Tournée {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cette tournée ?"
       },
       "detail": {
         "title": "Tournée"

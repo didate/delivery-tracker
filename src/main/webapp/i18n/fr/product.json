@@ -14,7 +14,7 @@
       "deactivated": "Le produit {{ param }} a été désactivé",
       "reactivated": "Le produit {{ param }} a été réactivé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer le Produit {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ce produit ?"
       },
       "deactivate": {
         "title": "Confirmer la désactivation",

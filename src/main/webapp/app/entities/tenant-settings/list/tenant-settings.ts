@@ -6,9 +6,9 @@ import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/rou
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalService } from 'app/shared/modal';
 import { TranslateModule } from '@ngx-translate/core';
-import { Observable, Subscription, combineLatest, filter, finalize, tap } from 'rxjs';
+import { Observable, Subscription, combineLatest, finalize, tap } from 'rxjs';
 
-import { DEFAULT_SORT_DATA, ITEM_DELETED_EVENT, SORT } from 'app/config/navigation.constants';
+import { DEFAULT_SORT_DATA, SORT } from 'app/config/navigation.constants';
 import { ITEMS_PER_PAGE, PAGE_HEADER, TOTAL_COUNT_RESPONSE_HEADER } from 'app/config/pagination.constants';
 import { Alert } from 'app/shared/alert/alert';
 import { AlertError } from 'app/shared/alert/alert-error';
@@ -17,7 +17,6 @@ import { ResponsiveTableDirective } from 'app/shared/directives';
 import { TranslateDirective } from 'app/shared/language';
 import { ItemCount, PaginationComponent } from 'app/shared/pagination';
 import { SortByDirective, SortDirective, SortService, type SortState, sortStateSignal } from 'app/shared/sort';
-import { TenantSettingsDeleteDialog } from '../delete/tenant-settings-delete-dialog';
 import { EntityArrayResponseType, TenantSettingsService } from '../service/tenant-settings.service';
 import { ITenantSettings } from '../tenant-settings.model';
 
@@ -72,15 +71,15 @@ export class TenantSettings implements OnInit {
   }
 
   delete(tenantSettings: ITenantSettings): void {
-    const modalRef = this.modalService.open(TenantSettingsDeleteDialog, { size: 'lg', backdrop: 'static' });
-    modalRef.componentInstance.tenantSettings = tenantSettings;
-    // unsubscribe not needed because closed completes on modal close
-    modalRef.closed
-      .pipe(
-        filter(reason => reason === ITEM_DELETED_EVENT),
-        tap(() => this.load()),
-      )
-      .subscribe();
+    this.modalService.confirm({
+      title: 'entity.delete.title',
+      message: 'deliveryApp.tenantSettings.delete.question',
+      confirmText: 'entity.action.delete',
+      confirmButtonType: 'danger',
+      onConfirm: () => {
+        this.tenantSettingsService.delete(tenantSettings.id).subscribe(() => this.load());
+      },
+    });
   }
 
   load(): void {

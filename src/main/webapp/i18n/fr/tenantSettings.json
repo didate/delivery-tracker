@@ -12,7 +12,7 @@
       "updated": "Les Paramètres de locataire avec l'identifiant {{ param }} ont été mis à jour",
       "deleted": "Les Paramètres de locataire avec l'identifiant {{ param }} ont été supprimés",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer les Paramètres de locataire {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer ces paramètres de locataire ?"
       },
       "detail": {
         "title": "Paramètres du locataire"

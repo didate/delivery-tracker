@@ -12,7 +12,7 @@
       "updated": "La Production avec l'identifiant {{ param }} a été mise à jour",
       "deleted": "La Production avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer la Production {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cette production ?"
       },
       "detail": {
         "title": "Production"

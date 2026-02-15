@@ -12,7 +12,7 @@
       "updated": "A Vehicle is updated with identifier {{ param }}",
       "deleted": "A Vehicle is deleted with identifier {{ param }}",
       "delete": {
-        "question": "Are you sure you want to delete Vehicle {{ id }}?"
+        "question": "Are you sure you want to delete this vehicle?"
       },
       "detail": {
         "title": "Vehicle"

@@ -12,7 +12,7 @@
       "updated": "L'Autorité avec l'identifiant {{ param }} a été mise à jour",
       "deleted": "L'Autorité avec l'identifiant {{ param }} a été supprimée",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer l'Autorité {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cette autorité ?"
       },
       "detail": {
         "title": "Autorité"

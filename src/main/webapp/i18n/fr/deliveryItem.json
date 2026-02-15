@@ -12,7 +12,7 @@
       "updated": "L'Article de livraison avec l'identifiant {{ param }} a été mis à jour",
       "deleted": "L'Article de livraison avec l'identifiant {{ param }} a été supprimé",
       "delete": {
-        "question": "Êtes-vous certain de vouloir supprimer l'Article de livraison {{ id }} ?"
+        "question": "Êtes-vous certain de vouloir supprimer cet article de livraison ?"
       },
       "detail": {
         "title": "Article de livraison"
