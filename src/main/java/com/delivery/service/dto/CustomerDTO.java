@@ -31,8 +31,12 @@ public class CustomerDTO implements Serializable {
     @Lob
     private String address;
 
+    @DecimalMin(value = "-90")
+    @DecimalMax(value = "90")
     private BigDecimal latitude;
 
+    @DecimalMin(value = "-180")
+    @DecimalMax(value = "180")
     private BigDecimal longitude;
 
     @NotNull

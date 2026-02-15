@@ -14,6 +14,18 @@
       "delete": {
         "question": "Are you sure you want to delete this customer?"
       },
+      "deactivate": {
+        "title": "Confirm Deactivation",
+        "question": "Are you sure you want to deactivate customer \"{{ name }}\"?",
+        "warning": "Deactivated customers will no longer be available for selection in new deliveries.",
+        "confirm": "Deactivate"
+      },
+      "reactivate": {
+        "title": "Confirm Reactivation",
+        "question": "Are you sure you want to reactivate customer \"{{ name }}\"?",
+        "warning": "Reactivated customers will be available for selection in new deliveries.",
+        "confirm": "Reactivate"
+      },
       "detail": {
         "title": "Customer"
       },

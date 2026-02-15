@@ -5,7 +5,7 @@ import { ActivatedRoute, Data, ParamMap, Router, RouterLink } from '@angular/rou
 
 import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { ModalService } from 'app/shared/modal';
-import { TranslateModule } from '@ngx-translate/core';
+import { TranslateModule, TranslateService } from '@ngx-translate/core';
 import { Observable, Subscription, combineLatest, finalize, tap } from 'rxjs';
 
 import { DEFAULT_SORT_DATA, SORT } from 'app/config/navigation.constants';
@@ -63,6 +63,7 @@ export class Customer implements OnInit {
   protected readonly sortService = inject(SortService);
   protected dataUtils = inject(DataUtils);
   protected modalService = inject(ModalService);
+  protected translateService = inject(TranslateService);
 
   trackId = (item: ICustomer): number => this.customerService.getCustomerIdentifier(item);
 
@@ -93,6 +94,24 @@ export class Customer implements OnInit {
       confirmButtonType: 'danger',
       onConfirm: () => {
         this.customerService.delete(customer.id).subscribe(() => this.load());
+      },
+    });
+  }
+
+  toggleActive(customer: ICustomer, activate: boolean): void {
+    const translationPrefix = activate ? 'deliveryApp.customer.reactivate' : 'deliveryApp.customer.deactivate';
+    const questionHtml = `<p>${this.translateService.instant(`${translationPrefix}.question`, { name: customer.name })}</p>
+      <p class="text-sm text-gray-500 mt-2">${this.translateService.instant(`${translationPrefix}.warning`)}</p>`;
+
+    this.modalService.confirm({
+      title: `${translationPrefix}.title`,
+      message: questionHtml,
+      rawMessage: true,
+      confirmText: `${translationPrefix}.confirm`,
+      confirmButtonType: activate ? 'success' : 'warning',
+      onConfirm: () => {
+        const updatedCustomer = { ...customer, active: activate };
+        this.customerService.update(updatedCustomer).subscribe(() => this.load());
       },
     });
   }

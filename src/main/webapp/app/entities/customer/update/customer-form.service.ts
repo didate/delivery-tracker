@@ -61,8 +61,12 @@ export class CustomerFormService {
         validators: [Validators.maxLength(100)],
       }),
       address: new FormControl(customerRawValue.address),
-      latitude: new FormControl(customerRawValue.latitude),
-      longitude: new FormControl(customerRawValue.longitude),
+      latitude: new FormControl(customerRawValue.latitude, {
+        validators: [Validators.min(-90), Validators.max(90)],
+      }),
+      longitude: new FormControl(customerRawValue.longitude, {
+        validators: [Validators.min(-180), Validators.max(180)],
+      }),
       active: new FormControl(customerRawValue.active, {
         validators: [Validators.required],
       }),
@@ -80,16 +84,18 @@ export class CustomerFormService {
 
   resetForm(form: CustomerFormGroup, customer: CustomerFormGroupInput): void {
     const customerRawValue = { ...this.getFormDefaults(), ...customer };
+    const isEditing = customerRawValue.id !== null;
     form.reset({
       ...customerRawValue,
       id: { value: customerRawValue.id, disabled: true },
+      code: { value: customerRawValue.code, disabled: isEditing },
     });
   }
 
   private getFormDefaults(): CustomerFormDefaults {
     return {
       id: null,
-      active: false,
+      active: true,
     };
   }
 }

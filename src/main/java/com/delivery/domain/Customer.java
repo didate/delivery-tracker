@@ -49,9 +49,13 @@ public class Customer implements Serializable {
     @Column(name = "address")
     private String address;
 
+    @DecimalMin(value = "-90")
+    @DecimalMax(value = "90")
     @Column(name = "latitude", precision = 21, scale = 2)
     private BigDecimal latitude;
 
+    @DecimalMin(value = "-180")
+    @DecimalMax(value = "180")
     @Column(name = "longitude", precision = 21, scale = 2)
     private BigDecimal longitude;
 

@@ -194,6 +194,28 @@
                       <fa-icon icon="pencil-alt" />
                     </a>
 
+                    @if (customer.active) {
+                      <button
+                        type="button"
+                        (click)="toggleActive(customer, false)"
+                        class="inline-flex items-center justify-center w-8 h-8 text-amber-500 hover:text-amber-700 hover:bg-amber-50 rounded transition-colors"
+                        data-cy="entityDeactivateButton"
+                        title="Deactivate"
+                      >
+                        <fa-icon icon="power-off" />
+                      </button>
+                    } @else {
+                      <button
+                        type="button"
+                        (click)="toggleActive(customer, true)"
+                        class="inline-flex items-center justify-center w-8 h-8 text-green-500 hover:text-green-700 hover:bg-green-50 rounded transition-colors"
+                        data-cy="entityReactivateButton"
+                        title="Reactivate"
+                      >
+                        <fa-icon icon="check" />
+                      </button>
+                    }
+
                     <button
                       type="button"
                       (click)="delete(customer)"

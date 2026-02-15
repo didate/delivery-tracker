@@ -51,6 +51,10 @@ export class CustomerUpdate implements OnInit {
 
   compareDriver = (o1: IDriver | null, o2: IDriver | null): boolean => this.driverService.compareDriver(o1, o2);
 
+  get isEditing(): boolean {
+    return this.customer?.id !== null && this.customer?.id !== undefined;
+  }
+
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ customer }) => {
       this.customer = customer;
