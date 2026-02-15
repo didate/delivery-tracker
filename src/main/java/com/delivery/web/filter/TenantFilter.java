@@ -17,7 +17,7 @@ import org.springframework.web.filter.OncePerRequestFilter;
  * This filter runs after the security filter chain has authenticated the user.
  */
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE + 100)
+@Order(0)
 public class TenantFilter extends OncePerRequestFilter {
 
     @Override

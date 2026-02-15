@@ -54,7 +54,7 @@ public class Vehicle implements Serializable {
     @Column(name = "registration_number", length = 20)
     private String registrationNumber;
 
-    @Column(name = "year")
+    @Column(name = "manufacture_year")
     private Integer year;
 
     @Column(name = "capacity", precision = 21, scale = 2)

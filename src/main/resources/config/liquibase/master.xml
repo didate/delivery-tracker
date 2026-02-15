@@ -58,5 +58,6 @@
     <!-- jhipster-needle-liquibase-add-constraints-changelog - JHipster will add liquibase constraints changelogs here -->
     <include file="config/liquibase/changelog/20260215000001_add_end_date_to_price_history.xml" relativeToChangelogFile="false"/>
     <include file="config/liquibase/changelog/20260215100000_add_tenant_to_user.xml" relativeToChangelogFile="false"/>
+    <include file="config/liquibase/changelog/20260215170000_rename_vehicle_year_column.xml" relativeToChangelogFile="false"/>
     <!-- jhipster-needle-liquibase-add-incremental-changelog - JHipster will add incremental liquibase changelogs here -->
 </databaseChangeLog>
