@@ -1,58 +1,157 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
-    @if (product(); as productRef) {
-      <div>
-        <h2 data-cy="productDetailsHeading"><span jhiTranslate="deliveryApp.product.detail.title">Product</span></h2>
+<div class="container mx-auto px-4 py-6">
+  @if (product(); as productRef) {
+    <div class="max-w-4xl mx-auto">
+      <h2 class="text-2xl font-bold text-gray-900 mb-4" data-cy="productDetailsHeading">
+        <span jhiTranslate="deliveryApp.product.detail.title">Product</span>
+      </h2>
 
-        <hr />
+      <jhi-alert-error />
+      <jhi-alert />
 
-        <jhi-alert-error />
+      <!-- Product Details Card -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200 mb-6">
+        <div class="p-6">
+          <dl class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <dt class="text-sm font-medium text-gray-500" jhiTranslate="deliveryApp.product.code">Code</dt>
+              <dd class="mt-1 text-lg text-gray-900">{{ productRef.code }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500" jhiTranslate="deliveryApp.product.name">Name</dt>
+              <dd class="mt-1 text-lg text-gray-900">{{ productRef.name }}</dd>
+            </div>
+            <div class="sm:col-span-2">
+              <dt class="text-sm font-medium text-gray-500" jhiTranslate="deliveryApp.product.description">Description</dt>
+              <dd class="mt-1 text-gray-900">{{ productRef.description || '-' }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500" jhiTranslate="deliveryApp.product.price">Price</dt>
+              <dd class="mt-1 text-lg font-semibold text-gray-900">{{ productRef.price | number: '1.2-2' }}</dd>
+            </div>
+            <div>
+              <dt class="text-sm font-medium text-gray-500" jhiTranslate="deliveryApp.product.active">Active</dt>
+              <dd class="mt-1">
+                @if (productRef.active) {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    <fa-icon icon="check-circle" class="mr-1"></fa-icon>
+                    {{ 'deliveryApp.product.status.active' | translate }}
+                  </span>
+                } @else {
+                  <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+                    <fa-icon icon="times" class="mr-1"></fa-icon>
+                    {{ 'deliveryApp.product.status.inactive' | translate }}
+                  </span>
+                }
+              </dd>
+            </div>
+          </dl>
+        </div>
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex gap-2">
+          <button
+            type="button"
+            (click)="previousState()"
+            class="inline-flex items-center px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+            data-cy="entityDetailsBackButton"
+          >
+            <fa-icon icon="arrow-left" class="mr-2"></fa-icon>
+            <span jhiTranslate="entity.action.back">Back</span>
+          </button>
+          <button
+            type="button"
+            [routerLink]="['/product', productRef.id, 'edit']"
+            class="inline-flex items-center px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+          >
+            <fa-icon icon="pencil-alt" class="mr-2"></fa-icon>
+            <span jhiTranslate="entity.action.edit">Edit</span>
+          </button>
+        </div>
+      </div>
 
-        <jhi-alert />
-
-        <dl class="row-md jh-entity-details">
-          <dt><span jhiTranslate="global.field.id">ID</span></dt>
-          <dd>
-            <span>{{ productRef.id }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.product.code">Code</span></dt>
-          <dd>
-            <span>{{ productRef.code }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.product.name">Name</span></dt>
-          <dd>
-            <span>{{ productRef.name }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.product.description">Description</span></dt>
-          <dd>
-            <span>{{ productRef.description }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.product.price">Price</span></dt>
-          <dd>
-            <span>{{ productRef.price }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.product.active">Active</span></dt>
-          <dd>
-            <span>{{ productRef.active }}</span>
-          </dd>
-          <dt><span jhiTranslate="deliveryApp.product.tenant">Tenant</span></dt>
-          <dd>
-            @if (product()!.tenant) {
-              <div>
-                <a [routerLink]="['/tenant', product()!.tenant?.id, 'view']">{{ productRef.tenant?.id }}</a>
+      <!-- Price History Section -->
+      <div class="bg-white rounded-lg shadow-sm border border-gray-200">
+        <div class="px-6 py-4 border-b border-gray-200">
+          <h3 class="text-lg font-semibold text-gray-900">
+            <fa-icon icon="history" class="mr-2 text-gray-500"></fa-icon>
+            <span jhiTranslate="deliveryApp.priceHistory.home.title">Price History</span>
+          </h3>
+        </div>
+        <div class="p-6">
+          @if (priceHistory().length > 0) {
+            <div class="overflow-x-auto">
+              <table class="min-w-full divide-y divide-gray-200">
+                <thead class="bg-gray-50">
+                  <tr>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      jhiTranslate="deliveryApp.priceHistory.price"
+                    >
+                      Price
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      jhiTranslate="deliveryApp.priceHistory.effectiveDate"
+                    >
+                      Effective Date
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      jhiTranslate="deliveryApp.priceHistory.endDate"
+                    >
+                      End Date
+                    </th>
+                    <th
+                      class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+                      jhiTranslate="deliveryApp.priceHistory.status"
+                    >
+                      Status
+                    </th>
+                  </tr>
+                </thead>
+                <tbody class="bg-white divide-y divide-gray-200">
+                  @for (ph of priceHistory(); track ph.id) {
+                    <tr [class.bg-green-50]="!ph.endDate">
+                      <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">
+                        {{ ph.price | number: '1.2-2' }}
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        {{ ph.effectiveDate | formatMediumDate }}
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">
+                        {{ ph.endDate ? (ph.endDate | formatMediumDate) : '-' }}
+                      </td>
+                      <td class="px-4 py-3 whitespace-nowrap">
+                        @if (!ph.endDate) {
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            <fa-icon icon="check-circle" class="mr-1"></fa-icon>
+                            {{ 'deliveryApp.priceHistory.current' | translate }}
+                          </span>
+                        } @else {
+                          <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-600">
+                            {{ 'deliveryApp.priceHistory.past' | translate }}
+                          </span>
+                        }
+                      </td>
+                    </tr>
+                  }
+                </tbody>
+              </table>
+            </div>
+            @if (totalItems() > itemsPerPage) {
+              <div class="mt-4 flex items-center justify-between">
+                <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage }"></jhi-item-count>
+                <jhi-pagination
+                  [collectionSize]="totalItems()"
+                  [page]="page()"
+                  [pageSize]="itemsPerPage"
+                  (pageChange)="onPageChange($event)"
+                ></jhi-pagination>
               </div>
             }
-          </dd>
-        </dl>
-
-        <button type="submit" (click)="previousState()" class="btn btn-info" data-cy="entityDetailsBackButton">
-          <fa-icon icon="arrow-left" />&nbsp;<span jhiTranslate="entity.action.back">Retour</span>
-        </button>
-
-        <button type="button" [routerLink]="['/product', productRef.id, 'edit']" class="btn btn-primary">
-          <fa-icon icon="pencil-alt" />&nbsp;<span jhiTranslate="entity.action.edit">Editer</span>
-        </button>
+          } @else {
+            <p class="text-gray-500 text-center py-4" jhiTranslate="deliveryApp.priceHistory.home.notFound">No price history found.</p>
+          }
+        </div>
       </div>
-    }
-  </div>
+    </div>
+  }
 </div>

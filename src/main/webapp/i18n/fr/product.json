@@ -37,7 +37,11 @@
       "description": "Description",
       "price": "Prix",
       "active": "Actif",
-      "tenant": "Locataire"
+      "tenant": "Locataire",
+      "status": {
+        "active": "Actif",
+        "inactive": "Inactif"
+      }
     }
   }
 }

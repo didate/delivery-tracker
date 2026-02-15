@@ -24,6 +24,8 @@
       "status": "Statut",
       "active": "Actif",
       "expired": "Expiré",
+      "current": "Actuel",
+      "past": "Passé",
       "product": "Produit"
     }
   }

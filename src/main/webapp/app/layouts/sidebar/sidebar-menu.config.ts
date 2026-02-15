@@ -30,12 +30,6 @@ export const SidebarMenuItems: SidebarItem[] = [
         icon: 'box',
       },
       {
-        name: 'PriceHistory',
-        route: '/price-history',
-        translationKey: 'global.menu.entities.priceHistory',
-        icon: 'chart-line',
-      },
-      {
         name: 'Vehicle',
         route: '/vehicle',
         translationKey: 'global.menu.entities.vehicle',
