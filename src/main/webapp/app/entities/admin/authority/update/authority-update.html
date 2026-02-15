@@ -1,59 +1,88 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
-    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+<div class="p-6 max-w-4xl mx-auto">
+  <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <!-- Page Header -->
+    <div class="mb-6">
       <h2
         id="jhi-authority-heading"
         data-cy="AuthorityCreateUpdateHeading"
+        class="text-2xl font-bold text-gray-900"
         jhiTranslate="deliveryApp.adminAuthority.home.createOrEditLabel"
       >
         Créer ou éditer un Authority
       </h2>
+    </div>
 
-      <div>
-        <jhi-alert-error />
+    <jhi-alert-error />
 
-        @let nameRef = editForm.get('name')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_name" jhiTranslate="deliveryApp.adminAuthority.name">Name</label>
-          <input
-            type="text"
-            class="form-control"
-            name="name"
-            id="field_name"
-            data-cy="name"
-            formControlName="name"
-            [readonly]="editForm.get('name')!.disabled"
-          />
-          @if (nameRef.invalid && (nameRef.dirty || nameRef.touched)) {
-            <div>
-              @if (editForm.get('name')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-              @if (editForm.get('name')?.errors?.maxlength) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }"
-                  >Ce champ doit faire au maximum 50 caractères.</small
-                >
-              }
-            </div>
-          }
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h3 class="text-lg font-medium text-gray-900">Authority Information</h3>
+      </div>
+
+      <div class="px-6 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Name -->
+          @let nameRef = editForm.get('name')!;
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_name">
+              <span jhiTranslate="deliveryApp.adminAuthority.name">Name</span>
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              [class]="
+                editForm.get('name')!.disabled
+                  ? 'w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed'
+                  : 'w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-orange-500 transition-colors'
+              "
+              [class.border-red-500]="nameRef.invalid && (nameRef.dirty || nameRef.touched)"
+              name="name"
+              id="field_name"
+              data-cy="name"
+              formControlName="name"
+              [readonly]="editForm.get('name')!.disabled"
+            />
+            @if (nameRef.invalid && (nameRef.dirty || nameRef.touched)) {
+              <div class="mt-1">
+                @if (editForm.get('name')?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+                @if (editForm.get('name')?.errors?.maxlength) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.maxlength" [translateValues]="{ max: '50' }">
+                    Ce champ doit faire au maximum 50 caractères.
+                  </p>
+                }
+              </div>
+            }
+          </div>
         </div>
       </div>
+    </div>
 
-      <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
-          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
-        </button>
+    <!-- Action Buttons -->
+    <div class="mt-6 flex gap-3">
+      <button
+        type="button"
+        id="cancel-save"
+        data-cy="entityCreateCancelButton"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+        (click)="previousState()"
+      >
+        <fa-icon icon="ban" />
+        <span jhiTranslate="entity.action.cancel">Annuler</span>
+      </button>
 
-        <button
-          type="submit"
-          id="save-entity"
-          data-cy="entityCreateSaveButton"
-          [disabled]="editForm.invalid || isSaving()"
-          class="btn btn-primary"
-        >
-          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
-        </button>
-      </div>
-    </form>
-  </div>
+      <button
+        type="submit"
+        id="save-entity"
+        data-cy="entityCreateSaveButton"
+        [disabled]="editForm.invalid || isSaving()"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <fa-icon icon="save" />
+        <span jhiTranslate="entity.action.save">Sauvegarder</span>
+      </button>
+    </div>
+  </form>
 </div>

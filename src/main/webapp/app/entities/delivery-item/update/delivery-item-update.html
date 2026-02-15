@@ -1,142 +1,205 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
-    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+<div class="p-6 max-w-4xl mx-auto">
+  <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <!-- Page Header -->
+    <div class="mb-6">
       <h2
         id="jhi-delivery-item-heading"
         data-cy="DeliveryItemCreateUpdateHeading"
+        class="text-2xl font-bold text-gray-900"
         jhiTranslate="deliveryApp.deliveryItem.home.createOrEditLabel"
       >
         Créer ou éditer un Delivery Item
       </h2>
+    </div>
 
-      <div>
-        <jhi-alert-error />
+    <jhi-alert-error />
 
-        @if (editForm.controls.id.value !== null) {
-          <div class="mb-3">
-            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.deliveryItem.id">ID</label>
-            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
-          </div>
-        }
-
-        @let quantityRef = editForm.get('quantity')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_quantity" jhiTranslate="deliveryApp.deliveryItem.quantity">Quantity</label>
-          <input type="number" class="form-control" name="quantity" id="field_quantity" data-cy="quantity" formControlName="quantity" />
-          @if (quantityRef.invalid && (quantityRef.dirty || quantityRef.touched)) {
-            <div>
-              @if (editForm.get('quantity')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-              <small
-                class="form-text text-danger"
-                [hidden]="!editForm.get('quantity')?.errors?.number"
-                jhiTranslate="entity.validation.number"
-                >Ce champ doit être un nombre.</small
-              >
-            </div>
-          }
-        </div>
-
-        @let unitPriceRef = editForm.get('unitPrice')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_unitPrice" jhiTranslate="deliveryApp.deliveryItem.unitPrice">Unit Price</label>
-          <input type="number" class="form-control" name="unitPrice" id="field_unitPrice" data-cy="unitPrice" formControlName="unitPrice" />
-          @if (unitPriceRef.invalid && (unitPriceRef.dirty || unitPriceRef.touched)) {
-            <div>
-              @if (editForm.get('unitPrice')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-              <small
-                class="form-text text-danger"
-                [hidden]="!editForm.get('unitPrice')?.errors?.number"
-                jhiTranslate="entity.validation.number"
-                >Ce champ doit être un nombre.</small
-              >
-            </div>
-          }
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="field_totalPrice" jhiTranslate="deliveryApp.deliveryItem.totalPrice">Total Price</label>
-          <input
-            type="number"
-            class="form-control"
-            name="totalPrice"
-            id="field_totalPrice"
-            data-cy="totalPrice"
-            formControlName="totalPrice"
-          />
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="field_delivery" jhiTranslate="deliveryApp.deliveryItem.delivery">Delivery</label>
-          <select
-            class="form-control"
-            id="field_delivery"
-            data-cy="delivery"
-            name="delivery"
-            formControlName="delivery"
-            [compareWith]="compareDelivery"
-          >
-            @if (!editForm.get('delivery')!.value) {
-              <option [ngValue]="null" selected></option>
-            }
-            @for (deliveryOption of deliveriesSharedCollection(); track $index) {
-              <option [ngValue]="deliveryOption">{{ deliveryOption.id }}</option>
-            }
-          </select>
-        </div>
-        @if (editForm.get(['delivery'])!.invalid && (editForm.get(['delivery'])!.dirty || editForm.get(['delivery'])!.touched)) {
-          <div>
-            @if (editForm.get(['delivery'])?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-            }
-          </div>
-        }
-
-        <div class="mb-3">
-          <label class="form-label" for="field_product" jhiTranslate="deliveryApp.deliveryItem.product">Product</label>
-          <select
-            class="form-control"
-            id="field_product"
-            data-cy="product"
-            name="product"
-            formControlName="product"
-            [compareWith]="compareProduct"
-          >
-            @if (!editForm.get('product')!.value) {
-              <option [ngValue]="null" selected></option>
-            }
-            @for (productOption of productsSharedCollection(); track $index) {
-              <option [ngValue]="productOption">{{ productOption.id }}</option>
-            }
-          </select>
-        </div>
-        @if (editForm.get(['product'])!.invalid && (editForm.get(['product'])!.dirty || editForm.get(['product'])!.touched)) {
-          <div>
-            @if (editForm.get(['product'])?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-            }
-          </div>
-        }
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h3 class="text-lg font-medium text-gray-900">Delivery Item Information</h3>
       </div>
 
-      <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
-          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
-        </button>
+      <div class="px-6 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- ID (readonly, only shown when editing) -->
+          @if (editForm.controls.id.value !== null) {
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1" for="field_id" jhiTranslate="deliveryApp.deliveryItem.id"
+                >ID</label
+              >
+              <input
+                type="number"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                name="id"
+                id="field_id"
+                data-cy="id"
+                formControlName="id"
+                [readonly]="true"
+              />
+            </div>
+          }
 
-        <button
-          type="submit"
-          id="save-entity"
-          data-cy="entityCreateSaveButton"
-          [disabled]="editForm.invalid || isSaving()"
-          class="btn btn-primary"
-        >
-          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
-        </button>
+          <!-- Quantity -->
+          @let quantityRef = editForm.get('quantity')!;
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_quantity">
+              <span jhiTranslate="deliveryApp.deliveryItem.quantity">Quantity</span>
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              [class.border-red-500]="quantityRef.invalid && (quantityRef.dirty || quantityRef.touched)"
+              name="quantity"
+              id="field_quantity"
+              data-cy="quantity"
+              formControlName="quantity"
+            />
+            @if (quantityRef.invalid && (quantityRef.dirty || quantityRef.touched)) {
+              <div class="mt-1">
+                @if (editForm.get('quantity')?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+                @if (editForm.get('quantity')?.errors?.number) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.number">Ce champ doit être un nombre.</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Unit Price -->
+          @let unitPriceRef = editForm.get('unitPrice')!;
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_unitPrice">
+              <span jhiTranslate="deliveryApp.deliveryItem.unitPrice">Unit Price</span>
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              type="number"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              [class.border-red-500]="unitPriceRef.invalid && (unitPriceRef.dirty || unitPriceRef.touched)"
+              name="unitPrice"
+              id="field_unitPrice"
+              data-cy="unitPrice"
+              formControlName="unitPrice"
+            />
+            @if (unitPriceRef.invalid && (unitPriceRef.dirty || unitPriceRef.touched)) {
+              <div class="mt-1">
+                @if (editForm.get('unitPrice')?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+                @if (editForm.get('unitPrice')?.errors?.number) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.number">Ce champ doit être un nombre.</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Total Price -->
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1"
+              for="field_totalPrice"
+              jhiTranslate="deliveryApp.deliveryItem.totalPrice"
+              >Total Price</label
+            >
+            <input
+              type="number"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              name="totalPrice"
+              id="field_totalPrice"
+              data-cy="totalPrice"
+              formControlName="totalPrice"
+            />
+          </div>
+
+          <!-- Delivery -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_delivery">
+              <span jhiTranslate="deliveryApp.deliveryItem.delivery">Delivery</span>
+              <span class="text-red-500">*</span>
+            </label>
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+              id="field_delivery"
+              data-cy="delivery"
+              name="delivery"
+              formControlName="delivery"
+              [compareWith]="compareDelivery"
+            >
+              @if (!editForm.get('delivery')!.value) {
+                <option [ngValue]="null" selected></option>
+              }
+              @for (deliveryOption of deliveriesSharedCollection(); track $index) {
+                <option [ngValue]="deliveryOption">{{ deliveryOption.id }}</option>
+              }
+            </select>
+            @if (editForm.get(['delivery'])!.invalid && (editForm.get(['delivery'])!.dirty || editForm.get(['delivery'])!.touched)) {
+              <div class="mt-1">
+                @if (editForm.get(['delivery'])?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Product -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_product">
+              <span jhiTranslate="deliveryApp.deliveryItem.product">Product</span>
+              <span class="text-red-500">*</span>
+            </label>
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+              id="field_product"
+              data-cy="product"
+              name="product"
+              formControlName="product"
+              [compareWith]="compareProduct"
+            >
+              @if (!editForm.get('product')!.value) {
+                <option [ngValue]="null" selected></option>
+              }
+              @for (productOption of productsSharedCollection(); track $index) {
+                <option [ngValue]="productOption">{{ productOption.id }}</option>
+              }
+            </select>
+            @if (editForm.get(['product'])!.invalid && (editForm.get(['product'])!.dirty || editForm.get(['product'])!.touched)) {
+              <div class="mt-1">
+                @if (editForm.get(['product'])?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+              </div>
+            }
+          </div>
+        </div>
       </div>
-    </form>
-  </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex gap-3">
+      <button
+        type="button"
+        id="cancel-save"
+        data-cy="entityCreateCancelButton"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+        (click)="previousState()"
+      >
+        <fa-icon icon="ban" />
+        <span jhiTranslate="entity.action.cancel">Annuler</span>
+      </button>
+
+      <button
+        type="submit"
+        id="save-entity"
+        data-cy="entityCreateSaveButton"
+        [disabled]="editForm.invalid || isSaving()"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <fa-icon icon="save" />
+        <span jhiTranslate="entity.action.save">Sauvegarder</span>
+      </button>
+    </div>
+  </form>
 </div>

@@ -1,152 +1,224 @@
-<div class="d-flex justify-content-center">
-  <div class="col-8">
-    <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+<div class="p-6 max-w-4xl mx-auto">
+  <form name="editForm" novalidate (ngSubmit)="save()" [formGroup]="editForm">
+    <!-- Page Header -->
+    <div class="mb-6">
       <h2
         id="jhi-product-return-heading"
         data-cy="ProductReturnCreateUpdateHeading"
+        class="text-2xl font-bold text-gray-900"
         jhiTranslate="deliveryApp.productReturn.home.createOrEditLabel"
       >
         Créer ou éditer un Product Return
       </h2>
+    </div>
 
-      <div>
-        <jhi-alert-error />
+    <jhi-alert-error />
 
-        @if (editForm.controls.id.value !== null) {
-          <div class="mb-3">
-            <label class="form-label" for="field_id" jhiTranslate="deliveryApp.productReturn.id">ID</label>
-            <input type="number" class="form-control" name="id" id="field_id" data-cy="id" formControlName="id" [readonly]="true" />
-          </div>
-        }
-
-        @let returnDateRef = editForm.get('returnDate')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_returnDate" jhiTranslate="deliveryApp.productReturn.returnDate">Return Date</label>
-          <input
-            id="field_returnDate"
-            data-cy="returnDate"
-            type="date"
-            class="form-control"
-            name="returnDate"
-            formControlName="returnDate"
-          />
-          @if (returnDateRef.invalid && (returnDateRef.dirty || returnDateRef.touched)) {
-            <div>
-              @if (editForm.get('returnDate')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-            </div>
-          }
-        </div>
-
-        @let reasonRef = editForm.get('reason')!;
-        <div class="mb-3">
-          <label class="form-label" for="field_reason" jhiTranslate="deliveryApp.productReturn.reason">Reason</label>
-          <select class="form-control" name="reason" formControlName="reason" id="field_reason" data-cy="reason">
-            <option [ngValue]="null">{{ 'deliveryApp.ReturnReason.null' | translate }}</option>
-            @for (returnReason of returnReasonValues; track $index) {
-              <option [value]="returnReason">{{ 'deliveryApp.ReturnReason.' + returnReason | translate }}</option>
-            }
-          </select>
-          @if (reasonRef.invalid && (reasonRef.dirty || reasonRef.touched)) {
-            <div>
-              @if (editForm.get('reason')?.errors?.required) {
-                <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-              }
-            </div>
-          }
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="field_notes" jhiTranslate="deliveryApp.productReturn.notes">Notes</label>
-          <textarea class="form-control" name="notes" id="field_notes" data-cy="notes" formControlName="notes"></textarea>
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label" for="field_tenant" jhiTranslate="deliveryApp.productReturn.tenant">Tenant</label>
-          <select
-            class="form-control"
-            id="field_tenant"
-            data-cy="tenant"
-            name="tenant"
-            formControlName="tenant"
-            [compareWith]="compareTenant"
-          >
-            @if (!editForm.get('tenant')!.value) {
-              <option [ngValue]="null" selected></option>
-            }
-            @for (tenantOption of tenantsSharedCollection(); track $index) {
-              <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
-            }
-          </select>
-        </div>
-        @if (editForm.get(['tenant'])!.invalid && (editForm.get(['tenant'])!.dirty || editForm.get(['tenant'])!.touched)) {
-          <div>
-            @if (editForm.get(['tenant'])?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-            }
-          </div>
-        }
-
-        <div class="mb-3">
-          <label class="form-label" for="field_customer" jhiTranslate="deliveryApp.productReturn.customer">Customer</label>
-          <select
-            class="form-control"
-            id="field_customer"
-            data-cy="customer"
-            name="customer"
-            formControlName="customer"
-            [compareWith]="compareCustomer"
-          >
-            @if (!editForm.get('customer')!.value) {
-              <option [ngValue]="null" selected></option>
-            }
-            @for (customerOption of customersSharedCollection(); track $index) {
-              <option [ngValue]="customerOption">{{ customerOption.id }}</option>
-            }
-          </select>
-        </div>
-        @if (editForm.get(['customer'])!.invalid && (editForm.get(['customer'])!.dirty || editForm.get(['customer'])!.touched)) {
-          <div>
-            @if (editForm.get(['customer'])?.errors?.required) {
-              <small class="form-text text-danger" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</small>
-            }
-          </div>
-        }
-
-        <div class="mb-3">
-          <label class="form-label" for="field_delivery" jhiTranslate="deliveryApp.productReturn.delivery">Delivery</label>
-          <select
-            class="form-control"
-            id="field_delivery"
-            data-cy="delivery"
-            name="delivery"
-            formControlName="delivery"
-            [compareWith]="compareDelivery"
-          >
-            <option [ngValue]="null"></option>
-            @for (deliveryOption of deliveriesSharedCollection(); track $index) {
-              <option [ngValue]="deliveryOption">{{ deliveryOption.id }}</option>
-            }
-          </select>
-        </div>
+    <!-- Form Card -->
+    <div class="bg-white rounded-lg shadow overflow-hidden">
+      <div class="px-6 py-4 border-b border-gray-200 bg-gray-50">
+        <h3 class="text-lg font-medium text-gray-900">Product Return Information</h3>
       </div>
 
-      <div>
-        <button type="button" id="cancel-save" data-cy="entityCreateCancelButton" class="btn btn-secondary" (click)="previousState()">
-          <fa-icon icon="ban" />&nbsp;<span jhiTranslate="entity.action.cancel">Annuler</span>
-        </button>
+      <div class="px-6 py-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- ID (readonly, only shown when editing) -->
+          @if (editForm.controls.id.value !== null) {
+            <div class="md:col-span-2">
+              <label class="block text-sm font-medium text-gray-700 mb-1" for="field_id" jhiTranslate="deliveryApp.productReturn.id"
+                >ID</label
+              >
+              <input
+                type="number"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 text-gray-500 cursor-not-allowed"
+                name="id"
+                id="field_id"
+                data-cy="id"
+                formControlName="id"
+                [readonly]="true"
+              />
+            </div>
+          }
 
-        <button
-          type="submit"
-          id="save-entity"
-          data-cy="entityCreateSaveButton"
-          [disabled]="editForm.invalid || isSaving()"
-          class="btn btn-primary"
-        >
-          <fa-icon icon="save" />&nbsp;<span jhiTranslate="entity.action.save">Sauvegarder</span>
-        </button>
+          <!-- Return Date -->
+          @let returnDateRef = editForm.get('returnDate')!;
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_returnDate">
+              <span jhiTranslate="deliveryApp.productReturn.returnDate">Return Date</span>
+              <span class="text-red-500">*</span>
+            </label>
+            <input
+              id="field_returnDate"
+              data-cy="returnDate"
+              type="date"
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              [class.border-red-500]="returnDateRef.invalid && (returnDateRef.dirty || returnDateRef.touched)"
+              name="returnDate"
+              formControlName="returnDate"
+            />
+            @if (returnDateRef.invalid && (returnDateRef.dirty || returnDateRef.touched)) {
+              <div class="mt-1">
+                @if (editForm.get('returnDate')?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Reason -->
+          @let reasonRef = editForm.get('reason')!;
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_reason">
+              <span jhiTranslate="deliveryApp.productReturn.reason">Reason</span>
+              <span class="text-red-500">*</span>
+            </label>
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+              [class.border-red-500]="reasonRef.invalid && (reasonRef.dirty || reasonRef.touched)"
+              name="reason"
+              formControlName="reason"
+              id="field_reason"
+              data-cy="reason"
+            >
+              <option [ngValue]="null">{{ 'deliveryApp.ReturnReason.null' | translate }}</option>
+              @for (returnReason of returnReasonValues; track $index) {
+                <option [value]="returnReason">{{ 'deliveryApp.ReturnReason.' + returnReason | translate }}</option>
+              }
+            </select>
+            @if (reasonRef.invalid && (reasonRef.dirty || reasonRef.touched)) {
+              <div class="mt-1">
+                @if (editForm.get('reason')?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Customer -->
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1"
+              for="field_customer"
+              jhiTranslate="deliveryApp.productReturn.customer"
+              >Customer</label
+            >
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+              id="field_customer"
+              data-cy="customer"
+              name="customer"
+              formControlName="customer"
+              [compareWith]="compareCustomer"
+            >
+              @if (!editForm.get('customer')!.value) {
+                <option [ngValue]="null" selected></option>
+              }
+              @for (customerOption of customersSharedCollection(); track $index) {
+                <option [ngValue]="customerOption">{{ customerOption.id }}</option>
+              }
+            </select>
+            @if (editForm.get(['customer'])!.invalid && (editForm.get(['customer'])!.dirty || editForm.get(['customer'])!.touched)) {
+              <div class="mt-1">
+                @if (editForm.get(['customer'])?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Delivery -->
+          <div>
+            <label
+              class="block text-sm font-medium text-gray-700 mb-1"
+              for="field_delivery"
+              jhiTranslate="deliveryApp.productReturn.delivery"
+              >Delivery</label
+            >
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+              id="field_delivery"
+              data-cy="delivery"
+              name="delivery"
+              formControlName="delivery"
+              [compareWith]="compareDelivery"
+            >
+              <option [ngValue]="null"></option>
+              @for (deliveryOption of deliveriesSharedCollection(); track $index) {
+                <option [ngValue]="deliveryOption">{{ deliveryOption.id }}</option>
+              }
+            </select>
+          </div>
+
+          <!-- Tenant -->
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_tenant" jhiTranslate="deliveryApp.productReturn.tenant"
+              >Tenant</label
+            >
+            <select
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors bg-white"
+              id="field_tenant"
+              data-cy="tenant"
+              name="tenant"
+              formControlName="tenant"
+              [compareWith]="compareTenant"
+            >
+              @if (!editForm.get('tenant')!.value) {
+                <option [ngValue]="null" selected></option>
+              }
+              @for (tenantOption of tenantsSharedCollection(); track $index) {
+                <option [ngValue]="tenantOption">{{ tenantOption.id }}</option>
+              }
+            </select>
+            @if (editForm.get(['tenant'])!.invalid && (editForm.get(['tenant'])!.dirty || editForm.get(['tenant'])!.touched)) {
+              <div class="mt-1">
+                @if (editForm.get(['tenant'])?.errors?.required) {
+                  <p class="text-sm text-red-600" jhiTranslate="entity.validation.required">Ce champ est obligatoire.</p>
+                }
+              </div>
+            }
+          </div>
+
+          <!-- Notes (full width) -->
+          <div class="md:col-span-2">
+            <label class="block text-sm font-medium text-gray-700 mb-1" for="field_notes" jhiTranslate="deliveryApp.productReturn.notes"
+              >Notes</label
+            >
+            <textarea
+              class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+              rows="3"
+              name="notes"
+              id="field_notes"
+              data-cy="notes"
+              formControlName="notes"
+            ></textarea>
+          </div>
+        </div>
       </div>
-    </form>
-  </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div class="mt-6 flex gap-3">
+      <button
+        type="button"
+        id="cancel-save"
+        data-cy="entityCreateCancelButton"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+        (click)="previousState()"
+      >
+        <fa-icon icon="ban" />
+        <span jhiTranslate="entity.action.cancel">Annuler</span>
+      </button>
+
+      <button
+        type="submit"
+        id="save-entity"
+        data-cy="entityCreateSaveButton"
+        [disabled]="editForm.invalid || isSaving()"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+      >
+        <fa-icon icon="save" />
+        <span jhiTranslate="entity.action.save">Sauvegarder</span>
+      </button>
+    </div>
+  </form>
 </div>
