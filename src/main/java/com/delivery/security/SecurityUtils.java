@@ -23,6 +23,8 @@ public final class SecurityUtils {
 
     public static final String USER_ID_CLAIM = "userId";
 
+    public static final String TENANT_ID_CLAIM = "tenantId";
+
     private SecurityUtils() {}
 
     /**
@@ -71,6 +73,19 @@ public final class SecurityUtils {
             .filter(authentication -> authentication.getPrincipal() instanceof ClaimAccessor)
             .map(authentication -> (ClaimAccessor) authentication.getPrincipal())
             .map(principal -> principal.getClaim(USER_ID_CLAIM));
+    }
+
+    /**
+     * Get the Tenant Id of the current user.
+     *
+     * @return the Tenant Id of the current user.
+     */
+    public static Optional<Long> getCurrentUserTenantId() {
+        SecurityContext securityContext = SecurityContextHolder.getContext();
+        return Optional.ofNullable(securityContext.getAuthentication())
+            .filter(authentication -> authentication.getPrincipal() instanceof ClaimAccessor)
+            .map(authentication -> (ClaimAccessor) authentication.getPrincipal())
+            .map(principal -> principal.getClaim(TENANT_ID_CLAIM));
     }
 
     /**

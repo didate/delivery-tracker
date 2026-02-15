@@ -17,16 +17,21 @@ Ce document liste toutes les user stories organisées par module avec leur état
 ## Modules et Stories
 
 ### Module 0: Gestion Multi-Tenant (TEN)
+
+> **Architecture**: Tous les utilisateurs sont liés à un tenant. Seul l'ADMIN peut créer des tenants.
+> Pas d'auto-inscription.
+
 | ID | Story | Priorité | État |
 |----|-------|:--------:|:----:|
-| TEN-001 | Inscription d'une nouvelle entreprise | 🎯 | 🔶 |
-| TEN-002 | Configuration du profil entreprise | 🎯 | ✅ |
-| TEN-003 | Inviter un utilisateur | 🎯 | ❌ |
-| TEN-004 | Gérer les utilisateurs du tenant | 🎯 | 🔶 |
-| TEN-005 | Consulter les statistiques du tenant | Moyenne | ❌ |
-| TEN-006 | Désactiver le compte entreprise | Basse | ❌ |
-| TEN-007 | Filtrage automatique par tenant | 🎯 | ❌ |
-| TEN-008 | Gestion des paramètres du tenant | Moyenne | ✅ |
+| TEN-001 | Tenant par défaut au démarrage | 🎯 | ❌ |
+| TEN-002 | Créer un nouveau tenant (ADMIN) | 🎯 | 🔶 |
+| TEN-003 | Basculer vers un tenant (ADMIN) | 🎯 | ❌ |
+| TEN-004 | Créer un TENANT_ADMIN | 🎯 | ❌ |
+| TEN-005 | Lister les tenants (ADMIN) | 🎯 | 🔶 |
+| TEN-006 | Modifier un tenant (ADMIN) | Moyenne | 🔶 |
+| TEN-007 | Activer/Désactiver un tenant (ADMIN) | Moyenne | ❌ |
+| TEN-008 | Filtrage automatique par tenant | 🎯 | ❌ |
+| TEN-009 | Configuration du tenant (TENANT_ADMIN) | Moyenne | ✅ |
 
 ### Module 1: Gestion des Produits (PRD)
 | ID | Story | Priorité | État |
@@ -159,15 +164,21 @@ Ce document liste toutes les user stories organisées par module avec leur état
 | RPT-006 | Export Excel | 🎯 | ❌ |
 
 ### Module 14: Gestion des Utilisateurs (USR)
+
+> **Important**: Pas d'auto-inscription. Tous les utilisateurs sont créés par ADMIN ou TENANT_ADMIN.
+
 | ID | Story | Priorité | État |
 |----|-------|:--------:|:----:|
-| USR-001 | Créer un utilisateur | 🎯 | ✅ |
+| USR-001 | Créer un utilisateur (ADMIN/TENANT_ADMIN) | 🎯 | ✅ |
 | USR-002 | Modifier un utilisateur | 🎯 | ✅ |
-| USR-003 | Attribuer un rôle | 🎯 | ✅ |
-| USR-004 | Authentification | 🎯 | ✅ |
+| USR-003 | Matrice des permissions | 🎯 | ✅ |
+| USR-004 | Authentification (pas d'inscription) | 🎯 | 🔶 |
 | USR-005 | Réinitialiser mot de passe | Moyenne | ✅ |
-| USR-006 | Désactiver un utilisateur | Moyenne | ✅ |
-| USR-007 | Journal d'audit | Basse | ❌ |
+| USR-006 | Changer mot de passe (première connexion) | 🎯 | ❌ |
+| USR-007 | Désactiver un utilisateur | Moyenne | ✅ |
+| USR-008 | Lister les utilisateurs | 🎯 | ✅ |
+| USR-009 | Reset mot de passe utilisateur (admin) | Moyenne | ❌ |
+| USR-010 | Journal d'audit | Basse | ❌ |
 
 ### Module 15: Application Mobile (MOB) - À développer
 | ID | Story | Priorité | État |
@@ -196,7 +207,7 @@ Ce document liste toutes les user stories organisées par module avec leur état
 
 | Module | Total | ✅ | 🔶 | ❌ | Progression |
 |--------|:-----:|:--:|:--:|:--:|:-----------:|
-| Tenant (SaaS) | 8 | 2 | 2 | 4 | 25% |
+| Tenant (SaaS) | 9 | 1 | 3 | 5 | 11% |
 | Produits | 5 | 5 | 0 | 0 | 100% |
 | Clients | 11 | 5 | 1 | 5 | 45% |
 | Chauffeurs | 7 | 4 | 0 | 3 | 57% |
@@ -210,10 +221,10 @@ Ce document liste toutes les user stories organisées par module avec leur état
 | Tournées | 8 | 2 | 1 | 5 | 25% |
 | Tableaux de bord | 5 | 0 | 0 | 5 | 0% |
 | Rapports | 6 | 0 | 0 | 6 | 0% |
-| Utilisateurs | 7 | 6 | 0 | 1 | 86% |
+| Utilisateurs | 10 | 6 | 1 | 3 | 60% |
 | **Mobile** | **8** | **0** | **0** | **8** | **0%** |
 | Système | 5 | 0 | 1 | 4 | 10% |
-| **TOTAL** | **106** | **45** | **6** | **55** | **42%** |
+| **TOTAL** | **110** | **44** | **8** | **58** | **40%** |
 
 ---
 
@@ -222,10 +233,13 @@ Ce document liste toutes les user stories organisées par module avec leur état
 ### Phase 1 - Compléter le Backend (Priorité: Haute)
 **Objectif**: Logique métier complète
 
-1. **Sprint 1.1 - Multi-Tenant**
-   - TEN-007: Filtrage automatique par tenant_id
-   - TEN-003: Invitation utilisateurs
-   - TEN-004: Gestion utilisateurs tenant
+1. **Sprint 1.1 - Multi-Tenant & Utilisateurs**
+   - TEN-001: Tenant par défaut au démarrage
+   - TEN-008: Filtrage automatique par tenant_id
+   - TEN-003: Basculer vers un tenant (ADMIN)
+   - TEN-004: Créer TENANT_ADMIN
+   - USR-004: Désactiver auto-inscription
+   - USR-006: Changement mot de passe première connexion
 
 2. **Sprint 1.2 - Soldes Clients**
    - CLI-005: Liste clients avec solde

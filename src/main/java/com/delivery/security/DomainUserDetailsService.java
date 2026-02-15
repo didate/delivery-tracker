@@ -52,20 +52,32 @@ public class DomainUserDetailsService implements UserDetailsService {
         if (!user.isActivated()) {
             throw new UserNotActivatedException("User " + lowercaseLogin + " was not activated");
         }
+        if (user.getTenant() == null) {
+            throw new UserNotActivatedException("User " + lowercaseLogin + " is not associated with a tenant");
+        }
+        if (!user.getTenant().getActive()) {
+            throw new UserNotActivatedException("Tenant for user " + lowercaseLogin + " is not active");
+        }
         return UserWithId.fromUser(user);
     }
 
     public static class UserWithId extends org.springframework.security.core.userdetails.User {
 
         private final Long id;
+        private final Long tenantId;
 
-        public UserWithId(String login, String password, Collection<? extends GrantedAuthority> authorities, Long id) {
+        public UserWithId(String login, String password, Collection<? extends GrantedAuthority> authorities, Long id, Long tenantId) {
             super(login, password, authorities);
             this.id = id;
+            this.tenantId = tenantId;
         }
 
         public Long getId() {
             return id;
+        }
+
+        public Long getTenantId() {
+            return tenantId;
         }
 
         @Override
@@ -83,7 +95,8 @@ public class DomainUserDetailsService implements UserDetailsService {
                 user.getLogin(),
                 user.getPassword(),
                 user.getAuthorities().stream().map(Authority::getName).map(SimpleGrantedAuthority::new).toList(),
-                user.getId()
+                user.getId(),
+                user.getTenant() != null ? user.getTenant().getId() : null
             );
         }
     }

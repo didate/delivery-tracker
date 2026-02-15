@@ -2,6 +2,7 @@ package com.delivery.web.rest;
 
 import static com.delivery.security.SecurityUtils.AUTHORITIES_CLAIM;
 import static com.delivery.security.SecurityUtils.JWT_ALGORITHM;
+import static com.delivery.security.SecurityUtils.TENANT_ID_CLAIM;
 import static com.delivery.security.SecurityUtils.USER_ID_CLAIM;
 
 import com.delivery.security.DomainUserDetailsService.UserWithId;
@@ -96,6 +97,9 @@ public class AuthenticateController {
             .claim(AUTHORITIES_CLAIM, authorities);
         if (authentication.getPrincipal() instanceof UserWithId user) {
             builder.claim(USER_ID_CLAIM, user.getId());
+            if (user.getTenantId() != null) {
+                builder.claim(TENANT_ID_CLAIM, user.getTenantId());
+            }
         }
 
         JwsHeader jwsHeader = JwsHeader.with(JWT_ALGORITHM).build();
