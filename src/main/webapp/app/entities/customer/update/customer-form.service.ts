@@ -27,7 +27,6 @@ type CustomerFormGroupContent = {
   longitude: FormControl<ICustomer['longitude']>;
   active: FormControl<ICustomer['active']>;
   notes: FormControl<ICustomer['notes']>;
-  tenant: FormControl<ICustomer['tenant']>;
   driver: FormControl<ICustomer['driver']>;
 };
 
@@ -71,9 +70,6 @@ export class CustomerFormService {
         validators: [Validators.required],
       }),
       notes: new FormControl(customerRawValue.notes),
-      tenant: new FormControl(customerRawValue.tenant, {
-        validators: [Validators.required],
-      }),
       driver: new FormControl(customerRawValue.driver),
     });
   }

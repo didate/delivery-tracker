@@ -9,13 +9,17 @@ import com.delivery.service.dto.RoundDTO;
 import org.mapstruct.*;
 
 /**
- * Mapper for the entity {@link RoundCustomer} and its DTO {@link RoundCustomerDTO}.
+ * Mapper for the entity {@link RoundCustomer} and its DTO
+ * {@link RoundCustomerDTO}.
  */
 @Mapper(componentModel = "spring")
 public interface RoundCustomerMapper extends EntityMapper<RoundCustomerDTO, RoundCustomer> {
     @Mapping(target = "round", source = "round", qualifiedByName = "roundId")
     @Mapping(target = "customer", source = "customer", qualifiedByName = "customerId")
     RoundCustomerDTO toDto(RoundCustomer s);
+
+    @Mapping(target = "tenant", ignore = true)
+    RoundCustomer toEntity(RoundCustomerDTO roundCustomerDTO);
 
     @Named("roundId")
     @BeanMapping(ignoreByDefault = true)

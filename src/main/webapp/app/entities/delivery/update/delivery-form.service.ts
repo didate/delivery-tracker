@@ -23,7 +23,6 @@ type DeliveryFormGroupContent = {
   totalAmount: FormControl<IDelivery['totalAmount']>;
   paidAmount: FormControl<IDelivery['paidAmount']>;
   notes: FormControl<IDelivery['notes']>;
-  tenant: FormControl<IDelivery['tenant']>;
   customer: FormControl<IDelivery['customer']>;
   driver: FormControl<IDelivery['driver']>;
 };
@@ -54,9 +53,6 @@ export class DeliveryFormService {
       totalAmount: new FormControl(deliveryRawValue.totalAmount),
       paidAmount: new FormControl(deliveryRawValue.paidAmount),
       notes: new FormControl(deliveryRawValue.notes),
-      tenant: new FormControl(deliveryRawValue.tenant, {
-        validators: [Validators.required],
-      }),
       customer: new FormControl(deliveryRawValue.customer, {
         validators: [Validators.required],
       }),

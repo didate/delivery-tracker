@@ -22,7 +22,6 @@ type TenantSettingsFormGroupContent = {
   timezone: FormControl<ITenantSettings['timezone']>;
   dateFormat: FormControl<ITenantSettings['dateFormat']>;
   language: FormControl<ITenantSettings['language']>;
-  tenant: FormControl<ITenantSettings['tenant']>;
 };
 
 export type TenantSettingsFormGroup = FormGroup<TenantSettingsFormGroupContent>;
@@ -53,9 +52,6 @@ export class TenantSettingsFormService {
       }),
       language: new FormControl(tenantSettingsRawValue.language, {
         validators: [Validators.maxLength(10)],
-      }),
-      tenant: new FormControl(tenantSettingsRawValue.tenant, {
-        validators: [Validators.required],
       }),
     });
   }

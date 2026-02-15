@@ -23,7 +23,6 @@ type ProductFormGroupContent = {
   description: FormControl<IProduct['description']>;
   price: FormControl<IProduct['price']>;
   active: FormControl<IProduct['active']>;
-  tenant: FormControl<IProduct['tenant']>;
 };
 
 export type ProductFormGroup = FormGroup<ProductFormGroupContent>;
@@ -54,9 +53,6 @@ export class ProductFormService {
         validators: [Validators.required],
       }),
       active: new FormControl(productRawValue.active, {
-        validators: [Validators.required],
-      }),
-      tenant: new FormControl(productRawValue.tenant, {
         validators: [Validators.required],
       }),
     });

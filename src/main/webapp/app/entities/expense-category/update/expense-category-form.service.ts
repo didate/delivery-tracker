@@ -22,7 +22,6 @@ type ExpenseCategoryFormGroupContent = {
   name: FormControl<IExpenseCategory['name']>;
   description: FormControl<IExpenseCategory['description']>;
   active: FormControl<IExpenseCategory['active']>;
-  tenant: FormControl<IExpenseCategory['tenant']>;
 };
 
 export type ExpenseCategoryFormGroup = FormGroup<ExpenseCategoryFormGroupContent>;
@@ -50,9 +49,6 @@ export class ExpenseCategoryFormService {
       }),
       description: new FormControl(expenseCategoryRawValue.description),
       active: new FormControl(expenseCategoryRawValue.active, {
-        validators: [Validators.required],
-      }),
-      tenant: new FormControl(expenseCategoryRawValue.tenant, {
         validators: [Validators.required],
       }),
     });

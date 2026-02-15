@@ -2,10 +2,8 @@ package com.delivery.service.mapper;
 
 import com.delivery.domain.Driver;
 import com.delivery.domain.Round;
-import com.delivery.domain.Tenant;
 import com.delivery.service.dto.DriverDTO;
 import com.delivery.service.dto.RoundDTO;
-import com.delivery.service.dto.TenantDTO;
 import org.mapstruct.*;
 
 /**
@@ -13,14 +11,11 @@ import org.mapstruct.*;
  */
 @Mapper(componentModel = "spring")
 public interface RoundMapper extends EntityMapper<RoundDTO, Round> {
-    @Mapping(target = "tenant", source = "tenant", qualifiedByName = "tenantId")
     @Mapping(target = "driver", source = "driver", qualifiedByName = "driverId")
     RoundDTO toDto(Round s);
 
-    @Named("tenantId")
-    @BeanMapping(ignoreByDefault = true)
-    @Mapping(target = "id", source = "id")
-    TenantDTO toDtoTenantId(Tenant tenant);
+    @Mapping(target = "tenant", ignore = true)
+    Round toEntity(RoundDTO roundDTO);
 
     @Named("driverId")
     @BeanMapping(ignoreByDefault = true)

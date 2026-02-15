@@ -23,7 +23,6 @@ type ProductionSiteFormGroupContent = {
   address: FormControl<IProductionSite['address']>;
   phone: FormControl<IProductionSite['phone']>;
   active: FormControl<IProductionSite['active']>;
-  tenant: FormControl<IProductionSite['tenant']>;
 };
 
 export type ProductionSiteFormGroup = FormGroup<ProductionSiteFormGroupContent>;
@@ -54,9 +53,6 @@ export class ProductionSiteFormService {
         validators: [Validators.maxLength(20)],
       }),
       active: new FormControl(productionSiteRawValue.active, {
-        validators: [Validators.required],
-      }),
-      tenant: new FormControl(productionSiteRawValue.tenant, {
         validators: [Validators.required],
       }),
     });

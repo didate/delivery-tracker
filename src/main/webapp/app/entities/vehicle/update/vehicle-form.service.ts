@@ -29,7 +29,6 @@ type VehicleFormGroupContent = {
   fuelType: FormControl<IVehicle['fuelType']>;
   active: FormControl<IVehicle['active']>;
   notes: FormControl<IVehicle['notes']>;
-  tenant: FormControl<IVehicle['tenant']>;
 };
 
 export type VehicleFormGroup = FormGroup<VehicleFormGroupContent>;
@@ -76,9 +75,6 @@ export class VehicleFormService {
         validators: [Validators.required],
       }),
       notes: new FormControl(vehicleRawValue.notes),
-      tenant: new FormControl(vehicleRawValue.tenant, {
-        validators: [Validators.required],
-      }),
     });
   }
 

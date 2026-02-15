@@ -24,7 +24,6 @@ type DriverFormGroupContent = {
   email: FormControl<IDriver['email']>;
   licenseNumber: FormControl<IDriver['licenseNumber']>;
   active: FormControl<IDriver['active']>;
-  tenant: FormControl<IDriver['tenant']>;
   vehicle: FormControl<IDriver['vehicle']>;
 };
 
@@ -61,9 +60,6 @@ export class DriverFormService {
         validators: [Validators.maxLength(50)],
       }),
       active: new FormControl(driverRawValue.active, {
-        validators: [Validators.required],
-      }),
-      tenant: new FormControl(driverRawValue.tenant, {
         validators: [Validators.required],
       }),
       vehicle: new FormControl(driverRawValue.vehicle),

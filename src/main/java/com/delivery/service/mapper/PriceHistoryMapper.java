@@ -7,12 +7,16 @@ import com.delivery.service.dto.ProductDTO;
 import org.mapstruct.*;
 
 /**
- * Mapper for the entity {@link PriceHistory} and its DTO {@link PriceHistoryDTO}.
+ * Mapper for the entity {@link PriceHistory} and its DTO
+ * {@link PriceHistoryDTO}.
  */
 @Mapper(componentModel = "spring")
 public interface PriceHistoryMapper extends EntityMapper<PriceHistoryDTO, PriceHistory> {
     @Mapping(target = "product", source = "product", qualifiedByName = "productId")
     PriceHistoryDTO toDto(PriceHistory s);
+
+    @Mapping(target = "tenant", ignore = true)
+    PriceHistory toEntity(PriceHistoryDTO priceHistoryDTO);
 
     @Named("productId")
     @BeanMapping(ignoreByDefault = true)

@@ -22,7 +22,6 @@ type ExpenseFormGroupContent = {
   amount: FormControl<IExpense['amount']>;
   description: FormControl<IExpense['description']>;
   receiptUrl: FormControl<IExpense['receiptUrl']>;
-  tenant: FormControl<IExpense['tenant']>;
   category: FormControl<IExpense['category']>;
   driver: FormControl<IExpense['driver']>;
 };
@@ -53,9 +52,6 @@ export class ExpenseFormService {
       description: new FormControl(expenseRawValue.description),
       receiptUrl: new FormControl(expenseRawValue.receiptUrl, {
         validators: [Validators.maxLength(500)],
-      }),
-      tenant: new FormControl(expenseRawValue.tenant, {
-        validators: [Validators.required],
       }),
       category: new FormControl(expenseRawValue.category, {
         validators: [Validators.required],

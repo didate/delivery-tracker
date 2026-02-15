@@ -21,7 +21,6 @@ type ProductReturnFormGroupContent = {
   returnDate: FormControl<IProductReturn['returnDate']>;
   reason: FormControl<IProductReturn['reason']>;
   notes: FormControl<IProductReturn['notes']>;
-  tenant: FormControl<IProductReturn['tenant']>;
   customer: FormControl<IProductReturn['customer']>;
   delivery: FormControl<IProductReturn['delivery']>;
 };
@@ -50,9 +49,6 @@ export class ProductReturnFormService {
         validators: [Validators.required],
       }),
       notes: new FormControl(productReturnRawValue.notes),
-      tenant: new FormControl(productReturnRawValue.tenant, {
-        validators: [Validators.required],
-      }),
       customer: new FormControl(productReturnRawValue.customer, {
         validators: [Validators.required],
       }),

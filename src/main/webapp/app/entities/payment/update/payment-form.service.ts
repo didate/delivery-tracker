@@ -23,7 +23,6 @@ type PaymentFormGroupContent = {
   method: FormControl<IPayment['method']>;
   reference: FormControl<IPayment['reference']>;
   notes: FormControl<IPayment['notes']>;
-  tenant: FormControl<IPayment['tenant']>;
   customer: FormControl<IPayment['customer']>;
   delivery: FormControl<IPayment['delivery']>;
 };
@@ -58,9 +57,6 @@ export class PaymentFormService {
         validators: [Validators.maxLength(100)],
       }),
       notes: new FormControl(paymentRawValue.notes),
-      tenant: new FormControl(paymentRawValue.tenant, {
-        validators: [Validators.required],
-      }),
       customer: new FormControl(paymentRawValue.customer, {
         validators: [Validators.required],
       }),

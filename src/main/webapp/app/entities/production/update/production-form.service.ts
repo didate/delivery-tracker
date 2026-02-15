@@ -21,7 +21,6 @@ type ProductionFormGroupContent = {
   productionDate: FormControl<IProduction['productionDate']>;
   quantity: FormControl<IProduction['quantity']>;
   notes: FormControl<IProduction['notes']>;
-  tenant: FormControl<IProduction['tenant']>;
   product: FormControl<IProduction['product']>;
   productionSite: FormControl<IProduction['productionSite']>;
 };
@@ -50,9 +49,6 @@ export class ProductionFormService {
         validators: [Validators.required],
       }),
       notes: new FormControl(productionRawValue.notes),
-      tenant: new FormControl(productionRawValue.tenant, {
-        validators: [Validators.required],
-      }),
       product: new FormControl(productionRawValue.product, {
         validators: [Validators.required],
       }),

@@ -39,7 +39,6 @@ type RoundFormGroupContent = {
   startTime: FormControl<RoundFormRawValue['startTime']>;
   endTime: FormControl<RoundFormRawValue['endTime']>;
   notes: FormControl<RoundFormRawValue['notes']>;
-  tenant: FormControl<RoundFormRawValue['tenant']>;
   driver: FormControl<RoundFormRawValue['driver']>;
 };
 
@@ -72,9 +71,6 @@ export class RoundFormService {
       startTime: new FormControl(roundRawValue.startTime),
       endTime: new FormControl(roundRawValue.endTime),
       notes: new FormControl(roundRawValue.notes),
-      tenant: new FormControl(roundRawValue.tenant, {
-        validators: [Validators.required],
-      }),
       driver: new FormControl(roundRawValue.driver, {
         validators: [Validators.required],
       }),
