@@ -15,9 +15,6 @@ public interface PriceHistoryMapper extends EntityMapper<PriceHistoryDTO, PriceH
     @Mapping(target = "product", source = "product", qualifiedByName = "productId")
     PriceHistoryDTO toDto(PriceHistory s);
 
-    @Mapping(target = "tenant", ignore = true)
-    PriceHistory toEntity(PriceHistoryDTO priceHistoryDTO);
-
     @Named("productId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")

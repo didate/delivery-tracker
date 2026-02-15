@@ -18,9 +18,6 @@ public interface DeliveryItemMapper extends EntityMapper<DeliveryItemDTO, Delive
     @Mapping(target = "product", source = "product", qualifiedByName = "productId")
     DeliveryItemDTO toDto(DeliveryItem s);
 
-    @Mapping(target = "tenant", ignore = true)
-    DeliveryItem toEntity(DeliveryItemDTO deliveryItemDTO);
-
     @Named("deliveryId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")

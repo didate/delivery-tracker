@@ -17,9 +17,6 @@ public interface ReturnItemMapper extends EntityMapper<ReturnItemDTO, ReturnItem
     @Mapping(target = "product", source = "product", qualifiedByName = "productId")
     ReturnItemDTO toDto(ReturnItem s);
 
-    @Mapping(target = "tenant", ignore = true)
-    ReturnItem toEntity(ReturnItemDTO returnItemDTO);
-
     @Named("productReturnId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")

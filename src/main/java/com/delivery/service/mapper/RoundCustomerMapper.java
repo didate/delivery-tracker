@@ -18,9 +18,6 @@ public interface RoundCustomerMapper extends EntityMapper<RoundCustomerDTO, Roun
     @Mapping(target = "customer", source = "customer", qualifiedByName = "customerId")
     RoundCustomerDTO toDto(RoundCustomer s);
 
-    @Mapping(target = "tenant", ignore = true)
-    RoundCustomer toEntity(RoundCustomerDTO roundCustomerDTO);
-
     @Named("roundId")
     @BeanMapping(ignoreByDefault = true)
     @Mapping(target = "id", source = "id")
