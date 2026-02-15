@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.ProductReturn;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.ProductReturnRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.ProductReturnDTO;
 import com.delivery.service.mapper.ProductReturnMapper;
 import java.util.Optional;
@@ -23,9 +26,16 @@ public class ProductReturnService {
 
     private final ProductReturnMapper productReturnMapper;
 
-    public ProductReturnService(ProductReturnRepository productReturnRepository, ProductReturnMapper productReturnMapper) {
+    private final TenantRepository tenantRepository;
+
+    public ProductReturnService(
+        ProductReturnRepository productReturnRepository,
+        ProductReturnMapper productReturnMapper,
+        TenantRepository tenantRepository
+    ) {
         this.productReturnRepository = productReturnRepository;
         this.productReturnMapper = productReturnMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +47,10 @@ public class ProductReturnService {
     public ProductReturnDTO save(ProductReturnDTO productReturnDTO) {
         LOG.debug("Request to save ProductReturn : {}", productReturnDTO);
         ProductReturn productReturn = productReturnMapper.toEntity(productReturnDTO);
+        // Auto-set tenant from context for new entities
+        if (productReturn.getId() == null && productReturn.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(productReturn::setTenant);
+        }
         productReturn = productReturnRepository.save(productReturn);
         return productReturnMapper.toDto(productReturn);
     }

@@ -28,9 +28,6 @@ public class ExpenseDTO implements Serializable {
     private String receiptUrl;
 
     @NotNull
-    private TenantDTO tenant;
-
-    @NotNull
     private ExpenseCategoryDTO category;
 
     private DriverDTO driver;
@@ -73,14 +70,6 @@ public class ExpenseDTO implements Serializable {
 
     public void setReceiptUrl(String receiptUrl) {
         this.receiptUrl = receiptUrl;
-    }
-
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
     }
 
     public ExpenseCategoryDTO getCategory() {
@@ -129,7 +118,6 @@ public class ExpenseDTO implements Serializable {
             ", amount=" + getAmount() +
             ", description='" + getDescription() + "'" +
             ", receiptUrl='" + getReceiptUrl() + "'" +
-            ", tenant=" + getTenant() +
             ", category=" + getCategory() +
             ", driver=" + getDriver() +
             "}";

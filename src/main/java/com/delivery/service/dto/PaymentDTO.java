@@ -32,9 +32,6 @@ public class PaymentDTO implements Serializable {
     private String notes;
 
     @NotNull
-    private TenantDTO tenant;
-
-    @NotNull
     private CustomerDTO customer;
 
     private DeliveryDTO delivery;
@@ -87,14 +84,6 @@ public class PaymentDTO implements Serializable {
         this.notes = notes;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     public CustomerDTO getCustomer() {
         return customer;
     }
@@ -142,7 +131,6 @@ public class PaymentDTO implements Serializable {
             ", method='" + getMethod() + "'" +
             ", reference='" + getReference() + "'" +
             ", notes='" + getNotes() + "'" +
-            ", tenant=" + getTenant() +
             ", customer=" + getCustomer() +
             ", delivery=" + getDelivery() +
             "}";

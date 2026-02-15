@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.Payment;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.PaymentRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.PaymentDTO;
 import com.delivery.service.mapper.PaymentMapper;
 import java.util.Optional;
@@ -23,9 +26,12 @@ public class PaymentService {
 
     private final PaymentMapper paymentMapper;
 
-    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper) {
+    private final TenantRepository tenantRepository;
+
+    public PaymentService(PaymentRepository paymentRepository, PaymentMapper paymentMapper, TenantRepository tenantRepository) {
         this.paymentRepository = paymentRepository;
         this.paymentMapper = paymentMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +43,10 @@ public class PaymentService {
     public PaymentDTO save(PaymentDTO paymentDTO) {
         LOG.debug("Request to save Payment : {}", paymentDTO);
         Payment payment = paymentMapper.toEntity(paymentDTO);
+        // Auto-set tenant from context for new entities
+        if (payment.getId() == null && payment.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(payment::setTenant);
+        }
         payment = paymentRepository.save(payment);
         return paymentMapper.toDto(payment);
     }

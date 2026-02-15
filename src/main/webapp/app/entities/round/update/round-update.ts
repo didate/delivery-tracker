@@ -12,8 +12,6 @@ import { finalize, map } from 'rxjs/operators';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { IDriver } from 'app/entities/driver/driver.model';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { TranslateDirective } from 'app/shared/language';
 
@@ -35,21 +33,17 @@ export class RoundUpdate implements OnInit {
   round: IRound | null = null;
   roundStatusValues = Object.keys(RoundStatus);
 
-  tenantsSharedCollection = signal<ITenant[]>([]);
   driversSharedCollection = signal<IDriver[]>([]);
 
   protected dataUtils = inject(DataUtils);
   protected eventManager = inject(EventManager);
   protected roundService = inject(RoundService);
   protected roundFormService = inject(RoundFormService);
-  protected tenantService = inject(TenantService);
   protected driverService = inject(DriverService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: RoundFormGroup = this.roundFormService.createRoundFormGroup();
-
-  compareTenant = (o1: ITenant | null, o2: ITenant | null): boolean => this.tenantService.compareTenant(o1, o2);
 
   compareDriver = (o1: IDriver | null, o2: IDriver | null): boolean => this.driverService.compareDriver(o1, o2);
 
@@ -116,21 +110,12 @@ export class RoundUpdate implements OnInit {
     this.round = round;
     this.roundFormService.resetForm(this.editForm, round);
 
-    this.tenantsSharedCollection.set(
-      this.tenantService.addTenantToCollectionIfMissing<ITenant>(this.tenantsSharedCollection(), round.tenant),
-    );
     this.driversSharedCollection.set(
       this.driverService.addDriverToCollectionIfMissing<IDriver>(this.driversSharedCollection(), round.driver),
     );
   }
 
   protected loadRelationshipsOptions(): void {
-    this.tenantService
-      .query()
-      .pipe(map((res: HttpResponse<ITenant[]>) => res.body ?? []))
-      .pipe(map((tenants: ITenant[]) => this.tenantService.addTenantToCollectionIfMissing<ITenant>(tenants, this.round?.tenant)))
-      .subscribe((tenants: ITenant[]) => this.tenantsSharedCollection.set(tenants));
-
     this.driverService
       .query()
       .pipe(map((res: HttpResponse<IDriver[]>) => res.body ?? []))

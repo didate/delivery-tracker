@@ -7,12 +7,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { AlertErrorModel } from 'app/shared/alert/alert-error.model';
 import { TranslateDirective } from 'app/shared/language';
@@ -31,19 +29,14 @@ export class ExpenseCategoryUpdate implements OnInit {
   isSaving = signal(false);
   expenseCategory: IExpenseCategory | null = null;
 
-  tenantsSharedCollection = signal<ITenant[]>([]);
-
   protected dataUtils = inject(DataUtils);
   protected eventManager = inject(EventManager);
   protected expenseCategoryService = inject(ExpenseCategoryService);
   protected expenseCategoryFormService = inject(ExpenseCategoryFormService);
-  protected tenantService = inject(TenantService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: ExpenseCategoryFormGroup = this.expenseCategoryFormService.createExpenseCategoryFormGroup();
-
-  compareTenant = (o1: ITenant | null, o2: ITenant | null): boolean => this.tenantService.compareTenant(o1, o2);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ expenseCategory }) => {
@@ -51,8 +44,6 @@ export class ExpenseCategoryUpdate implements OnInit {
       if (expenseCategory) {
         this.updateForm(expenseCategory);
       }
-
-      this.loadRelationshipsOptions();
     });
   }
 
@@ -107,17 +98,5 @@ export class ExpenseCategoryUpdate implements OnInit {
   protected updateForm(expenseCategory: IExpenseCategory): void {
     this.expenseCategory = expenseCategory;
     this.expenseCategoryFormService.resetForm(this.editForm, expenseCategory);
-
-    this.tenantsSharedCollection.set(
-      this.tenantService.addTenantToCollectionIfMissing<ITenant>(this.tenantsSharedCollection(), expenseCategory.tenant),
-    );
-  }
-
-  protected loadRelationshipsOptions(): void {
-    this.tenantService
-      .query()
-      .pipe(map((res: HttpResponse<ITenant[]>) => res.body ?? []))
-      .pipe(map((tenants: ITenant[]) => this.tenantService.addTenantToCollectionIfMissing<ITenant>(tenants, this.expenseCategory?.tenant)))
-      .subscribe((tenants: ITenant[]) => this.tenantsSharedCollection.set(tenants));
   }
 }

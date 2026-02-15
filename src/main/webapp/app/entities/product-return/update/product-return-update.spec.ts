@@ -11,8 +11,6 @@ import { ICustomer } from 'app/entities/customer/customer.model';
 import { CustomerService } from 'app/entities/customer/service/customer.service';
 import { IDelivery } from 'app/entities/delivery/delivery.model';
 import { DeliveryService } from 'app/entities/delivery/service/delivery.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { IProductReturn } from '../product-return.model';
 import { ProductReturnService } from '../service/product-return.service';
 
@@ -25,7 +23,6 @@ describe('ProductReturn Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let productReturnFormService: ProductReturnFormService;
   let productReturnService: ProductReturnService;
-  let tenantService: TenantService;
   let customerService: CustomerService;
   let deliveryService: DeliveryService;
 
@@ -47,7 +44,6 @@ describe('ProductReturn Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     productReturnFormService = TestBed.inject(ProductReturnFormService);
     productReturnService = TestBed.inject(ProductReturnService);
-    tenantService = TestBed.inject(TenantService);
     customerService = TestBed.inject(CustomerService);
     deliveryService = TestBed.inject(DeliveryService);
 
@@ -55,28 +51,6 @@ describe('ProductReturn Management Update Component', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should call Tenant query and add missing value', () => {
-      const productReturn: IProductReturn = { id: 20976 };
-      const tenant: ITenant = { id: 2662 };
-      productReturn.tenant = tenant;
-
-      const tenantCollection: ITenant[] = [{ id: 2662 }];
-      vitest.spyOn(tenantService, 'query').mockReturnValue(of(new HttpResponse({ body: tenantCollection })));
-      const additionalTenants = [tenant];
-      const expectedCollection: ITenant[] = [...additionalTenants, ...tenantCollection];
-      vitest.spyOn(tenantService, 'addTenantToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ productReturn });
-      comp.ngOnInit();
-
-      expect(tenantService.query).toHaveBeenCalled();
-      expect(tenantService.addTenantToCollectionIfMissing).toHaveBeenCalledWith(
-        tenantCollection,
-        ...additionalTenants.map(i => expect.objectContaining(i) as typeof i),
-      );
-      expect(comp.tenantsSharedCollection()).toEqual(expectedCollection);
-    });
-
     it('should call Customer query and add missing value', () => {
       const productReturn: IProductReturn = { id: 20976 };
       const customer: ICustomer = { id: 26915 };
@@ -123,8 +97,6 @@ describe('ProductReturn Management Update Component', () => {
 
     it('should update editForm', () => {
       const productReturn: IProductReturn = { id: 20976 };
-      const tenant: ITenant = { id: 2662 };
-      productReturn.tenant = tenant;
       const customer: ICustomer = { id: 26915 };
       productReturn.customer = customer;
       const delivery: IDelivery = { id: 16325 };
@@ -133,7 +105,6 @@ describe('ProductReturn Management Update Component', () => {
       activatedRoute.data = of({ productReturn });
       comp.ngOnInit();
 
-      expect(comp.tenantsSharedCollection()).toContainEqual(tenant);
       expect(comp.customersSharedCollection()).toContainEqual(customer);
       expect(comp.deliveriesSharedCollection()).toContainEqual(delivery);
       expect(comp.productReturn).toEqual(productReturn);
@@ -209,16 +180,6 @@ describe('ProductReturn Management Update Component', () => {
   });
 
   describe('Compare relationships', () => {
-    describe('compareTenant', () => {
-      it('should forward to tenantService', () => {
-        const entity = { id: 2662 };
-        const entity2 = { id: 17495 };
-        vitest.spyOn(tenantService, 'compareTenant');
-        comp.compareTenant(entity, entity2);
-        expect(tenantService.compareTenant).toHaveBeenCalledWith(entity, entity2);
-      });
-    });
-
     describe('compareCustomer', () => {
       it('should forward to customerService', () => {
         const entity = { id: 26915 };

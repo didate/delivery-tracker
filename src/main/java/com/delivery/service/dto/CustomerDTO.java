@@ -45,9 +45,6 @@ public class CustomerDTO implements Serializable {
     @Lob
     private String notes;
 
-    @NotNull
-    private TenantDTO tenant;
-
     private DriverDTO driver;
 
     public Long getId() {
@@ -130,14 +127,6 @@ public class CustomerDTO implements Serializable {
         this.notes = notes;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     public DriverDTO getDriver() {
         return driver;
     }
@@ -181,7 +170,6 @@ public class CustomerDTO implements Serializable {
             ", longitude=" + getLongitude() +
             ", active='" + getActive() + "'" +
             ", notes='" + getNotes() + "'" +
-            ", tenant=" + getTenant() +
             ", driver=" + getDriver() +
             "}";
     }

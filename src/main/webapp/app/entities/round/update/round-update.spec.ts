@@ -9,8 +9,6 @@ import { Subject, from, of } from 'rxjs';
 
 import { IDriver } from 'app/entities/driver/driver.model';
 import { DriverService } from 'app/entities/driver/service/driver.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { IRound } from '../round.model';
 import { RoundService } from '../service/round.service';
 
@@ -23,7 +21,6 @@ describe('Round Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let roundFormService: RoundFormService;
   let roundService: RoundService;
-  let tenantService: TenantService;
   let driverService: DriverService;
 
   beforeEach(() => {
@@ -44,35 +41,12 @@ describe('Round Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     roundFormService = TestBed.inject(RoundFormService);
     roundService = TestBed.inject(RoundService);
-    tenantService = TestBed.inject(TenantService);
     driverService = TestBed.inject(DriverService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
-    it('should call Tenant query and add missing value', () => {
-      const round: IRound = { id: 13350 };
-      const tenant: ITenant = { id: 2662 };
-      round.tenant = tenant;
-
-      const tenantCollection: ITenant[] = [{ id: 2662 }];
-      vitest.spyOn(tenantService, 'query').mockReturnValue(of(new HttpResponse({ body: tenantCollection })));
-      const additionalTenants = [tenant];
-      const expectedCollection: ITenant[] = [...additionalTenants, ...tenantCollection];
-      vitest.spyOn(tenantService, 'addTenantToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ round });
-      comp.ngOnInit();
-
-      expect(tenantService.query).toHaveBeenCalled();
-      expect(tenantService.addTenantToCollectionIfMissing).toHaveBeenCalledWith(
-        tenantCollection,
-        ...additionalTenants.map(i => expect.objectContaining(i) as typeof i),
-      );
-      expect(comp.tenantsSharedCollection()).toEqual(expectedCollection);
-    });
-
     it('should call Driver query and add missing value', () => {
       const round: IRound = { id: 13350 };
       const driver: IDriver = { id: 27475 };
@@ -97,15 +71,12 @@ describe('Round Management Update Component', () => {
 
     it('should update editForm', () => {
       const round: IRound = { id: 13350 };
-      const tenant: ITenant = { id: 2662 };
-      round.tenant = tenant;
       const driver: IDriver = { id: 27475 };
       round.driver = driver;
 
       activatedRoute.data = of({ round });
       comp.ngOnInit();
 
-      expect(comp.tenantsSharedCollection()).toContainEqual(tenant);
       expect(comp.driversSharedCollection()).toContainEqual(driver);
       expect(comp.round).toEqual(round);
     });
@@ -180,16 +151,6 @@ describe('Round Management Update Component', () => {
   });
 
   describe('Compare relationships', () => {
-    describe('compareTenant', () => {
-      it('should forward to tenantService', () => {
-        const entity = { id: 2662 };
-        const entity2 = { id: 17495 };
-        vitest.spyOn(tenantService, 'compareTenant');
-        comp.compareTenant(entity, entity2);
-        expect(tenantService.compareTenant).toHaveBeenCalledWith(entity, entity2);
-      });
-    });
-
     describe('compareDriver', () => {
       it('should forward to driverService', () => {
         const entity = { id: 27475 };

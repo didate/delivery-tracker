@@ -30,9 +30,6 @@ public class ProductionSiteDTO implements Serializable {
     @NotNull
     private Boolean active;
 
-    @NotNull
-    private TenantDTO tenant;
-
     public Long getId() {
         return id;
     }
@@ -81,14 +78,6 @@ public class ProductionSiteDTO implements Serializable {
         this.active = active;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -120,7 +109,6 @@ public class ProductionSiteDTO implements Serializable {
             ", address='" + getAddress() + "'" +
             ", phone='" + getPhone() + "'" +
             ", active='" + getActive() + "'" +
-            ", tenant=" + getTenant() +
             "}";
     }
 }

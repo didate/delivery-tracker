@@ -12,8 +12,6 @@ import { finalize, map } from 'rxjs/operators';
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
 import { IExpenseCategory } from 'app/entities/expense-category/expense-category.model';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { TranslateDirective } from 'app/shared/language';
 
@@ -35,7 +33,6 @@ export class ExpenseUpdate implements OnInit {
   isSaving = signal(false);
   expense: IExpense | null = null;
 
-  tenantsSharedCollection = signal<ITenant[]>([]);
   expenseCategoriesSharedCollection = signal<IExpenseCategory[]>([]);
   driversSharedCollection = signal<IDriver[]>([]);
 
@@ -43,15 +40,12 @@ export class ExpenseUpdate implements OnInit {
   protected eventManager = inject(EventManager);
   protected expenseService = inject(ExpenseService);
   protected expenseFormService = inject(ExpenseFormService);
-  protected tenantService = inject(TenantService);
   protected expenseCategoryService = inject(ExpenseCategoryService);
   protected driverService = inject(DriverService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: ExpenseFormGroup = this.expenseFormService.createExpenseFormGroup();
-
-  compareTenant = (o1: ITenant | null, o2: ITenant | null): boolean => this.tenantService.compareTenant(o1, o2);
 
   compareExpenseCategory = (o1: IExpenseCategory | null, o2: IExpenseCategory | null): boolean =>
     this.expenseCategoryService.compareExpenseCategory(o1, o2);
@@ -121,9 +115,6 @@ export class ExpenseUpdate implements OnInit {
     this.expense = expense;
     this.expenseFormService.resetForm(this.editForm, expense);
 
-    this.tenantsSharedCollection.set(
-      this.tenantService.addTenantToCollectionIfMissing<ITenant>(this.tenantsSharedCollection(), expense.tenant),
-    );
     this.expenseCategoriesSharedCollection.set(
       this.expenseCategoryService.addExpenseCategoryToCollectionIfMissing<IExpenseCategory>(
         this.expenseCategoriesSharedCollection(),
@@ -136,12 +127,6 @@ export class ExpenseUpdate implements OnInit {
   }
 
   protected loadRelationshipsOptions(): void {
-    this.tenantService
-      .query()
-      .pipe(map((res: HttpResponse<ITenant[]>) => res.body ?? []))
-      .pipe(map((tenants: ITenant[]) => this.tenantService.addTenantToCollectionIfMissing<ITenant>(tenants, this.expense?.tenant)))
-      .subscribe((tenants: ITenant[]) => this.tenantsSharedCollection.set(tenants));
-
     this.expenseCategoryService
       .query()
       .pipe(map((res: HttpResponse<IExpenseCategory[]>) => res.body ?? []))

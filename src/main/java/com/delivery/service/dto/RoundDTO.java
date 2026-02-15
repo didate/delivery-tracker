@@ -34,9 +34,6 @@ public class RoundDTO implements Serializable {
     private String notes;
 
     @NotNull
-    private TenantDTO tenant;
-
-    @NotNull
     private DriverDTO driver;
 
     public Long getId() {
@@ -95,14 +92,6 @@ public class RoundDTO implements Serializable {
         this.notes = notes;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     public DriverDTO getDriver() {
         return driver;
     }
@@ -143,7 +132,6 @@ public class RoundDTO implements Serializable {
             ", startTime='" + getStartTime() + "'" +
             ", endTime='" + getEndTime() + "'" +
             ", notes='" + getNotes() + "'" +
-            ", tenant=" + getTenant() +
             ", driver=" + getDriver() +
             "}";
     }

@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.Expense;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.ExpenseRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.ExpenseDTO;
 import com.delivery.service.mapper.ExpenseMapper;
 import java.util.Optional;
@@ -23,9 +26,12 @@ public class ExpenseService {
 
     private final ExpenseMapper expenseMapper;
 
-    public ExpenseService(ExpenseRepository expenseRepository, ExpenseMapper expenseMapper) {
+    private final TenantRepository tenantRepository;
+
+    public ExpenseService(ExpenseRepository expenseRepository, ExpenseMapper expenseMapper, TenantRepository tenantRepository) {
         this.expenseRepository = expenseRepository;
         this.expenseMapper = expenseMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +43,10 @@ public class ExpenseService {
     public ExpenseDTO save(ExpenseDTO expenseDTO) {
         LOG.debug("Request to save Expense : {}", expenseDTO);
         Expense expense = expenseMapper.toEntity(expenseDTO);
+        // Auto-set tenant from context for new entities
+        if (expense.getId() == null && expense.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(expense::setTenant);
+        }
         expense = expenseRepository.save(expense);
         return expenseMapper.toDto(expense);
     }

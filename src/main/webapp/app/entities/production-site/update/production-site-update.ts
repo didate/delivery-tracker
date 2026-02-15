@@ -7,12 +7,10 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 
 import { DataUtils, FileLoadError } from 'app/core/util/data-util.service';
 import { EventManager, EventWithContent } from 'app/core/util/event-manager.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { AlertErrorModel } from 'app/shared/alert/alert-error.model';
 import { TranslateDirective } from 'app/shared/language';
@@ -31,19 +29,14 @@ export class ProductionSiteUpdate implements OnInit {
   isSaving = signal(false);
   productionSite: IProductionSite | null = null;
 
-  tenantsSharedCollection = signal<ITenant[]>([]);
-
   protected dataUtils = inject(DataUtils);
   protected eventManager = inject(EventManager);
   protected productionSiteService = inject(ProductionSiteService);
   protected productionSiteFormService = inject(ProductionSiteFormService);
-  protected tenantService = inject(TenantService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: ProductionSiteFormGroup = this.productionSiteFormService.createProductionSiteFormGroup();
-
-  compareTenant = (o1: ITenant | null, o2: ITenant | null): boolean => this.tenantService.compareTenant(o1, o2);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ productionSite }) => {
@@ -51,8 +44,6 @@ export class ProductionSiteUpdate implements OnInit {
       if (productionSite) {
         this.updateForm(productionSite);
       }
-
-      this.loadRelationshipsOptions();
     });
   }
 
@@ -107,17 +98,5 @@ export class ProductionSiteUpdate implements OnInit {
   protected updateForm(productionSite: IProductionSite): void {
     this.productionSite = productionSite;
     this.productionSiteFormService.resetForm(this.editForm, productionSite);
-
-    this.tenantsSharedCollection.set(
-      this.tenantService.addTenantToCollectionIfMissing<ITenant>(this.tenantsSharedCollection(), productionSite.tenant),
-    );
-  }
-
-  protected loadRelationshipsOptions(): void {
-    this.tenantService
-      .query()
-      .pipe(map((res: HttpResponse<ITenant[]>) => res.body ?? []))
-      .pipe(map((tenants: ITenant[]) => this.tenantService.addTenantToCollectionIfMissing<ITenant>(tenants, this.productionSite?.tenant)))
-      .subscribe((tenants: ITenant[]) => this.tenantsSharedCollection.set(tenants));
   }
 }

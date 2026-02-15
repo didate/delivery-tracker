@@ -48,9 +48,6 @@ public class VehicleDTO implements Serializable {
     @Lob
     private String notes;
 
-    @NotNull
-    private TenantDTO tenant;
-
     public Long getId() {
         return id;
     }
@@ -147,14 +144,6 @@ public class VehicleDTO implements Serializable {
         this.notes = notes;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -192,7 +181,6 @@ public class VehicleDTO implements Serializable {
             ", fuelType='" + getFuelType() + "'" +
             ", active='" + getActive() + "'" +
             ", notes='" + getNotes() + "'" +
-            ", tenant=" + getTenant() +
             "}";
     }
 }

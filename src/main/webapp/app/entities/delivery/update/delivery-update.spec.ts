@@ -11,8 +11,6 @@ import { ICustomer } from 'app/entities/customer/customer.model';
 import { CustomerService } from 'app/entities/customer/service/customer.service';
 import { IDriver } from 'app/entities/driver/driver.model';
 import { DriverService } from 'app/entities/driver/service/driver.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { IDelivery } from '../delivery.model';
 import { DeliveryService } from '../service/delivery.service';
 
@@ -25,7 +23,6 @@ describe('Delivery Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let deliveryFormService: DeliveryFormService;
   let deliveryService: DeliveryService;
-  let tenantService: TenantService;
   let customerService: CustomerService;
   let driverService: DriverService;
 
@@ -47,7 +44,6 @@ describe('Delivery Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     deliveryFormService = TestBed.inject(DeliveryFormService);
     deliveryService = TestBed.inject(DeliveryService);
-    tenantService = TestBed.inject(TenantService);
     customerService = TestBed.inject(CustomerService);
     driverService = TestBed.inject(DriverService);
 
@@ -55,28 +51,6 @@ describe('Delivery Management Update Component', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should call Tenant query and add missing value', () => {
-      const delivery: IDelivery = { id: 9797 };
-      const tenant: ITenant = { id: 2662 };
-      delivery.tenant = tenant;
-
-      const tenantCollection: ITenant[] = [{ id: 2662 }];
-      vitest.spyOn(tenantService, 'query').mockReturnValue(of(new HttpResponse({ body: tenantCollection })));
-      const additionalTenants = [tenant];
-      const expectedCollection: ITenant[] = [...additionalTenants, ...tenantCollection];
-      vitest.spyOn(tenantService, 'addTenantToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ delivery });
-      comp.ngOnInit();
-
-      expect(tenantService.query).toHaveBeenCalled();
-      expect(tenantService.addTenantToCollectionIfMissing).toHaveBeenCalledWith(
-        tenantCollection,
-        ...additionalTenants.map(i => expect.objectContaining(i) as typeof i),
-      );
-      expect(comp.tenantsSharedCollection()).toEqual(expectedCollection);
-    });
-
     it('should call Customer query and add missing value', () => {
       const delivery: IDelivery = { id: 9797 };
       const customer: ICustomer = { id: 26915 };
@@ -123,8 +97,6 @@ describe('Delivery Management Update Component', () => {
 
     it('should update editForm', () => {
       const delivery: IDelivery = { id: 9797 };
-      const tenant: ITenant = { id: 2662 };
-      delivery.tenant = tenant;
       const customer: ICustomer = { id: 26915 };
       delivery.customer = customer;
       const driver: IDriver = { id: 27475 };
@@ -133,7 +105,6 @@ describe('Delivery Management Update Component', () => {
       activatedRoute.data = of({ delivery });
       comp.ngOnInit();
 
-      expect(comp.tenantsSharedCollection()).toContainEqual(tenant);
       expect(comp.customersSharedCollection()).toContainEqual(customer);
       expect(comp.driversSharedCollection()).toContainEqual(driver);
       expect(comp.delivery).toEqual(delivery);
@@ -209,16 +180,6 @@ describe('Delivery Management Update Component', () => {
   });
 
   describe('Compare relationships', () => {
-    describe('compareTenant', () => {
-      it('should forward to tenantService', () => {
-        const entity = { id: 2662 };
-        const entity2 = { id: 17495 };
-        vitest.spyOn(tenantService, 'compareTenant');
-        comp.compareTenant(entity, entity2);
-        expect(tenantService.compareTenant).toHaveBeenCalledWith(entity, entity2);
-      });
-    });
-
     describe('compareCustomer', () => {
       it('should forward to customerService', () => {
         const entity = { id: 26915 };

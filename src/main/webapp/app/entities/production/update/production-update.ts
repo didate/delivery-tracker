@@ -15,8 +15,6 @@ import { IProduct } from 'app/entities/product/product.model';
 import { ProductService } from 'app/entities/product/service/product.service';
 import { IProductionSite } from 'app/entities/production-site/production-site.model';
 import { ProductionSiteService } from 'app/entities/production-site/service/production-site.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { AlertErrorModel } from 'app/shared/alert/alert-error.model';
 import { TranslateDirective } from 'app/shared/language';
@@ -34,7 +32,6 @@ export class ProductionUpdate implements OnInit {
   isSaving = signal(false);
   production: IProduction | null = null;
 
-  tenantsSharedCollection = signal<ITenant[]>([]);
   productsSharedCollection = signal<IProduct[]>([]);
   productionSitesSharedCollection = signal<IProductionSite[]>([]);
 
@@ -42,15 +39,12 @@ export class ProductionUpdate implements OnInit {
   protected eventManager = inject(EventManager);
   protected productionService = inject(ProductionService);
   protected productionFormService = inject(ProductionFormService);
-  protected tenantService = inject(TenantService);
   protected productService = inject(ProductService);
   protected productionSiteService = inject(ProductionSiteService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: ProductionFormGroup = this.productionFormService.createProductionFormGroup();
-
-  compareTenant = (o1: ITenant | null, o2: ITenant | null): boolean => this.tenantService.compareTenant(o1, o2);
 
   compareProduct = (o1: IProduct | null, o2: IProduct | null): boolean => this.productService.compareProduct(o1, o2);
 
@@ -120,9 +114,6 @@ export class ProductionUpdate implements OnInit {
     this.production = production;
     this.productionFormService.resetForm(this.editForm, production);
 
-    this.tenantsSharedCollection.set(
-      this.tenantService.addTenantToCollectionIfMissing<ITenant>(this.tenantsSharedCollection(), production.tenant),
-    );
     this.productsSharedCollection.set(
       this.productService.addProductToCollectionIfMissing<IProduct>(this.productsSharedCollection(), production.product),
     );
@@ -135,12 +126,6 @@ export class ProductionUpdate implements OnInit {
   }
 
   protected loadRelationshipsOptions(): void {
-    this.tenantService
-      .query()
-      .pipe(map((res: HttpResponse<ITenant[]>) => res.body ?? []))
-      .pipe(map((tenants: ITenant[]) => this.tenantService.addTenantToCollectionIfMissing<ITenant>(tenants, this.production?.tenant)))
-      .subscribe((tenants: ITenant[]) => this.tenantsSharedCollection.set(tenants));
-
     this.productService
       .query()
       .pipe(map((res: HttpResponse<IProduct[]>) => res.body ?? []))

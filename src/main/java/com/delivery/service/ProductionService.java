@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.Production;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.ProductionRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.ProductionDTO;
 import com.delivery.service.mapper.ProductionMapper;
 import java.util.Optional;
@@ -23,9 +26,16 @@ public class ProductionService {
 
     private final ProductionMapper productionMapper;
 
-    public ProductionService(ProductionRepository productionRepository, ProductionMapper productionMapper) {
+    private final TenantRepository tenantRepository;
+
+    public ProductionService(
+        ProductionRepository productionRepository,
+        ProductionMapper productionMapper,
+        TenantRepository tenantRepository
+    ) {
         this.productionRepository = productionRepository;
         this.productionMapper = productionMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +47,10 @@ public class ProductionService {
     public ProductionDTO save(ProductionDTO productionDTO) {
         LOG.debug("Request to save Production : {}", productionDTO);
         Production production = productionMapper.toEntity(productionDTO);
+        // Auto-set tenant from context for new entities
+        if (production.getId() == null && production.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(production::setTenant);
+        }
         production = productionRepository.save(production);
         return productionMapper.toDto(production);
     }

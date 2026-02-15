@@ -24,9 +24,6 @@ public class TenantSettingsDTO implements Serializable {
     @Size(max = 10)
     private String language;
 
-    @NotNull
-    private TenantDTO tenant;
-
     public Long getId() {
         return id;
     }
@@ -67,14 +64,6 @@ public class TenantSettingsDTO implements Serializable {
         this.language = language;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -105,7 +94,6 @@ public class TenantSettingsDTO implements Serializable {
             ", timezone='" + getTimezone() + "'" +
             ", dateFormat='" + getDateFormat() + "'" +
             ", language='" + getLanguage() + "'" +
-            ", tenant=" + getTenant() +
             "}";
     }
 }

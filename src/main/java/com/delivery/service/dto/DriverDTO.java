@@ -32,9 +32,6 @@ public class DriverDTO implements Serializable {
     @NotNull
     private Boolean active;
 
-    @NotNull
-    private TenantDTO tenant;
-
     private VehicleDTO vehicle;
 
     public Long getId() {
@@ -93,14 +90,6 @@ public class DriverDTO implements Serializable {
         this.active = active;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     public VehicleDTO getVehicle() {
         return vehicle;
     }
@@ -141,7 +130,6 @@ public class DriverDTO implements Serializable {
             ", email='" + getEmail() + "'" +
             ", licenseNumber='" + getLicenseNumber() + "'" +
             ", active='" + getActive() + "'" +
-            ", tenant=" + getTenant() +
             ", vehicle=" + getVehicle() +
             "}";
     }

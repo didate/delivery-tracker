@@ -1,7 +1,10 @@
 package com.delivery.service;
 
+import com.delivery.domain.Tenant;
 import com.delivery.domain.TenantSettings;
+import com.delivery.repository.TenantRepository;
 import com.delivery.repository.TenantSettingsRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.TenantSettingsDTO;
 import com.delivery.service.mapper.TenantSettingsMapper;
 import java.util.Optional;
@@ -23,9 +26,16 @@ public class TenantSettingsService {
 
     private final TenantSettingsMapper tenantSettingsMapper;
 
-    public TenantSettingsService(TenantSettingsRepository tenantSettingsRepository, TenantSettingsMapper tenantSettingsMapper) {
+    private final TenantRepository tenantRepository;
+
+    public TenantSettingsService(
+        TenantSettingsRepository tenantSettingsRepository,
+        TenantSettingsMapper tenantSettingsMapper,
+        TenantRepository tenantRepository
+    ) {
         this.tenantSettingsRepository = tenantSettingsRepository;
         this.tenantSettingsMapper = tenantSettingsMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +47,10 @@ public class TenantSettingsService {
     public TenantSettingsDTO save(TenantSettingsDTO tenantSettingsDTO) {
         LOG.debug("Request to save TenantSettings : {}", tenantSettingsDTO);
         TenantSettings tenantSettings = tenantSettingsMapper.toEntity(tenantSettingsDTO);
+        // Auto-set tenant from context for new entities
+        if (tenantSettings.getId() == null && tenantSettings.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(tenantSettings::setTenant);
+        }
         tenantSettings = tenantSettingsRepository.save(tenantSettings);
         return tenantSettingsMapper.toDto(tenantSettings);
     }

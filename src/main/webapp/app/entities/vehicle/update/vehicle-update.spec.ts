@@ -7,8 +7,6 @@ import { ActivatedRoute } from '@angular/router';
 import { TranslateModule } from '@ngx-translate/core';
 import { Subject, from, of } from 'rxjs';
 
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { VehicleService } from '../service/vehicle.service';
 import { IVehicle } from '../vehicle.model';
 
@@ -21,7 +19,6 @@ describe('Vehicle Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let vehicleFormService: VehicleFormService;
   let vehicleService: VehicleService;
-  let tenantService: TenantService;
 
   beforeEach(() => {
     TestBed.configureTestingModule({
@@ -41,43 +38,17 @@ describe('Vehicle Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     vehicleFormService = TestBed.inject(VehicleFormService);
     vehicleService = TestBed.inject(VehicleService);
-    tenantService = TestBed.inject(TenantService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
-    it('should call Tenant query and add missing value', () => {
-      const vehicle: IVehicle = { id: 22559 };
-      const tenant: ITenant = { id: 2662 };
-      vehicle.tenant = tenant;
-
-      const tenantCollection: ITenant[] = [{ id: 2662 }];
-      vitest.spyOn(tenantService, 'query').mockReturnValue(of(new HttpResponse({ body: tenantCollection })));
-      const additionalTenants = [tenant];
-      const expectedCollection: ITenant[] = [...additionalTenants, ...tenantCollection];
-      vitest.spyOn(tenantService, 'addTenantToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ vehicle });
-      comp.ngOnInit();
-
-      expect(tenantService.query).toHaveBeenCalled();
-      expect(tenantService.addTenantToCollectionIfMissing).toHaveBeenCalledWith(
-        tenantCollection,
-        ...additionalTenants.map(i => expect.objectContaining(i) as typeof i),
-      );
-      expect(comp.tenantsSharedCollection()).toEqual(expectedCollection);
-    });
-
     it('should update editForm', () => {
       const vehicle: IVehicle = { id: 22559 };
-      const tenant: ITenant = { id: 2662 };
-      vehicle.tenant = tenant;
 
       activatedRoute.data = of({ vehicle });
       comp.ngOnInit();
 
-      expect(comp.tenantsSharedCollection()).toContainEqual(tenant);
       expect(comp.vehicle).toEqual(vehicle);
     });
   });
@@ -147,18 +118,6 @@ describe('Vehicle Management Update Component', () => {
       expect(vehicleService.update).toHaveBeenCalled();
       expect(comp.isSaving()).toEqual(false);
       expect(comp.previousState).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Compare relationships', () => {
-    describe('compareTenant', () => {
-      it('should forward to tenantService', () => {
-        const entity = { id: 2662 };
-        const entity2 = { id: 17495 };
-        vitest.spyOn(tenantService, 'compareTenant');
-        comp.compareTenant(entity, entity2);
-        expect(tenantService.compareTenant).toHaveBeenCalledWith(entity, entity2);
-      });
     });
   });
 });

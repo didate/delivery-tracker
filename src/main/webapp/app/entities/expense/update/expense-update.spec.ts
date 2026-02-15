@@ -11,8 +11,6 @@ import { IDriver } from 'app/entities/driver/driver.model';
 import { DriverService } from 'app/entities/driver/service/driver.service';
 import { IExpenseCategory } from 'app/entities/expense-category/expense-category.model';
 import { ExpenseCategoryService } from 'app/entities/expense-category/service/expense-category.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { IExpense } from '../expense.model';
 import { ExpenseService } from '../service/expense.service';
 
@@ -25,7 +23,6 @@ describe('Expense Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let expenseFormService: ExpenseFormService;
   let expenseService: ExpenseService;
-  let tenantService: TenantService;
   let expenseCategoryService: ExpenseCategoryService;
   let driverService: DriverService;
 
@@ -47,7 +44,6 @@ describe('Expense Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     expenseFormService = TestBed.inject(ExpenseFormService);
     expenseService = TestBed.inject(ExpenseService);
-    tenantService = TestBed.inject(TenantService);
     expenseCategoryService = TestBed.inject(ExpenseCategoryService);
     driverService = TestBed.inject(DriverService);
 
@@ -55,28 +51,6 @@ describe('Expense Management Update Component', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should call Tenant query and add missing value', () => {
-      const expense: IExpense = { id: 9220 };
-      const tenant: ITenant = { id: 2662 };
-      expense.tenant = tenant;
-
-      const tenantCollection: ITenant[] = [{ id: 2662 }];
-      vitest.spyOn(tenantService, 'query').mockReturnValue(of(new HttpResponse({ body: tenantCollection })));
-      const additionalTenants = [tenant];
-      const expectedCollection: ITenant[] = [...additionalTenants, ...tenantCollection];
-      vitest.spyOn(tenantService, 'addTenantToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ expense });
-      comp.ngOnInit();
-
-      expect(tenantService.query).toHaveBeenCalled();
-      expect(tenantService.addTenantToCollectionIfMissing).toHaveBeenCalledWith(
-        tenantCollection,
-        ...additionalTenants.map(i => expect.objectContaining(i) as typeof i),
-      );
-      expect(comp.tenantsSharedCollection()).toEqual(expectedCollection);
-    });
-
     it('should call ExpenseCategory query and add missing value', () => {
       const expense: IExpense = { id: 9220 };
       const category: IExpenseCategory = { id: 17564 };
@@ -123,8 +97,6 @@ describe('Expense Management Update Component', () => {
 
     it('should update editForm', () => {
       const expense: IExpense = { id: 9220 };
-      const tenant: ITenant = { id: 2662 };
-      expense.tenant = tenant;
       const category: IExpenseCategory = { id: 17564 };
       expense.category = category;
       const driver: IDriver = { id: 27475 };
@@ -133,7 +105,6 @@ describe('Expense Management Update Component', () => {
       activatedRoute.data = of({ expense });
       comp.ngOnInit();
 
-      expect(comp.tenantsSharedCollection()).toContainEqual(tenant);
       expect(comp.expenseCategoriesSharedCollection()).toContainEqual(category);
       expect(comp.driversSharedCollection()).toContainEqual(driver);
       expect(comp.expense).toEqual(expense);
@@ -209,16 +180,6 @@ describe('Expense Management Update Component', () => {
   });
 
   describe('Compare relationships', () => {
-    describe('compareTenant', () => {
-      it('should forward to tenantService', () => {
-        const entity = { id: 2662 };
-        const entity2 = { id: 17495 };
-        vitest.spyOn(tenantService, 'compareTenant');
-        comp.compareTenant(entity, entity2);
-        expect(tenantService.compareTenant).toHaveBeenCalledWith(entity, entity2);
-      });
-    });
-
     describe('compareExpenseCategory', () => {
       it('should forward to expenseCategoryService', () => {
         const entity = { id: 17564 };

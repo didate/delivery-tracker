@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.ProductionSite;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.ProductionSiteRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.ProductionSiteDTO;
 import com.delivery.service.mapper.ProductionSiteMapper;
 import java.util.Optional;
@@ -23,9 +26,16 @@ public class ProductionSiteService {
 
     private final ProductionSiteMapper productionSiteMapper;
 
-    public ProductionSiteService(ProductionSiteRepository productionSiteRepository, ProductionSiteMapper productionSiteMapper) {
+    private final TenantRepository tenantRepository;
+
+    public ProductionSiteService(
+        ProductionSiteRepository productionSiteRepository,
+        ProductionSiteMapper productionSiteMapper,
+        TenantRepository tenantRepository
+    ) {
         this.productionSiteRepository = productionSiteRepository;
         this.productionSiteMapper = productionSiteMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +47,10 @@ public class ProductionSiteService {
     public ProductionSiteDTO save(ProductionSiteDTO productionSiteDTO) {
         LOG.debug("Request to save ProductionSite : {}", productionSiteDTO);
         ProductionSite productionSite = productionSiteMapper.toEntity(productionSiteDTO);
+        // Auto-set tenant from context for new entities
+        if (productionSite.getId() == null && productionSite.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(productionSite::setTenant);
+        }
         productionSite = productionSiteRepository.save(productionSite);
         return productionSiteMapper.toDto(productionSite);
     }

@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.Round;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.RoundRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.RoundDTO;
 import com.delivery.service.mapper.RoundMapper;
 import java.util.Optional;
@@ -23,9 +26,12 @@ public class RoundService {
 
     private final RoundMapper roundMapper;
 
-    public RoundService(RoundRepository roundRepository, RoundMapper roundMapper) {
+    private final TenantRepository tenantRepository;
+
+    public RoundService(RoundRepository roundRepository, RoundMapper roundMapper, TenantRepository tenantRepository) {
         this.roundRepository = roundRepository;
         this.roundMapper = roundMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +43,10 @@ public class RoundService {
     public RoundDTO save(RoundDTO roundDTO) {
         LOG.debug("Request to save Round : {}", roundDTO);
         Round round = roundMapper.toEntity(roundDTO);
+        // Auto-set tenant from context for new entities
+        if (round.getId() == null && round.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(round::setTenant);
+        }
         round = roundRepository.save(round);
         return roundMapper.toDto(round);
     }

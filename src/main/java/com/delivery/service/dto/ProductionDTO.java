@@ -25,9 +25,6 @@ public class ProductionDTO implements Serializable {
     private String notes;
 
     @NotNull
-    private TenantDTO tenant;
-
-    @NotNull
     private ProductDTO product;
 
     @NotNull
@@ -63,14 +60,6 @@ public class ProductionDTO implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
     }
 
     public ProductDTO getProduct() {
@@ -118,7 +107,6 @@ public class ProductionDTO implements Serializable {
             ", productionDate='" + getProductionDate() + "'" +
             ", quantity=" + getQuantity() +
             ", notes='" + getNotes() + "'" +
-            ", tenant=" + getTenant() +
             ", product=" + getProduct() +
             ", productionSite=" + getProductionSite() +
             "}";

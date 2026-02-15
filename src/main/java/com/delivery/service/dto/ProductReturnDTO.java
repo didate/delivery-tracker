@@ -25,9 +25,6 @@ public class ProductReturnDTO implements Serializable {
     private String notes;
 
     @NotNull
-    private TenantDTO tenant;
-
-    @NotNull
     private CustomerDTO customer;
 
     private DeliveryDTO delivery;
@@ -62,14 +59,6 @@ public class ProductReturnDTO implements Serializable {
 
     public void setNotes(String notes) {
         this.notes = notes;
-    }
-
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
     }
 
     public CustomerDTO getCustomer() {
@@ -117,7 +106,6 @@ public class ProductReturnDTO implements Serializable {
             ", returnDate='" + getReturnDate() + "'" +
             ", reason='" + getReason() + "'" +
             ", notes='" + getNotes() + "'" +
-            ", tenant=" + getTenant() +
             ", customer=" + getCustomer() +
             ", delivery=" + getDelivery() +
             "}";

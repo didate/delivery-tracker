@@ -7,10 +7,8 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 
 import { TranslateModule } from '@ngx-translate/core';
 import { Observable } from 'rxjs';
-import { finalize, map } from 'rxjs/operators';
+import { finalize } from 'rxjs/operators';
 
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { TranslateDirective } from 'app/shared/language';
 import { TenantSettingsService } from '../service/tenant-settings.service';
@@ -27,17 +25,12 @@ export class TenantSettingsUpdate implements OnInit {
   isSaving = signal(false);
   tenantSettings: ITenantSettings | null = null;
 
-  tenantsSharedCollection = signal<ITenant[]>([]);
-
   protected tenantSettingsService = inject(TenantSettingsService);
   protected tenantSettingsFormService = inject(TenantSettingsFormService);
-  protected tenantService = inject(TenantService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: TenantSettingsFormGroup = this.tenantSettingsFormService.createTenantSettingsFormGroup();
-
-  compareTenant = (o1: ITenant | null, o2: ITenant | null): boolean => this.tenantService.compareTenant(o1, o2);
 
   ngOnInit(): void {
     this.activatedRoute.data.subscribe(({ tenantSettings }) => {
@@ -45,8 +38,6 @@ export class TenantSettingsUpdate implements OnInit {
       if (tenantSettings) {
         this.updateForm(tenantSettings);
       }
-
-      this.loadRelationshipsOptions();
     });
   }
 
@@ -86,17 +77,5 @@ export class TenantSettingsUpdate implements OnInit {
   protected updateForm(tenantSettings: ITenantSettings): void {
     this.tenantSettings = tenantSettings;
     this.tenantSettingsFormService.resetForm(this.editForm, tenantSettings);
-
-    this.tenantsSharedCollection.set(
-      this.tenantService.addTenantToCollectionIfMissing<ITenant>(this.tenantsSharedCollection(), tenantSettings.tenant),
-    );
-  }
-
-  protected loadRelationshipsOptions(): void {
-    this.tenantService
-      .query()
-      .pipe(map((res: HttpResponse<ITenant[]>) => res.body ?? []))
-      .pipe(map((tenants: ITenant[]) => this.tenantService.addTenantToCollectionIfMissing<ITenant>(tenants, this.tenantSettings?.tenant)))
-      .subscribe((tenants: ITenant[]) => this.tenantsSharedCollection.set(tenants));
   }
 }

@@ -30,9 +30,6 @@ public class DeliveryDTO implements Serializable {
     private String notes;
 
     @NotNull
-    private TenantDTO tenant;
-
-    @NotNull
     private CustomerDTO customer;
 
     @NotNull
@@ -86,14 +83,6 @@ public class DeliveryDTO implements Serializable {
         this.notes = notes;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     public CustomerDTO getCustomer() {
         return customer;
     }
@@ -141,7 +130,6 @@ public class DeliveryDTO implements Serializable {
             ", totalAmount=" + getTotalAmount() +
             ", paidAmount=" + getPaidAmount() +
             ", notes='" + getNotes() + "'" +
-            ", tenant=" + getTenant() +
             ", customer=" + getCustomer() +
             ", driver=" + getDriver() +
             "}";

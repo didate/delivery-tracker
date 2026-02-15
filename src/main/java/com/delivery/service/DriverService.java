@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.Driver;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.DriverRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.DriverDTO;
 import com.delivery.service.mapper.DriverMapper;
 import java.util.Optional;
@@ -23,9 +26,12 @@ public class DriverService {
 
     private final DriverMapper driverMapper;
 
-    public DriverService(DriverRepository driverRepository, DriverMapper driverMapper) {
+    private final TenantRepository tenantRepository;
+
+    public DriverService(DriverRepository driverRepository, DriverMapper driverMapper, TenantRepository tenantRepository) {
         this.driverRepository = driverRepository;
         this.driverMapper = driverMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +43,10 @@ public class DriverService {
     public DriverDTO save(DriverDTO driverDTO) {
         LOG.debug("Request to save Driver : {}", driverDTO);
         Driver driver = driverMapper.toEntity(driverDTO);
+        // Auto-set tenant from context for new entities
+        if (driver.getId() == null && driver.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(driver::setTenant);
+        }
         driver = driverRepository.save(driver);
         return driverMapper.toDto(driver);
     }

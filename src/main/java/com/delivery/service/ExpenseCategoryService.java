@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.ExpenseCategory;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.ExpenseCategoryRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.ExpenseCategoryDTO;
 import com.delivery.service.mapper.ExpenseCategoryMapper;
 import java.util.Optional;
@@ -23,9 +26,16 @@ public class ExpenseCategoryService {
 
     private final ExpenseCategoryMapper expenseCategoryMapper;
 
-    public ExpenseCategoryService(ExpenseCategoryRepository expenseCategoryRepository, ExpenseCategoryMapper expenseCategoryMapper) {
+    private final TenantRepository tenantRepository;
+
+    public ExpenseCategoryService(
+        ExpenseCategoryRepository expenseCategoryRepository,
+        ExpenseCategoryMapper expenseCategoryMapper,
+        TenantRepository tenantRepository
+    ) {
         this.expenseCategoryRepository = expenseCategoryRepository;
         this.expenseCategoryMapper = expenseCategoryMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +47,10 @@ public class ExpenseCategoryService {
     public ExpenseCategoryDTO save(ExpenseCategoryDTO expenseCategoryDTO) {
         LOG.debug("Request to save ExpenseCategory : {}", expenseCategoryDTO);
         ExpenseCategory expenseCategory = expenseCategoryMapper.toEntity(expenseCategoryDTO);
+        // Auto-set tenant from context for new entities
+        if (expenseCategory.getId() == null && expenseCategory.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(expenseCategory::setTenant);
+        }
         expenseCategory = expenseCategoryRepository.save(expenseCategory);
         return expenseCategoryMapper.toDto(expenseCategory);
     }

@@ -27,9 +27,6 @@ public class ExpenseCategoryDTO implements Serializable {
     @NotNull
     private Boolean active;
 
-    @NotNull
-    private TenantDTO tenant;
-
     public Long getId() {
         return id;
     }
@@ -70,14 +67,6 @@ public class ExpenseCategoryDTO implements Serializable {
         this.active = active;
     }
 
-    public TenantDTO getTenant() {
-        return tenant;
-    }
-
-    public void setTenant(TenantDTO tenant) {
-        this.tenant = tenant;
-    }
-
     @Override
     public boolean equals(Object o) {
         if (this == o) {
@@ -108,7 +97,6 @@ public class ExpenseCategoryDTO implements Serializable {
             ", name='" + getName() + "'" +
             ", description='" + getDescription() + "'" +
             ", active='" + getActive() + "'" +
-            ", tenant=" + getTenant() +
             "}";
     }
 }

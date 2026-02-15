@@ -1,7 +1,10 @@
 package com.delivery.service;
 
+import com.delivery.domain.Tenant;
 import com.delivery.domain.Vehicle;
+import com.delivery.repository.TenantRepository;
 import com.delivery.repository.VehicleRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.VehicleDTO;
 import com.delivery.service.mapper.VehicleMapper;
 import java.util.Optional;
@@ -23,9 +26,12 @@ public class VehicleService {
 
     private final VehicleMapper vehicleMapper;
 
-    public VehicleService(VehicleRepository vehicleRepository, VehicleMapper vehicleMapper) {
+    private final TenantRepository tenantRepository;
+
+    public VehicleService(VehicleRepository vehicleRepository, VehicleMapper vehicleMapper, TenantRepository tenantRepository) {
         this.vehicleRepository = vehicleRepository;
         this.vehicleMapper = vehicleMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +43,10 @@ public class VehicleService {
     public VehicleDTO save(VehicleDTO vehicleDTO) {
         LOG.debug("Request to save Vehicle : {}", vehicleDTO);
         Vehicle vehicle = vehicleMapper.toEntity(vehicleDTO);
+        // Auto-set tenant from context for new entities
+        if (vehicle.getId() == null && vehicle.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(vehicle::setTenant);
+        }
         vehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toDto(vehicle);
     }

@@ -16,8 +16,6 @@ import { CustomerService } from 'app/entities/customer/service/customer.service'
 import { IDelivery } from 'app/entities/delivery/delivery.model';
 import { DeliveryService } from 'app/entities/delivery/service/delivery.service';
 import { PaymentMethod } from 'app/entities/enumerations/payment-method.model';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { AlertError } from 'app/shared/alert/alert-error';
 import { AlertErrorModel } from 'app/shared/alert/alert-error.model';
 import { TranslateDirective } from 'app/shared/language';
@@ -36,7 +34,6 @@ export class PaymentUpdate implements OnInit {
   payment: IPayment | null = null;
   paymentMethodValues = Object.keys(PaymentMethod);
 
-  tenantsSharedCollection = signal<ITenant[]>([]);
   customersSharedCollection = signal<ICustomer[]>([]);
   deliveriesSharedCollection = signal<IDelivery[]>([]);
 
@@ -44,15 +41,12 @@ export class PaymentUpdate implements OnInit {
   protected eventManager = inject(EventManager);
   protected paymentService = inject(PaymentService);
   protected paymentFormService = inject(PaymentFormService);
-  protected tenantService = inject(TenantService);
   protected customerService = inject(CustomerService);
   protected deliveryService = inject(DeliveryService);
   protected activatedRoute = inject(ActivatedRoute);
 
   // eslint-disable-next-line @typescript-eslint/member-ordering
   editForm: PaymentFormGroup = this.paymentFormService.createPaymentFormGroup();
-
-  compareTenant = (o1: ITenant | null, o2: ITenant | null): boolean => this.tenantService.compareTenant(o1, o2);
 
   compareCustomer = (o1: ICustomer | null, o2: ICustomer | null): boolean => this.customerService.compareCustomer(o1, o2);
 
@@ -121,9 +115,6 @@ export class PaymentUpdate implements OnInit {
     this.payment = payment;
     this.paymentFormService.resetForm(this.editForm, payment);
 
-    this.tenantsSharedCollection.set(
-      this.tenantService.addTenantToCollectionIfMissing<ITenant>(this.tenantsSharedCollection(), payment.tenant),
-    );
     this.customersSharedCollection.set(
       this.customerService.addCustomerToCollectionIfMissing<ICustomer>(this.customersSharedCollection(), payment.customer),
     );
@@ -133,12 +124,6 @@ export class PaymentUpdate implements OnInit {
   }
 
   protected loadRelationshipsOptions(): void {
-    this.tenantService
-      .query()
-      .pipe(map((res: HttpResponse<ITenant[]>) => res.body ?? []))
-      .pipe(map((tenants: ITenant[]) => this.tenantService.addTenantToCollectionIfMissing<ITenant>(tenants, this.payment?.tenant)))
-      .subscribe((tenants: ITenant[]) => this.tenantsSharedCollection.set(tenants));
-
     this.customerService
       .query()
       .pipe(map((res: HttpResponse<ICustomer[]>) => res.body ?? []))

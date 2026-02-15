@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.Delivery;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.DeliveryRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.DeliveryDTO;
 import com.delivery.service.mapper.DeliveryMapper;
 import java.util.Optional;
@@ -23,9 +26,12 @@ public class DeliveryService {
 
     private final DeliveryMapper deliveryMapper;
 
-    public DeliveryService(DeliveryRepository deliveryRepository, DeliveryMapper deliveryMapper) {
+    private final TenantRepository tenantRepository;
+
+    public DeliveryService(DeliveryRepository deliveryRepository, DeliveryMapper deliveryMapper, TenantRepository tenantRepository) {
         this.deliveryRepository = deliveryRepository;
         this.deliveryMapper = deliveryMapper;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -37,6 +43,10 @@ public class DeliveryService {
     public DeliveryDTO save(DeliveryDTO deliveryDTO) {
         LOG.debug("Request to save Delivery : {}", deliveryDTO);
         Delivery delivery = deliveryMapper.toEntity(deliveryDTO);
+        // Auto-set tenant from context for new entities
+        if (delivery.getId() == null && delivery.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(delivery::setTenant);
+        }
         delivery = deliveryRepository.save(delivery);
         return deliveryMapper.toDto(delivery);
     }

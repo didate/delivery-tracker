@@ -1,7 +1,10 @@
 package com.delivery.service;
 
 import com.delivery.domain.Product;
+import com.delivery.domain.Tenant;
 import com.delivery.repository.ProductRepository;
+import com.delivery.repository.TenantRepository;
+import com.delivery.security.TenantContext;
 import com.delivery.service.dto.ProductDTO;
 import com.delivery.service.mapper.ProductMapper;
 import com.delivery.web.rest.errors.BadRequestAlertException;
@@ -29,10 +32,18 @@ public class ProductService {
 
     private final PriceHistoryService priceHistoryService;
 
-    public ProductService(ProductRepository productRepository, ProductMapper productMapper, PriceHistoryService priceHistoryService) {
+    private final TenantRepository tenantRepository;
+
+    public ProductService(
+        ProductRepository productRepository,
+        ProductMapper productMapper,
+        PriceHistoryService priceHistoryService,
+        TenantRepository tenantRepository
+    ) {
         this.productRepository = productRepository;
         this.productMapper = productMapper;
         this.priceHistoryService = priceHistoryService;
+        this.tenantRepository = tenantRepository;
     }
 
     /**
@@ -45,6 +56,10 @@ public class ProductService {
         LOG.debug("Request to save Product : {}", productDTO);
         validateCodeUniqueness(productDTO.getCode(), productDTO.getId());
         Product product = productMapper.toEntity(productDTO);
+        // Auto-set tenant from context for new entities
+        if (product.getId() == null && product.getTenant() == null && TenantContext.hasTenant()) {
+            tenantRepository.findById(TenantContext.getCurrentTenant()).ifPresent(product::setTenant);
+        }
         product = productRepository.save(product);
         return productMapper.toDto(product);
     }

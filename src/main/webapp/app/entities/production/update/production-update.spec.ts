@@ -11,8 +11,6 @@ import { IProduct } from 'app/entities/product/product.model';
 import { ProductService } from 'app/entities/product/service/product.service';
 import { IProductionSite } from 'app/entities/production-site/production-site.model';
 import { ProductionSiteService } from 'app/entities/production-site/service/production-site.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { IProduction } from '../production.model';
 import { ProductionService } from '../service/production.service';
 
@@ -25,7 +23,6 @@ describe('Production Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let productionFormService: ProductionFormService;
   let productionService: ProductionService;
-  let tenantService: TenantService;
   let productService: ProductService;
   let productionSiteService: ProductionSiteService;
 
@@ -47,7 +44,6 @@ describe('Production Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     productionFormService = TestBed.inject(ProductionFormService);
     productionService = TestBed.inject(ProductionService);
-    tenantService = TestBed.inject(TenantService);
     productService = TestBed.inject(ProductService);
     productionSiteService = TestBed.inject(ProductionSiteService);
 
@@ -55,28 +51,6 @@ describe('Production Management Update Component', () => {
   });
 
   describe('ngOnInit', () => {
-    it('should call Tenant query and add missing value', () => {
-      const production: IProduction = { id: 21928 };
-      const tenant: ITenant = { id: 2662 };
-      production.tenant = tenant;
-
-      const tenantCollection: ITenant[] = [{ id: 2662 }];
-      vitest.spyOn(tenantService, 'query').mockReturnValue(of(new HttpResponse({ body: tenantCollection })));
-      const additionalTenants = [tenant];
-      const expectedCollection: ITenant[] = [...additionalTenants, ...tenantCollection];
-      vitest.spyOn(tenantService, 'addTenantToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ production });
-      comp.ngOnInit();
-
-      expect(tenantService.query).toHaveBeenCalled();
-      expect(tenantService.addTenantToCollectionIfMissing).toHaveBeenCalledWith(
-        tenantCollection,
-        ...additionalTenants.map(i => expect.objectContaining(i) as typeof i),
-      );
-      expect(comp.tenantsSharedCollection()).toEqual(expectedCollection);
-    });
-
     it('should call Product query and add missing value', () => {
       const production: IProduction = { id: 21928 };
       const product: IProduct = { id: 21536 };
@@ -123,8 +97,6 @@ describe('Production Management Update Component', () => {
 
     it('should update editForm', () => {
       const production: IProduction = { id: 21928 };
-      const tenant: ITenant = { id: 2662 };
-      production.tenant = tenant;
       const product: IProduct = { id: 21536 };
       production.product = product;
       const productionSite: IProductionSite = { id: 20528 };
@@ -133,7 +105,6 @@ describe('Production Management Update Component', () => {
       activatedRoute.data = of({ production });
       comp.ngOnInit();
 
-      expect(comp.tenantsSharedCollection()).toContainEqual(tenant);
       expect(comp.productsSharedCollection()).toContainEqual(product);
       expect(comp.productionSitesSharedCollection()).toContainEqual(productionSite);
       expect(comp.production).toEqual(production);
@@ -209,16 +180,6 @@ describe('Production Management Update Component', () => {
   });
 
   describe('Compare relationships', () => {
-    describe('compareTenant', () => {
-      it('should forward to tenantService', () => {
-        const entity = { id: 2662 };
-        const entity2 = { id: 17495 };
-        vitest.spyOn(tenantService, 'compareTenant');
-        comp.compareTenant(entity, entity2);
-        expect(tenantService.compareTenant).toHaveBeenCalledWith(entity, entity2);
-      });
-    });
-
     describe('compareProduct', () => {
       it('should forward to productService', () => {
         const entity = { id: 21536 };

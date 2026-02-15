@@ -9,8 +9,6 @@ import { Subject, from, of } from 'rxjs';
 
 import { IDriver } from 'app/entities/driver/driver.model';
 import { DriverService } from 'app/entities/driver/service/driver.service';
-import { TenantService } from 'app/entities/tenant/service/tenant.service';
-import { ITenant } from 'app/entities/tenant/tenant.model';
 import { ICustomer } from '../customer.model';
 import { CustomerService } from '../service/customer.service';
 
@@ -23,7 +21,6 @@ describe('Customer Management Update Component', () => {
   let activatedRoute: ActivatedRoute;
   let customerFormService: CustomerFormService;
   let customerService: CustomerService;
-  let tenantService: TenantService;
   let driverService: DriverService;
 
   beforeEach(() => {
@@ -44,35 +41,12 @@ describe('Customer Management Update Component', () => {
     activatedRoute = TestBed.inject(ActivatedRoute);
     customerFormService = TestBed.inject(CustomerFormService);
     customerService = TestBed.inject(CustomerService);
-    tenantService = TestBed.inject(TenantService);
     driverService = TestBed.inject(DriverService);
 
     comp = fixture.componentInstance;
   });
 
   describe('ngOnInit', () => {
-    it('should call Tenant query and add missing value', () => {
-      const customer: ICustomer = { id: 21032 };
-      const tenant: ITenant = { id: 2662 };
-      customer.tenant = tenant;
-
-      const tenantCollection: ITenant[] = [{ id: 2662 }];
-      vitest.spyOn(tenantService, 'query').mockReturnValue(of(new HttpResponse({ body: tenantCollection })));
-      const additionalTenants = [tenant];
-      const expectedCollection: ITenant[] = [...additionalTenants, ...tenantCollection];
-      vitest.spyOn(tenantService, 'addTenantToCollectionIfMissing').mockReturnValue(expectedCollection);
-
-      activatedRoute.data = of({ customer });
-      comp.ngOnInit();
-
-      expect(tenantService.query).toHaveBeenCalled();
-      expect(tenantService.addTenantToCollectionIfMissing).toHaveBeenCalledWith(
-        tenantCollection,
-        ...additionalTenants.map(i => expect.objectContaining(i) as typeof i),
-      );
-      expect(comp.tenantsSharedCollection()).toEqual(expectedCollection);
-    });
-
     it('should call Driver query and add missing value', () => {
       const customer: ICustomer = { id: 21032 };
       const driver: IDriver = { id: 27475 };
@@ -97,15 +71,12 @@ describe('Customer Management Update Component', () => {
 
     it('should update editForm', () => {
       const customer: ICustomer = { id: 21032 };
-      const tenant: ITenant = { id: 2662 };
-      customer.tenant = tenant;
       const driver: IDriver = { id: 27475 };
       customer.driver = driver;
 
       activatedRoute.data = of({ customer });
       comp.ngOnInit();
 
-      expect(comp.tenantsSharedCollection()).toContainEqual(tenant);
       expect(comp.driversSharedCollection()).toContainEqual(driver);
       expect(comp.customer).toEqual(customer);
     });
@@ -180,16 +151,6 @@ describe('Customer Management Update Component', () => {
   });
 
   describe('Compare relationships', () => {
-    describe('compareTenant', () => {
-      it('should forward to tenantService', () => {
-        const entity = { id: 2662 };
-        const entity2 = { id: 17495 };
-        vitest.spyOn(tenantService, 'compareTenant');
-        comp.compareTenant(entity, entity2);
-        expect(tenantService.compareTenant).toHaveBeenCalledWith(entity, entity2);
-      });
-    });
-
     describe('compareDriver', () => {
       it('should forward to driverService', () => {
         const entity = { id: 27475 };
