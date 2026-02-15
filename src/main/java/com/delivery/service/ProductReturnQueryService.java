@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.ProductReturn;
 import com.delivery.repository.ProductReturnRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.ProductReturnCriteria;
 import com.delivery.service.dto.ProductReturnDTO;
 import com.delivery.service.mapper.ProductReturnMapper;
@@ -81,6 +82,7 @@ public class ProductReturnQueryService extends QueryService<ProductReturn> {
                 buildSpecification(criteria.getDeliveryId(), root -> root.join(ProductReturn_.delivery, JoinType.LEFT).get(Delivery_.id))
             );
         }
-        return specification;
+        // Apply automatic tenant filtering for non-ADMIN users
+        return TenantSpecifications.withTenantFilter(specification, ProductReturn_.tenant, Tenant_.id);
     }
 }

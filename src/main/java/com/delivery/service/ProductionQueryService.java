@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.Production;
 import com.delivery.repository.ProductionRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.ProductionCriteria;
 import com.delivery.service.dto.ProductionDTO;
 import com.delivery.service.mapper.ProductionMapper;
@@ -83,6 +84,7 @@ public class ProductionQueryService extends QueryService<Production> {
                 )
             );
         }
-        return specification;
+        // Apply automatic tenant filtering for non-ADMIN users
+        return TenantSpecifications.withTenantFilter(specification, Production_.tenant, Tenant_.id);
     }
 }

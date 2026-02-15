@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.Expense;
 import com.delivery.repository.ExpenseRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.ExpenseCriteria;
 import com.delivery.service.dto.ExpenseDTO;
 import com.delivery.service.mapper.ExpenseMapper;
@@ -82,6 +83,7 @@ public class ExpenseQueryService extends QueryService<Expense> {
                 buildSpecification(criteria.getDriverId(), root -> root.join(Expense_.driver, JoinType.LEFT).get(Driver_.id))
             );
         }
-        return specification;
+        // Apply automatic tenant filtering for non-ADMIN users
+        return TenantSpecifications.withTenantFilter(specification, Expense_.tenant, Tenant_.id);
     }
 }

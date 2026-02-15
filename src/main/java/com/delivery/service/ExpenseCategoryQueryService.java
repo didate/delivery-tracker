@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.ExpenseCategory;
 import com.delivery.repository.ExpenseCategoryRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.ExpenseCategoryCriteria;
 import com.delivery.service.dto.ExpenseCategoryDTO;
 import com.delivery.service.mapper.ExpenseCategoryMapper;
@@ -80,6 +81,7 @@ public class ExpenseCategoryQueryService extends QueryService<ExpenseCategory> {
                 buildSpecification(criteria.getTenantId(), root -> root.join(ExpenseCategory_.tenant, JoinType.LEFT).get(Tenant_.id))
             );
         }
-        return specification;
+        // Apply automatic tenant filtering for non-ADMIN users
+        return TenantSpecifications.withTenantFilter(specification, ExpenseCategory_.tenant, Tenant_.id);
     }
 }

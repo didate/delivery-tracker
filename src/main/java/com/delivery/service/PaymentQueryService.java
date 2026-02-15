@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.Payment;
 import com.delivery.repository.PaymentRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.PaymentCriteria;
 import com.delivery.service.dto.PaymentDTO;
 import com.delivery.service.mapper.PaymentMapper;
@@ -83,6 +84,7 @@ public class PaymentQueryService extends QueryService<Payment> {
                 buildSpecification(criteria.getDeliveryId(), root -> root.join(Payment_.delivery, JoinType.LEFT).get(Delivery_.id))
             );
         }
-        return specification;
+        // Apply automatic tenant filtering for non-ADMIN users
+        return TenantSpecifications.withTenantFilter(specification, Payment_.tenant, Tenant_.id);
     }
 }

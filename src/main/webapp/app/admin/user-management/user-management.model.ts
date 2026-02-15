@@ -11,6 +11,9 @@ export interface IUser {
   createdDate?: Date;
   lastModifiedBy?: string;
   lastModifiedDate?: Date;
+  imageUrl?: string | null;
+  tenantId?: number | null;
+  tenantName?: string | null;
 }
 
 export class User implements IUser {
@@ -27,5 +30,8 @@ export class User implements IUser {
     public createdDate?: Date,
     public lastModifiedBy?: string,
     public lastModifiedDate?: Date,
+    public imageUrl?: string | null,
+    public tenantId?: number | null,
+    public tenantName?: string | null,
   ) {}
 }

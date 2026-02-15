@@ -53,6 +53,10 @@ public class AdminUserDTO implements Serializable {
 
     private Set<String> authorities;
 
+    private Long tenantId;
+
+    private String tenantName;
+
     public AdminUserDTO() {
         // Empty constructor needed for Jackson.
     }
@@ -71,6 +75,10 @@ public class AdminUserDTO implements Serializable {
         this.lastModifiedBy = user.getLastModifiedBy();
         this.lastModifiedDate = user.getLastModifiedDate();
         this.authorities = user.getAuthorities().stream().map(Authority::getName).collect(Collectors.toSet());
+        if (user.getTenant() != null) {
+            this.tenantId = user.getTenant().getId();
+            this.tenantName = user.getTenant().getName();
+        }
     }
 
     public Long getId() {
@@ -177,6 +185,22 @@ public class AdminUserDTO implements Serializable {
         this.authorities = authorities;
     }
 
+    public Long getTenantId() {
+        return tenantId;
+    }
+
+    public void setTenantId(Long tenantId) {
+        this.tenantId = tenantId;
+    }
+
+    public String getTenantName() {
+        return tenantName;
+    }
+
+    public void setTenantName(String tenantName) {
+        this.tenantName = tenantName;
+    }
+
     // prettier-ignore
     @Override
     public String toString() {
@@ -193,6 +217,8 @@ public class AdminUserDTO implements Serializable {
             ", lastModifiedBy='" + lastModifiedBy + '\'' +
             ", lastModifiedDate=" + lastModifiedDate +
             ", authorities=" + authorities +
+            ", tenantId=" + tenantId +
+            ", tenantName='" + tenantName + '\'' +
             "}";
     }
 }

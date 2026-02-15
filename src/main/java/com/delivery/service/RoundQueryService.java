@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.Round;
 import com.delivery.repository.RoundRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.RoundCriteria;
 import com.delivery.service.dto.RoundDTO;
 import com.delivery.service.mapper.RoundMapper;
@@ -83,6 +84,7 @@ public class RoundQueryService extends QueryService<Round> {
                 buildSpecification(criteria.getDriverId(), root -> root.join(Round_.driver, JoinType.LEFT).get(Driver_.id))
             );
         }
-        return specification;
+        // Apply automatic tenant filtering for non-ADMIN users
+        return TenantSpecifications.withTenantFilter(specification, Round_.tenant, Tenant_.id);
     }
 }

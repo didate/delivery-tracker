@@ -3,6 +3,7 @@ package com.delivery.service;
 import com.delivery.domain.*; // for static metamodels
 import com.delivery.domain.Driver;
 import com.delivery.repository.DriverRepository;
+import com.delivery.security.TenantSpecifications;
 import com.delivery.service.criteria.DriverCriteria;
 import com.delivery.service.dto.DriverDTO;
 import com.delivery.service.mapper.DriverMapper;
@@ -84,6 +85,7 @@ public class DriverQueryService extends QueryService<Driver> {
                 buildSpecification(criteria.getVehicleId(), root -> root.join(Driver_.vehicle, JoinType.LEFT).get(Vehicle_.id))
             );
         }
-        return specification;
+        // Apply automatic tenant filtering for non-ADMIN users
+        return TenantSpecifications.withTenantFilter(specification, Driver_.tenant, Tenant_.id);
     }
 }

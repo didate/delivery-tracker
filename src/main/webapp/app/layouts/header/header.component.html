@@ -31,6 +31,56 @@
             <fa-icon [icon]="isNavbarCollapsed() ? 'ellipsis-v' : 'times'" class="text-lg" />
           </button>
 
+          <!-- Tenant Switcher (ADMIN only) -->
+          @if (isAdmin && tenants().length > 0) {
+            <div class="relative mr-4">
+              <button
+                type="button"
+                class="flex items-center gap-2 px-3 py-2 text-sm text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg transition-colors border border-gray-300"
+                (click)="toggleTenantMenu()"
+                [attr.aria-expanded]="isTenantMenuOpen()"
+                aria-haspopup="true"
+                data-cy="tenant-switcher"
+              >
+                <fa-icon icon="building" class="text-base" />
+                <span class="hidden sm:inline max-w-32 truncate">{{ currentTenant()?.name ?? 'Select Tenant' }}</span>
+                <fa-icon icon="chevron-down" class="text-xs" />
+              </button>
+
+              @if (isTenantMenuOpen()) {
+                <div class="fixed inset-0 z-10" (click)="closeTenantMenu()"></div>
+                <div
+                  class="absolute right-0 z-20 mt-2 w-64 max-h-96 overflow-y-auto origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5"
+                  role="menu"
+                >
+                  <div class="px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider border-b">Switch Tenant</div>
+                  @for (tenant of tenants(); track tenant.id) {
+                    <button
+                      type="button"
+                      class="flex items-center w-full px-4 py-2 text-left text-sm hover:bg-gray-100"
+                      [class.text-orange-600]="tenant.id === currentTenant()?.id"
+                      [class.font-medium]="tenant.id === currentTenant()?.id"
+                      [class.bg-orange-50]="tenant.id === currentTenant()?.id"
+                      [class.text-gray-700]="tenant.id !== currentTenant()?.id"
+                      role="menuitem"
+                      (click)="switchTenant(tenant)"
+                      [attr.data-cy]="'tenant-' + tenant.id"
+                    >
+                      <fa-icon icon="building" class="mr-2 text-gray-400" />
+                      <div class="flex flex-col">
+                        <span>{{ tenant.name }}</span>
+                        <span class="text-xs text-gray-400">{{ tenant.code }}</span>
+                      </div>
+                      @if (tenant.id === currentTenant()?.id) {
+                        <fa-icon icon="check" class="ml-auto text-orange-600" />
+                      }
+                    </button>
+                  }
+                </div>
+              }
+            </div>
+          }
+
           <!-- Language Switcher -->
           <div class="relative mr-4">
             <button

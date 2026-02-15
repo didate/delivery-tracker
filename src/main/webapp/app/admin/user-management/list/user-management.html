@@ -1,213 +1,210 @@
 <div class="">
-  <!-- Header Section -->
+  <!-- Page Header -->
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-6">
-    <h2 class="text-2xl font-semibold text-neutral-800 mb-4 sm:mb-0">
-      <span id="user-management-page-heading" data-cy="userManagementPageHeading" jhiTranslate="userManagement.home.title"
-        >Utilisateurs</span
-      >
-    </h2>
+    <div>
+      <h2 id="user-management-page-heading" data-cy="userManagementPageHeading" class="text-2xl font-bold text-gray-900">
+        <span jhiTranslate="userManagement.home.title">Users</span>
+      </h2>
+      <p class="mt-1 text-sm text-gray-500">Manage user accounts and permissions</p>
+    </div>
 
-    <div class="flex flex-wrap gap-2">
+    <div class="flex gap-2 mt-4 sm:mt-0">
       <button
-        class="inline-flex items-center px-4 py-2 bg-primary-100 text-primary-700 font-medium rounded-lg hover:bg-primary-200 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-white border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
         (click)="loadAll()"
         [disabled]="isLoading()"
-        [class.opacity-50]="isLoading()"
-        [class.cursor-not-allowed]="isLoading()"
       >
-        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" class="mr-2" />
-        <span jhiTranslate="userManagement.home.refreshListLabel">Actualiser la liste</span>
+        <fa-icon icon="sync" [animation]="isLoading() ? 'spin' : undefined" />
+        <span class="hidden sm:inline" jhiTranslate="userManagement.home.refreshListLabel">Refresh</span>
       </button>
-      <button
-        class="inline-flex items-center px-4 py-2 bg-primary-500 text-white font-medium rounded-lg hover:bg-primary-600 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
-        [routerLink]="['./new']"
+
+      <a
+        id="jh-create-entity"
         data-cy="entityCreateButton"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors shadow-sm"
+        [routerLink]="['./new']"
       >
-        <fa-icon icon="plus" class="mr-2" />
-        <span jhiTranslate="userManagement.home.createLabel">Créer un nouvel utilisateur</span>
-      </button>
+        <fa-icon icon="plus" />
+        <span jhiTranslate="userManagement.home.createLabel">New User</span>
+      </a>
     </div>
   </div>
 
   <jhi-alert-error />
-
   <jhi-alert />
 
-  @if (users()) {
-    <!-- Table Card -->
-    <div class="bg-white rounded-xl shadow-card border border-neutral-200 overflow-hidden">
+  <!-- Filter Card -->
+  <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-4 mb-6">
+    <jhi-filter [filters]="filters" [filterFields]="filterFields" />
+  </div>
+
+  <!-- Empty State -->
+  @if (users() !== null && users()!.length === 0) {
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center" id="no-result">
+      <div class="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <fa-icon icon="users" class="text-orange-500 text-2xl" />
+      </div>
+      <h3 class="text-lg font-medium text-gray-900 mb-2">No users found</h3>
+      <p class="text-gray-500 mb-6">No users match your search criteria</p>
+      <a
+        [routerLink]="['./new']"
+        class="inline-flex items-center gap-2 px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition-colors"
+      >
+        <fa-icon icon="plus" />
+        <span>Create your first user</span>
+      </a>
+    </div>
+  } @else if (users()) {
+    <!-- Table -->
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden" id="entities">
       <div class="overflow-x-auto">
-        <table class="w-full" aria-describedby="user-management-page-heading">
-          <thead class="bg-neutral-50 border-b border-neutral-200">
-            <tr jhiSort [(sortState)]="sortState" (sortChange)="transition($event)">
-              <th
-                scope="col"
-                jhiSortBy="id"
-                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
-              >
-                <div class="flex items-center gap-2">
-                  <span jhiTranslate="global.field.id">ID</span>
-                  <fa-icon icon="sort" class="text-neutral-400" />
-                </div>
-              </th>
+        <table class="min-w-full divide-y divide-gray-200" aria-describedby="user-management-page-heading">
+          <thead>
+            <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
               <th
                 scope="col"
                 jhiSortBy="login"
-                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
                   <span jhiTranslate="userManagement.login">Login</span>
-                  <fa-icon icon="sort" class="text-neutral-400" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
                 jhiSortBy="email"
-                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
-                <div class="flex items-center gap-2">
+                <div class="flex items-center gap-1">
                   <span jhiTranslate="userManagement.email">Email</span>
-                  <fa-icon icon="sort" class="text-neutral-400" />
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
-              <th scope="col" class="px-6 py-4 text-center text-sm font-semibold text-neutral-700">
-                <span jhiTranslate="userManagement.activated">Statut</span>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider">
+                <span jhiTranslate="userManagement.activated">Status</span>
               </th>
-              <th
-                scope="col"
-                jhiSortBy="langKey"
-                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors"
-              >
-                <div class="flex items-center gap-2">
-                  <span jhiTranslate="userManagement.langKey">Langue</span>
-                  <fa-icon icon="sort" class="text-neutral-400" />
-                </div>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider hidden md:table-cell">
+                <span jhiTranslate="userManagement.profiles">Roles</span>
               </th>
-              <th scope="col" class="px-6 py-4 text-left text-sm font-semibold text-neutral-700">
-                <span jhiTranslate="userManagement.profiles">Droits</span>
+              <th scope="col" class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider hidden lg:table-cell">
+                <span>Tenant</span>
               </th>
               <th
                 scope="col"
                 jhiSortBy="createdDate"
-                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors hidden lg:table-cell"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden xl:table-cell"
               >
-                <div class="flex items-center gap-2">
-                  <span jhiTranslate="userManagement.createdDate">Créé le</span>
-                  <fa-icon icon="sort" class="text-neutral-400" />
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="userManagement.createdDate">Created</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
-              <th
-                scope="col"
-                jhiSortBy="lastModifiedBy"
-                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors hidden xl:table-cell"
-              >
-                <div class="flex items-center gap-2">
-                  <span jhiTranslate="userManagement.lastModifiedBy">Modifié par</span>
-                  <fa-icon icon="sort" class="text-neutral-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
-                jhiSortBy="lastModifiedDate"
-                class="px-6 py-4 text-left text-sm font-semibold text-neutral-700 cursor-pointer hover:bg-neutral-100 transition-colors hidden xl:table-cell"
-              >
-                <div class="flex items-center gap-2">
-                  <span jhiTranslate="userManagement.lastModifiedDate">Modifié le</span>
-                  <fa-icon icon="sort" class="text-neutral-400" />
-                </div>
-              </th>
-              <th scope="col" class="px-6 py-4 text-right text-sm font-semibold text-neutral-700">
-                <span class="sr-only">Actions</span>
-              </th>
+              <th scope="col" class="px-4 py-3 text-right text-xs font-semibold text-gray-900 uppercase tracking-wider">Actions</th>
             </tr>
           </thead>
-          <tbody class="divide-y divide-neutral-100">
+          <tbody class="divide-y divide-gray-100">
             @for (user of users(); track trackIdentity(user)) {
-              <tr class="hover:bg-neutral-50 transition-colors duration-150">
-                <td class="px-6 py-4 text-sm">
-                  <a [routerLink]="['./', user.login, 'view']" class="text-primary-600 hover:text-primary-700 hover:underline font-medium">
-                    {{ user.id }}
-                  </a>
+              <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
+                <td class="px-4 py-3 whitespace-nowrap">
+                  <div class="flex items-center">
+                    <div class="h-8 w-8 rounded-full bg-orange-100 flex items-center justify-center mr-3">
+                      @if (user.imageUrl) {
+                        <img [src]="user.imageUrl" class="h-8 w-8 rounded-full" alt="" />
+                      } @else {
+                        <span class="text-orange-600 font-medium text-sm">{{ user.login?.charAt(0)?.toUpperCase() }}</span>
+                      }
+                    </div>
+                    <div>
+                      <div class="text-sm font-medium text-gray-900">{{ user.login }}</div>
+                      <div class="text-xs text-gray-500">{{ user.firstName }} {{ user.lastName }}</div>
+                    </div>
+                  </div>
                 </td>
-                <td class="px-6 py-4 text-sm text-neutral-900 font-medium">
-                  {{ user.login }}
-                </td>
-                <td class="px-6 py-4 text-sm text-neutral-600">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600">
                   {{ user.email }}
                 </td>
-                <td class="px-6 py-4 text-center">
-                  @if (!user.activated) {
+                <td class="px-4 py-3 whitespace-nowrap">
+                  @if (user.activated) {
                     <button
-                      class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-danger-100 text-danger-700 hover:bg-danger-200 transition-colors cursor-pointer"
-                      (click)="setActive(user, true)"
-                      jhiTranslate="userManagement.deactivated"
+                      type="button"
+                      (click)="setActive(user, false)"
+                      [disabled]="currentAccount()?.login === user.login"
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800 hover:bg-green-200 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                     >
-                      Désactivé
+                      <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                      Active
                     </button>
                   } @else {
                     <button
-                      class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-success-100 text-success-700 hover:bg-success-200 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
-                      (click)="setActive(user, false)"
-                      [disabled]="!currentAccount() || currentAccount()?.login === user.login"
-                      jhiTranslate="userManagement.activated"
+                      type="button"
+                      (click)="setActive(user, true)"
+                      class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 transition-colors"
                     >
-                      Activé
+                      <span class="w-1.5 h-1.5 bg-gray-400 rounded-full mr-1.5"></span>
+                      Inactive
                     </button>
                   }
                 </td>
-                <td class="px-6 py-4 text-sm text-neutral-600">
-                  {{ user.langKey }}
-                </td>
-                <td class="px-6 py-4">
+                <td class="px-4 py-3 hidden md:table-cell">
                   <div class="flex flex-wrap gap-1">
                     @for (authority of user.authorities; track $index) {
-                      <span class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-primary-100 text-primary-700">
-                        {{ authority }}
+                      <span
+                        class="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium"
+                        [class.bg-red-100]="authority === 'ROLE_ADMIN'"
+                        [class.text-red-700]="authority === 'ROLE_ADMIN'"
+                        [class.bg-orange-100]="authority === 'ROLE_TENANT_ADMIN'"
+                        [class.text-orange-700]="authority === 'ROLE_TENANT_ADMIN'"
+                        [class.bg-blue-100]="authority !== 'ROLE_ADMIN' && authority !== 'ROLE_TENANT_ADMIN'"
+                        [class.text-blue-700]="authority !== 'ROLE_ADMIN' && authority !== 'ROLE_TENANT_ADMIN'"
+                      >
+                        {{ authority.replace('ROLE_', '') }}
                       </span>
                     }
                   </div>
                 </td>
-                <td class="px-6 py-4 text-sm text-neutral-500 hidden lg:table-cell">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-600 hidden lg:table-cell">
+                  @if (user.tenantName) {
+                    <span class="inline-flex items-center">
+                      <fa-icon icon="building" class="text-gray-400 mr-1.5" />
+                      {{ user.tenantName }}
+                    </span>
+                  } @else {
+                    <span class="text-gray-400">-</span>
+                  }
+                </td>
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500 hidden xl:table-cell">
                   {{ user.createdDate | date: 'dd/MM/yy HH:mm' }}
                 </td>
-                <td class="px-6 py-4 text-sm text-neutral-500 hidden xl:table-cell">
-                  {{ user.lastModifiedBy }}
-                </td>
-                <td class="px-6 py-4 text-sm text-neutral-500 hidden xl:table-cell">
-                  {{ user.lastModifiedDate | date: 'dd/MM/yy HH:mm' }}
-                </td>
-                <td class="px-6 py-4 text-right">
-                  <div class="flex items-center justify-end gap-2">
-                    <button
-                      type="submit"
+                <td class="px-4 py-3 whitespace-nowrap text-right">
+                  <div class="flex items-center justify-end gap-1">
+                    <a
                       [routerLink]="['./', user.login, 'view']"
-                      class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-primary-600 bg-primary-50 rounded-lg hover:bg-primary-100 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="inline-flex items-center justify-center w-8 h-8 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded transition-colors"
                       data-cy="entityDetailsButton"
+                      title="View"
                     >
-                      <fa-icon icon="eye" class="mr-1" />
-                      <span class="hidden md:inline" jhiTranslate="entity.action.view">Voir</span>
-                    </button>
+                      <fa-icon icon="eye" />
+                    </a>
 
-                    <button
-                      type="submit"
+                    <a
                       [routerLink]="['./', user.login, 'edit']"
-                      queryParamsHandling="merge"
-                      class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-primary-500 rounded-lg hover:bg-primary-600 transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+                      class="inline-flex items-center justify-center w-8 h-8 text-orange-500 hover:text-orange-700 hover:bg-orange-50 rounded transition-colors"
                       data-cy="entityEditButton"
+                      title="Edit"
                     >
-                      <fa-icon icon="pencil-alt" class="mr-1" />
-                      <span class="hidden md:inline" jhiTranslate="entity.action.edit">Editer</span>
-                    </button>
+                      <fa-icon icon="pencil-alt" />
+                    </a>
 
                     <button
                       type="button"
                       (click)="deleteUser(user)"
-                      class="inline-flex items-center px-3 py-1.5 text-sm font-medium text-white bg-danger-500 rounded-lg hover:bg-danger-600 transition-colors focus:outline-none focus:ring-2 focus:ring-danger-500 disabled:opacity-50 disabled:cursor-not-allowed"
+                      [disabled]="currentAccount()?.login === user.login"
+                      class="inline-flex items-center justify-center w-8 h-8 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                       data-cy="entityDeleteButton"
-                      [disabled]="!currentAccount() || currentAccount()?.login === user.login"
+                      title="Delete"
                     >
-                      <fa-icon icon="times" class="mr-1" />
-                      <span class="hidden md:inline" jhiTranslate="entity.action.delete">Supprimer</span>
+                      <fa-icon icon="trash-alt" />
                     </button>
                   </div>
                 </td>
@@ -218,21 +215,21 @@
       </div>
     </div>
 
-    <!-- Pagination Section -->
-    <div class="mt-6">
-      <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
-        <div class="text-sm text-neutral-600">
+    <!-- Pagination -->
+    <div class="mt-4 bg-white rounded-lg shadow-sm border border-gray-200 px-4 py-3">
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div class="text-sm text-gray-900">
           <jhi-item-count [params]="{ page: page(), totalItems: totalItems(), itemsPerPage: itemsPerPage() }" />
         </div>
 
         <div>
           <jhi-pagination
             [collectionSize]="totalItems()"
-            [(page)]="page"
+            [page]="page()"
             [pageSize]="itemsPerPage()"
             [maxSize]="5"
             [boundaryLinks]="true"
-            (pageChange)="transition()"
+            (pageChange)="navigateToPage($event)"
           />
         </div>
       </div>

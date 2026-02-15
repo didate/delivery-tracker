@@ -13,6 +13,11 @@ export type PartialUpdateTenant = Partial<ITenant> & Pick<ITenant, 'id'>;
 export type EntityResponseType = HttpResponse<ITenant>;
 export type EntityArrayResponseType = HttpResponse<ITenant[]>;
 
+export interface SwitchTenantResponse {
+  id_token: string;
+  tenant: ITenant;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TenantService {
   protected readonly http = inject(HttpClient);
@@ -75,5 +80,20 @@ export class TenantService {
       return [...tenantsToAdd, ...tenantCollection];
     }
     return tenantCollection;
+  }
+
+  /**
+   * Switch to a different tenant (ADMIN only).
+   * Returns a new JWT token for the selected tenant.
+   */
+  switchTenant(tenantId: number): Observable<HttpResponse<SwitchTenantResponse>> {
+    return this.http.post<SwitchTenantResponse>(`${this.resourceUrl}/${tenantId}/switch`, {}, { observe: 'response' });
+  }
+
+  /**
+   * Get all active tenants for the switcher dropdown.
+   */
+  getAllActive(): Observable<EntityArrayResponseType> {
+    return this.query({ 'active.equals': true, sort: 'name,asc', size: 1000 });
   }
 }
