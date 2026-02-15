@@ -73,16 +73,6 @@
               </th>
               <th
                 scope="col"
-                jhiSortBy="roundDate"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.round.roundDate">Round Date</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
                 jhiSortBy="status"
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
@@ -97,17 +87,7 @@
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
               >
                 <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.round.startTime">Start Time</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
-                jhiSortBy="endTime"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.round.endTime">End Time</span>
+                  <span>Schedule</span>
                   <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
@@ -127,11 +107,9 @@
           <tbody class="divide-y divide-gray-100">
             @for (round of rounds(); track trackId(round)) {
               <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ round.name }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ round.roundDate | formatMediumDate }}
+                <td class="px-4 py-3 text-sm">
+                  <div class="font-medium text-gray-900">{{ round.name }}</div>
+                  <div class="text-gray-500">{{ round.roundDate | formatMediumDate }}</div>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   @if (round.status === 'COMPLETED') {
@@ -158,11 +136,16 @@
                     <span class="text-gray-400">-</span>
                   }
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
-                  {{ round.startTime | formatMediumDatetime }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
-                  {{ round.endTime | formatMediumDatetime }}
+                <td class="px-4 py-3 text-sm text-gray-900 hidden md:table-cell">
+                  @if (round.startTime) {
+                    <div>Start: {{ round.startTime | formatMediumDatetime }}</div>
+                  }
+                  @if (round.endTime) {
+                    <div class="text-gray-500 text-xs">End: {{ round.endTime | formatMediumDatetime }}</div>
+                  }
+                  @if (!round.startTime && !round.endTime) {
+                    <span class="text-gray-400">-</span>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
                   @if (round.driver) {

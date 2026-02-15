@@ -59,7 +59,10 @@ public class VehicleService {
      */
     public VehicleDTO update(VehicleDTO vehicleDTO) {
         LOG.debug("Request to update Vehicle : {}", vehicleDTO);
+        Long tenantId = TenantContext.getCurrentTenant();
         Vehicle vehicle = vehicleMapper.toEntity(vehicleDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(vehicle::setTenant);
         vehicle = vehicleRepository.save(vehicle);
         return vehicleMapper.toDto(vehicle);
     }

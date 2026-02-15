@@ -68,6 +68,8 @@ public class TenantSettingsService {
             throw new IllegalArgumentException("Entity not found or access denied");
         }
         TenantSettings tenantSettings = tenantSettingsMapper.toEntity(tenantSettingsDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(tenantSettings::setTenant);
         tenantSettings = tenantSettingsRepository.save(tenantSettings);
         return tenantSettingsMapper.toDto(tenantSettings);
     }

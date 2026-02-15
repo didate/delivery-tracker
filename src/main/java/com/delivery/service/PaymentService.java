@@ -65,6 +65,8 @@ public class PaymentService {
             throw new IllegalArgumentException("Entity not found or access denied");
         }
         Payment payment = paymentMapper.toEntity(paymentDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(payment::setTenant);
         payment = paymentRepository.save(payment);
         return paymentMapper.toDto(payment);
     }

@@ -101,6 +101,8 @@ public class ProductService {
         }
 
         Product product = productMapper.toEntity(productDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(product::setTenant);
         product = productRepository.save(product);
         return productMapper.toDto(product);
     }

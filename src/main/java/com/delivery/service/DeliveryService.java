@@ -64,6 +64,8 @@ public class DeliveryService {
             throw new IllegalArgumentException("Entity not found or access denied");
         }
         Delivery delivery = deliveryMapper.toEntity(deliveryDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(delivery::setTenant);
         delivery = deliveryRepository.save(delivery);
         return deliveryMapper.toDto(delivery);
     }

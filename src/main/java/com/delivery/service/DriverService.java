@@ -63,6 +63,8 @@ public class DriverService {
             throw new IllegalArgumentException("Entity not found or access denied");
         }
         Driver driver = driverMapper.toEntity(driverDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(driver::setTenant);
         driver = driverRepository.save(driver);
         return driverMapper.toDto(driver);
     }

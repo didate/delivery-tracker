@@ -67,17 +67,7 @@
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.returnItem.quantity">Quantity</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
-                jhiSortBy="unitPrice"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.returnItem.unitPrice">Unit Price</span>
+                  <span>Qty / Price</span>
                   <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
@@ -107,11 +97,9 @@
           <tbody class="divide-y divide-gray-100">
             @for (returnItem of returnItems(); track trackId(returnItem)) {
               <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ returnItem.quantity }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ returnItem.unitPrice }}
+                <td class="px-4 py-3 text-sm">
+                  <div class="font-medium text-gray-900">Qty: {{ returnItem.quantity }}</div>
+                  <div class="text-gray-500 text-xs">Unit: {{ returnItem.unitPrice }}</div>
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm hidden md:table-cell">
                   @if (returnItem.productReturn) {

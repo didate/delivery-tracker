@@ -68,6 +68,8 @@ public class ProductReturnService {
             throw new IllegalArgumentException("Entity not found or access denied");
         }
         ProductReturn productReturn = productReturnMapper.toEntity(productReturnDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(productReturn::setTenant);
         productReturn = productReturnRepository.save(productReturn);
         return productReturnMapper.toDto(productReturn);
     }

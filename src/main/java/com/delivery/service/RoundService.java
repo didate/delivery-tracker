@@ -59,7 +59,10 @@ public class RoundService {
      */
     public RoundDTO update(RoundDTO roundDTO) {
         LOG.debug("Request to update Round : {}", roundDTO);
+        Long tenantId = TenantContext.getCurrentTenant();
         Round round = roundMapper.toEntity(roundDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(round::setTenant);
         round = roundRepository.save(round);
         return roundMapper.toDto(round);
     }

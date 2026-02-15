@@ -63,16 +63,6 @@
             <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
               <th
                 scope="col"
-                jhiSortBy="name"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.driver.name">Name</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
                 jhiSortBy="code"
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
@@ -83,21 +73,21 @@
               </th>
               <th
                 scope="col"
-                jhiSortBy="phone"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
+                jhiSortBy="name"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.driver.phone">Phone</span>
+                  <span jhiTranslate="deliveryApp.driver.name">Name</span>
                   <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
-                jhiSortBy="email"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+                jhiSortBy="phone"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
               >
                 <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.driver.email">Email</span>
+                  <span>Contact</span>
                   <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
@@ -127,17 +117,22 @@
           <tbody class="divide-y divide-gray-100">
             @for (driver of drivers(); track trackId(driver)) {
               <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ driver.name }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">
                   {{ driver.code }}
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
-                  {{ driver.phone || '-' }}
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">
+                  {{ driver.name }}
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
-                  {{ driver.email || '-' }}
+                <td class="px-4 py-3 text-sm text-gray-900 hidden md:table-cell">
+                  @if (driver.phone) {
+                    <div>{{ driver.phone }}</div>
+                  }
+                  @if (driver.email) {
+                    <div class="text-gray-500 text-xs">{{ driver.email }}</div>
+                  }
+                  @if (!driver.phone && !driver.email) {
+                    <span class="text-gray-400">-</span>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   @if (driver.active) {

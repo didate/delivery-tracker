@@ -59,7 +59,10 @@ public class ExpenseService {
      */
     public ExpenseDTO update(ExpenseDTO expenseDTO) {
         LOG.debug("Request to update Expense : {}", expenseDTO);
+        Long tenantId = TenantContext.getCurrentTenant();
         Expense expense = expenseMapper.toEntity(expenseDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(expense::setTenant);
         expense = expenseRepository.save(expense);
         return expenseMapper.toDto(expense);
     }

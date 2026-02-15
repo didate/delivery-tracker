@@ -63,16 +63,6 @@
             <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
               <th
                 scope="col"
-                jhiSortBy="name"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.vehicle.name">Name</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
                 jhiSortBy="code"
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
@@ -83,31 +73,21 @@
               </th>
               <th
                 scope="col"
+                jhiSortBy="name"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
+              >
+                <div class="flex items-center gap-1">
+                  <span jhiTranslate="deliveryApp.vehicle.name">Name</span>
+                  <fa-icon icon="sort" class="text-gray-400" />
+                </div>
+              </th>
+              <th
+                scope="col"
                 jhiSortBy="type"
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
               >
                 <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.vehicle.type">Type</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
-                jhiSortBy="registrationNumber"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.vehicle.registrationNumber">Registration</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
-                jhiSortBy="brand"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.vehicle.brand">Brand</span>
+                  <span>Details</span>
                   <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
@@ -127,22 +107,31 @@
           <tbody class="divide-y divide-gray-100">
             @for (vehicle of vehicles(); track trackId(vehicle)) {
               <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ vehicle.name }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">
                   {{ vehicle.code }}
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
-                  <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                    {{ vehicle.type || '-' }}
-                  </span>
+                <td class="px-4 py-3 text-sm">
+                  <div class="font-medium text-gray-900">{{ vehicle.name }}</div>
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
-                  {{ vehicle.registrationNumber || '-' }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
-                  {{ vehicle.brand || '-' }}
+                <td class="px-4 py-3 text-sm hidden md:table-cell">
+                  @if (vehicle.type) {
+                    <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                      {{ vehicle.type }}
+                    </span>
+                  }
+                  @if (vehicle.brand || vehicle.registrationNumber) {
+                    <div class="text-gray-500 text-xs mt-1">
+                      @if (vehicle.brand) {
+                        <span>{{ vehicle.brand }}</span>
+                      }
+                      @if (vehicle.brand && vehicle.registrationNumber) {
+                        <span> - </span>
+                      }
+                      @if (vehicle.registrationNumber) {
+                        <span>{{ vehicle.registrationNumber }}</span>
+                      }
+                    </div>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   @if (vehicle.active) {

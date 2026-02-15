@@ -64,6 +64,8 @@ public class CustomerService {
             throw new IllegalArgumentException("Entity not found or access denied");
         }
         Customer customer = customerMapper.toEntity(customerDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(customer::setTenant);
         customer = customerRepository.save(customer);
         return customerMapper.toDto(customer);
     }

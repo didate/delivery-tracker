@@ -63,16 +63,6 @@
             <tr jhiSort [(sortState)]="sortState" (sortChange)="navigateToWithComponentValues($event)" class="bg-gray-50">
               <th
                 scope="col"
-                jhiSortBy="name"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.expenseCategory.name">Name</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
                 jhiSortBy="code"
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
@@ -83,11 +73,11 @@
               </th>
               <th
                 scope="col"
-                jhiSortBy="description"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
+                jhiSortBy="name"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.expenseCategory.description">Description</span>
+                  <span jhiTranslate="deliveryApp.expenseCategory.name">Name</span>
                   <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
@@ -117,14 +107,14 @@
           <tbody class="divide-y divide-gray-100">
             @for (expenseCategory of expenseCategories(); track trackId(expenseCategory)) {
               <tr data-cy="entityTable" class="hover:bg-gray-50 transition-colors">
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
-                  {{ expenseCategory.name }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
+                <td class="px-4 py-3 text-sm font-medium text-gray-900">
                   {{ expenseCategory.code }}
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
-                  {{ expenseCategory.description || '-' }}
+                <td class="px-4 py-3 text-sm">
+                  <div class="font-medium text-gray-900">{{ expenseCategory.name }}</div>
+                  @if (expenseCategory.description) {
+                    <div class="text-xs text-gray-400 truncate max-w-xs">{{ expenseCategory.description }}</div>
+                  }
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap">
                   @if (expenseCategory.active) {

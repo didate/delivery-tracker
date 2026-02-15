@@ -83,26 +83,6 @@
               </th>
               <th
                 scope="col"
-                jhiSortBy="method"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.payment.method">Method</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
-                jhiSortBy="reference"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.payment.reference">Reference</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
                 jhiSortBy="customer.id"
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
               >
@@ -130,42 +110,42 @@
                 <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900">
                   {{ payment.paymentDate | formatMediumDate }}
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm font-semibold text-gray-900">
-                  {{ payment.amount | number: '1.2-2' }}
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm hidden md:table-cell">
-                  @switch (payment.method) {
-                    @case ('CASH') {
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                        <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
-                        Cash
-                      </span>
+                <td class="px-4 py-3 text-sm">
+                  <div class="font-semibold text-gray-900">{{ payment.amount | number: '1.2-2' }}</div>
+                  <div class="mt-1">
+                    @switch (payment.method) {
+                      @case ('CASH') {
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                          <span class="w-1.5 h-1.5 bg-green-500 rounded-full mr-1.5"></span>
+                          Cash
+                        </span>
+                      }
+                      @case ('BANK_TRANSFER') {
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                          <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>
+                          Bank Transfer
+                        </span>
+                      }
+                      @case ('CHECK') {
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                          <span class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1.5"></span>
+                          Check
+                        </span>
+                      }
+                      @case ('MOBILE_PAYMENT') {
+                        <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
+                          <span class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></span>
+                          Mobile
+                        </span>
+                      }
+                      @default {
+                        <span class="text-gray-400">-</span>
+                      }
                     }
-                    @case ('BANK_TRANSFER') {
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
-                        <span class="w-1.5 h-1.5 bg-blue-500 rounded-full mr-1.5"></span>
-                        Bank Transfer
-                      </span>
-                    }
-                    @case ('CHECK') {
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
-                        <span class="w-1.5 h-1.5 bg-purple-500 rounded-full mr-1.5"></span>
-                        Check
-                      </span>
-                    }
-                    @case ('MOBILE_PAYMENT') {
-                      <span class="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-orange-100 text-orange-800">
-                        <span class="w-1.5 h-1.5 bg-orange-500 rounded-full mr-1.5"></span>
-                        Mobile
-                      </span>
-                    }
-                    @default {
-                      <span class="text-gray-400">-</span>
-                    }
+                  </div>
+                  @if (payment.reference) {
+                    <div class="text-xs text-gray-400 mt-1">Ref: {{ payment.reference }}</div>
                   }
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
-                  {{ payment.reference || '-' }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-sm hidden lg:table-cell">
                   @if (payment.customer) {

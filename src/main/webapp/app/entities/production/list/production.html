@@ -87,24 +87,14 @@
                 class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors"
               >
                 <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.production.product">Product</span>
-                  <fa-icon icon="sort" class="text-gray-400" />
-                </div>
-              </th>
-              <th
-                scope="col"
-                jhiSortBy="productionSite.id"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
-              >
-                <div class="flex items-center gap-1">
-                  <span jhiTranslate="deliveryApp.production.productionSite">Production Site</span>
+                  <span>Product / Site</span>
                   <fa-icon icon="sort" class="text-gray-400" />
                 </div>
               </th>
               <th
                 scope="col"
                 jhiSortBy="notes"
-                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden lg:table-cell"
+                class="px-4 py-3 text-left text-xs font-semibold text-gray-900 uppercase tracking-wider cursor-pointer hover:bg-gray-100 transition-colors hidden md:table-cell"
               >
                 <div class="flex items-center gap-1">
                   <span jhiTranslate="deliveryApp.production.notes">Notes</span>
@@ -125,28 +115,32 @@
                     {{ production.quantity }}
                   </span>
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm">
+                <td class="px-4 py-3 text-sm">
                   @if (production.product) {
-                    <a [routerLink]="['/product', production.product.id, 'view']" class="text-orange-600 hover:text-orange-700">
-                      #{{ production.product.id }}
-                    </a>
-                  } @else {
-                    <span class="text-gray-400">-</span>
+                    <div>
+                      <a
+                        [routerLink]="['/product', production.product.id, 'view']"
+                        class="text-orange-600 hover:text-orange-700 font-medium"
+                      >
+                        #{{ production.product.id }}
+                      </a>
+                    </div>
                   }
-                </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm hidden md:table-cell">
                   @if (production.productionSite) {
-                    <a
-                      [routerLink]="['/production-site', production.productionSite.id, 'view']"
-                      class="text-orange-600 hover:text-orange-700"
-                    >
-                      #{{ production.productionSite.id }}
-                    </a>
-                  } @else {
+                    <div class="text-gray-500 text-xs">
+                      Site:
+                      <a
+                        [routerLink]="['/production-site', production.productionSite.id, 'view']"
+                        class="text-orange-600 hover:text-orange-700"
+                        >#{{ production.productionSite.id }}</a
+                      >
+                    </div>
+                  }
+                  @if (!production.product && !production.productionSite) {
                     <span class="text-gray-400">-</span>
                   }
                 </td>
-                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden lg:table-cell">
+                <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-900 hidden md:table-cell">
                   {{ production.notes || '-' }}
                 </td>
                 <td class="px-4 py-3 whitespace-nowrap text-right">

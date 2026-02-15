@@ -63,7 +63,10 @@ public class ProductionService {
      */
     public ProductionDTO update(ProductionDTO productionDTO) {
         LOG.debug("Request to update Production : {}", productionDTO);
+        Long tenantId = TenantContext.getCurrentTenant();
         Production production = productionMapper.toEntity(productionDTO);
+        // Preserve tenant from context
+        tenantRepository.findById(tenantId).ifPresent(production::setTenant);
         production = productionRepository.save(production);
         return productionMapper.toDto(production);
     }
